@@ -1,16 +1,13 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, PrivateAttr
 from abc import abstractmethod, ABC
 from autoop.core.ml.artifact import Artifact
 import numpy as np
 from copy import deepcopy
 from typing import Literal
 
-class Model(ABC):
+class Model(ABC, BaseModel):
 
-    def __init__(self, type: Literal["regression", "classification"]):
-        self.type = type
-        self._parameters = {}
-
+    _parameters: dict = PrivateAttr(default={})
 
     @property
     def get_parameters(self):
