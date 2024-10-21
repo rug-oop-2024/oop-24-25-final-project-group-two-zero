@@ -40,3 +40,17 @@ class StoasticGradient(Model):
 
         self._model.fit(observations, ground_truth)
         self._parameters = {'coef_': self._model.coef_, 'intercept_': self._model.intercept_}
+
+    def predict(self, observations: np.ndarray) -> np.ndarray:
+        """
+        Predict using the StochasticGradient model.
+
+        Args:
+            observations (np.ndarray): Observations with shape (n_samples, n_features)
+
+        Returns:
+            np.ndarray: Predicted targets with shape (n_samples,)
+        """
+        if self._parameters is None:
+            raise ValueError("Model has not been fitted yet. Please call 'fit' before 'predict'.")
+        return self._model.predict(observations)
