@@ -1,10 +1,12 @@
 from pydantic import BaseModel, Field
 import base64
 import os
+from typing_extensions import Literal
 # Do this later
 class Artifact(BaseModel):
-    relative_path: str = os.path.basename(__file__)
-    data: str
+    relative_path: str = os.path.basename(__file__) # Done
+    data
+    type: str
 
     def read(self) -> bytes:
         return base64.b64decode(self.data)
