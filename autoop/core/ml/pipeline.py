@@ -1,6 +1,11 @@
 from typing import List
 import pickle
-
+from autoop.core.ml.model.classification import MultipleLinearClassification
+from autoop.core.ml.model.regression.multiplelinear import MultipleLinearRegression
+from autoop.core.ml.model.classification.knearestneighbors import KNearestNeighbors
+from autoop.core.ml.model.regression.ridgeregression import RidgeRegression
+from autoop.core.ml.model.regression.LinearRegression import LinearRegression
+from autoop.core.ml.model.classification.treeclassification import DecisionTreeClassification
 from autoop.core.ml.artifact import Artifact
 from autoop.core.ml.dataset import Dataset
 from autoop.core.ml.model import Model

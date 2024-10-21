@@ -15,7 +15,7 @@ class TestFeatures(unittest.TestCase):
         iris = load_iris()
         df = pd.DataFrame(
             iris.data,
-            columns=iris.feature_names,
+            columns=iris.feature_names
         )
         dataset = Dataset.from_dataframe(
             name="iris",
