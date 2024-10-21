@@ -11,6 +11,10 @@ class Artifact(BaseModel):
     to represent something. If something later on happens, change it again.
     Do it until you understand what the Artifact class is, and what it
     does.
+
+    Make a decorator for the class name, do the same for the parameters, 
+    and ensure that you can call the class inside of it. This can
+    most likely be done by some static method or something of the like.
     """
 
     relative_path: str = os.path.basename(__file__) # Done
@@ -20,8 +24,6 @@ class Artifact(BaseModel):
         'data': None,
         'type': None,
         'relative_path': None
-
-
     }
 
     def read(self) -> bytes:
