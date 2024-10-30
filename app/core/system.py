@@ -1,3 +1,4 @@
+
 from autoop.core.storage import LocalStorage
 from autoop.core.database import Database
 from autoop.core.ml.dataset import Dataset
@@ -26,7 +27,7 @@ class ArtifactRegistry():
             "type": artifact.type,
         }
         self._database.set(f"artifacts", artifact.id, entry)
-    
+
     def list(self, type: str=None) -> List[Artifact]:
         entries = self._database.list("artifacts")
         artifacts = []
@@ -44,7 +45,7 @@ class ArtifactRegistry():
             )
             artifacts.append(artifact)
         return artifacts
-    
+
     def get(self, artifact_id: str) -> Artifact:
         data = self._database.get("artifacts", artifact_id)
         return Artifact(
@@ -56,12 +57,12 @@ class ArtifactRegistry():
             data=self._storage.load(data["asset_path"]),
             type=data["type"],
         )
-    
+
     def delete(self, artifact_id: str):
         data = self._database.get("artifacts", artifact_id)
         self._storage.delete(data["asset_path"])
         self._database.delete("artifacts", artifact_id)
-    
+
 
 class AutoMLSystem:
     _instance = None
@@ -71,6 +72,7 @@ class AutoMLSystem:
         self._database = database
         self._registry = ArtifactRegistry(database, storage)
 
+    # Do something here I think
     @staticmethod
     def get_instance():
         if AutoMLSystem._instance is None:
@@ -82,7 +84,8 @@ class AutoMLSystem:
             )
         AutoMLSystem._instance._database.refresh()
         return AutoMLSystem._instance
-    
+
     @property
     def registry(self):
         return self._registry
+
