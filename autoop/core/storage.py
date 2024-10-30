@@ -10,7 +10,7 @@ class NotFoundError(Exception):
 class Storage(ABC):
 
     @abstractmethod
-    def save(self, data: bytes, path: str):
+    def save(self, data: bytes, path: str) -> None:
         """
         Save data to a given path
         Args:
@@ -31,7 +31,7 @@ class Storage(ABC):
         pass
 
     @abstractmethod
-    def delete(self, path: str):
+    def delete(self, path: str) -> None:
         """
         Delete data at a given path
         Args:
@@ -85,9 +85,6 @@ class LocalStorage(Storage):
     def _assert_path_exists(self, path: str):
         if not os.path.exists(path):
             raise NotFoundError(path)
-    
+
     def _join_path(self, path: str) -> str:
         return os.path.join(self._base_path, path)
-
-
-    
