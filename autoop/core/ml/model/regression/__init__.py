@@ -1,2 +1,10 @@
+from .LinearRegression import LinearRegressionModel
+from .multiplelinear import MultipleLinearRegression
+from .ridgeregression import RidgeRegression
 
-from autoop.core.ml.model.regression.multiple_linear_regression import MultipleLinearRegression
+
+__all__ = [
+    "MultipleLinearRegression",
+    "RidgeRegression",
+    "LinearRegressionModel"
+]
