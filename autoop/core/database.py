@@ -1,4 +1,3 @@
-
 import json
 from typing import Dict, Tuple, List, Union
 
@@ -40,9 +39,10 @@ class Database():
         if not self._data.get(collection, None):
             return None
         return self._data[collection].get(id, None)
-    
+
     def delete(self, collection: str, id: str):
-        """Delete a key from the database
+        """
+        Delete a key from the database
         Args:
             collection (str): The collection to delete the data from
             id (str): The id of the data
@@ -60,7 +60,8 @@ class Database():
         Args:
             collection (str): The collection to list the data from
         Returns:
-            List[Tuple[str, dict]]: A list of tuples containing the id and data for each item in the collection
+            List[Tuple[str, dict]]: A list of tuples containing
+            the id and data for each item in the collection
         """
         if not self._data.get(collection, None):
             return []
@@ -84,7 +85,7 @@ class Database():
             collection, id = key.split("/")[-2:]
             if not self._data.get(collection, id):
                 self._storage.delete(f"{collection}/{id}")
-    
+
     def _load(self):
         """Load the data from storage"""
         self._data = {}
