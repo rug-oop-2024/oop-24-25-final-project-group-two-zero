@@ -40,4 +40,5 @@ class Model(ABC, BaseModel):
         """
         pass
 
-    
+    # @abstractmethod
+    # def 
