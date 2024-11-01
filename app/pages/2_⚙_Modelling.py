@@ -4,9 +4,24 @@ import numpy as np
 from app.core.system import AutoMLSystem
 from autoop.core.ml.pipeline import Pipeline
 from autoop.core.ml.model.model import Model
-from autoop.core.ml.model.regression import (MultipleLinearRegression,RidgeRegression,LinearRegressionModel)
-from autoop.core.ml.model.classification import KNearestNeighbors,StoasticGradient, TreeClassification
-from autoop.core.ml.metric import accuracy, MeanSquaredError, mean_absolute_error, r_squared_error, specificity, F_one_score
+from autoop.core.ml.model.regression import (
+            MultipleLinearRegression,
+            RidgeRegression,
+            LinearRegressionModel
+            )
+from autoop.core.ml.model.classification import (
+            KNearestNeighbors,
+            StoasticGradient,
+            TreeClassification
+            )
+from autoop.core.ml.metric import (
+            accuracy,
+            MeanSquaredError,
+            mean_absolute_error,
+            r_squared_error,
+            specificity,
+            F_one_score
+            )
 from autoop.core.ml.feature import Feature
 from autoop.functional.feature import detect_feature_types
 
