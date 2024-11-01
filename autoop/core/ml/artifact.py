@@ -10,40 +10,31 @@ import json
 import h5py
 
 # Do this later
-class Artifact():
-    """
-    Treat this as a storage for all the information required
-    to represent something. If something later on happens, change it again.
-    Do it until you understand what the Artifact class is, and what it
-    does.
 
-    Make a decorator for the class name, do the same for the parameters, 
-    and ensure that you can call the class inside of it. This can
-    most likely be done by some static method or something of the like.
-    use h5py
 
-    """
+class Artifact:
     def __init__(
         self,
-        name: str = None,
-        asset_path = None,
-        data = None,
-        version = None,
-        type = None,
-        tags = None,
-        metadata = None,
-        id = None
-        ):
+        name: str,
+        asset_path: str,
+        data: bytes,
+        version: str,
+        type: str,
+        tags: List[str] = None,
+        metadata: Dict[str, Any] = None,
+        id: str = None
+    ):
         if id is None:
             id = os.urandom(16).hex()
-        self.name: str = name
-        self.asset_path: str = asset_path
-        self.data: bytes = data
-        self.version: str = version
-        self.type: str = type
-        self.tags: List[str] = tags
-        self.metadata: Dict[str, Any] = metadata
-        self.id: str = id
+        self.name = name
+        self.asset_path = asset_path
+        self.data = data
+        self.version = version
+        self.type = type
+        self.tags = tags if tags is not None else []
+        self.metadata = metadata if metadata is not None else {}
+        self.id = id
+
 
 
 
