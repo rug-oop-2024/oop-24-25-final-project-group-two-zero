@@ -11,7 +11,11 @@ from math import sqrt
 METRICS = [
     "MeanSquaredError", # Regression tasks
     "accuracy", # Classification tasks
-] # add the names (in strings) of the metrics you implement
+    "mean_absolute_error",
+    "F_one_score",
+    "specificity"
+    "r_squared_error",
+]
 
 def get_metric(name: str):
     if name not in METRICS:

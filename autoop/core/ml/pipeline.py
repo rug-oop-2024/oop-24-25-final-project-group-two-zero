@@ -2,6 +2,7 @@
 # pipeline.py
 from typing import List
 import pickle
+import os
 
 from autoop.core.ml.model import (
     Model,
@@ -141,9 +142,6 @@ Pipeline(
         self._test_y = self._output_vector[int(split * len(self._output_vector)):]
 
     def to_artifact(self, name: str, version: str) -> Artifact:
-        """
-        Converts the pipeline into an Artifact that can be saved.
-        """
         # Prepare the pipeline data to be pickled
         pipeline_data = {
             'model': self._model,
@@ -154,14 +152,17 @@ Pipeline(
             'preprocessing_artifacts': self._artifacts,
         }
         data_bytes = pickle.dumps(pipeline_data)
+        # Use os.path.join and os.path.normpath for asset_path
+        asset_path = os.path.normpath(os.path.join("pipelines", f"{name}_{version}.pkl"))
         artifact = Artifact(
             name=name,
-            asset_path=f"pipelines/{name}_{version}.pkl",
+            asset_path=asset_path,
             data=data_bytes,
             version=version,
             type='pipeline',
         )
         return artifact
+
 
     def _compact_vectors(self, vectors: List[np.array]) -> np.array:
         """

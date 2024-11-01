@@ -99,25 +99,7 @@ class Artifact:
                 metadata=metadata,
                 id=id_
             )
-    @staticmethod
-    def from_dataframe(
-        data: pd.DataFrame,
-        name: str,
-        asset_path: str,
-        version: str = "1.0.0"
-    ) -> "Dataset":
-        """
-        Creates a Dataset artifact from a pandas DataFrame.
-        """
-        if not isinstance(data, pd.DataFrame):
-            raise ValueError("Data must be a pandas DataFrame.")
-        data_bytes = data.to_csv(index=False).encode('utf-8')
-        return Dataset(
-            name=name,
-            asset_path=asset_path,
-            data=data_bytes,
-            version=version,
-        )
+
     
     
     """

@@ -5,10 +5,8 @@ from app.core.system import AutoMLSystem
 from autoop.core.ml.pipeline import Pipeline
 from autoop.core.ml.model.model import Model
 from autoop.core.ml.model.regression import (MultipleLinearRegression,RidgeRegression,LinearRegressionModel)
-
-
 from autoop.core.ml.model.classification import KNearestNeighbors,StoasticGradient, TreeClassification
-from autoop.core.ml.metric import accuracy, mean_squared_error, mean_absolute_error, r_squared_error, specificity, F_one_score
+from autoop.core.ml.metric import accuracy, MeanSquaredError, mean_absolute_error, r_squared_error, specificity, F_one_score
 from autoop.core.ml.feature import Feature
 from autoop.functional.feature import detect_feature_types
 
@@ -25,9 +23,10 @@ CLASSIFICATION_MODELS = {
     "DecisionTreeClassification": TreeClassification
 }
 
+
 # Define the metrics for regression and classification
 REGRESSION_METRICS = {
-    "Mean Squared Error": mean_squared_error(),
+    "Mean Squared Error": MeanSquaredError(),
     "Mean Absolute Error": mean_absolute_error(),
     "R-Squared": r_squared_error(),
 }
@@ -70,7 +69,7 @@ if not datasets:
 
 # Allow user to select a dataset
 selected_dataset = st.selectbox('Choose a dataset:', datasets)
-dataset_chosen = automl._registry.get(name=selected_dataset)
+dataset_chosen = automl._registry.get(selected_dataset)
 
 # Get features from the dataset
 # Assuming dataset_chosen.features() returns a list of Feature instances

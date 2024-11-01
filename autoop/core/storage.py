@@ -51,21 +51,34 @@ class Storage(ABC):
         pass
 
 
-class LocalStorage(Storage):
+# storage.py
+import os
 
-    def __init__(self, base_path: str="./assets"):
-        self._base_path = base_path
+# storage.py
+import os
+
+class LocalStorage(Storage):
+    def __init__(self, base_path: str = "./assets/objects"):
+        self._base_path = os.path.abspath(base_path)
         if not os.path.exists(self._base_path):
             os.makedirs(self._base_path)
 
+    def _join_path(self, key: str) -> str:
+        # Normalize the key first
+        key = os.path.normpath(key)
+        # Join the base path and the key
+        path = os.path.join(self._base_path, key)
+        # Normalize the full path
+        return os.path.normpath(path)
+
     def save(self, data: bytes, key: str):
         path = self._join_path(key)
+        print(f"[LocalStorage] Saving data to: {path}")
         directory = os.path.dirname(path)
         if not os.path.exists(directory):
             os.makedirs(directory, exist_ok=True)
         with open(path, 'wb') as f:
             f.write(data)
-
 
     def load(self, key: str) -> bytes:
         path = self._join_path(key)
@@ -73,26 +86,24 @@ class LocalStorage(Storage):
         with open(path, 'rb') as f:
             return f.read()
 
-    def delete(self, key: str="/"):
-        self._assert_path_exists(self._join_path(key))
+    def delete(self, key: str):
         path = self._join_path(key)
-        os.remove(path)
+        if os.path.exists(path):
+            os.remove(path)
+        else:
+            print(f"Warning: The path '{path}' was not found. Skipping deletion.")
 
-    def list(self, prefix: str) -> List[str]:
-        path = self._join_path(prefix)
-        self._assert_path_exists(path)
-        # Use os.path.join for cross-platform compatibility
-        keys = glob(os.path.join(path, "**", "*"), recursive=True)
-        # Filter to keep only files
-        files = [f for f in keys if os.path.isfile(f)]
-        # Get paths relative to the base path
-        relative_keys = [os.path.relpath(f, self._base_path) for f in files]
-        return relative_keys
+    def list(self, path: str) -> list:
+        full_path = self._join_path(path)
+        if os.path.exists(full_path):
+            # Use glob to list files
+            return [os.path.relpath(os.path.join(dp, f), self._base_path)
+                    for dp, dn, filenames in os.walk(full_path)
+                    for f in filenames]
+        else:
+            return []
 
-
-    def _assert_path_exists(self, path: str):
+    def _assert_path_exists(self, path):
         if not os.path.exists(path):
             raise NotFoundError(path)
 
-    def _join_path(self, path: str) -> str:
-        return os.path.join(self._base_path, path)
