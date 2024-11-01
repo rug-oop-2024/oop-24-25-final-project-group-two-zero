@@ -118,13 +118,17 @@ if input_features_selected and target_feature_selected:
     selected_metrics = [available_metrics[name] for name in selected_metric_names]
 
     # Step 6: Display a pipeline summary
+# Enhanced Pipeline Summary
     if selected_model_name and selected_metrics:
-        st.write("## Pipeline Summary")
-        st.write(f"**Selected model**: {selected_model_name}")
-        st.write(f"**Train-test split ratio**: {split_ratio}")
-        st.write(f"**Selected metrics**: {selected_metric_names}")
-        st.write(f"**Input features**: {input_features_selected_names}")
-        st.write(f"**Target feature**: {target_feature_selected_name}")
+        st.write("## 📋 Pipeline Summary")
+        st.markdown(f"""
+        - **Selected Model**: `{selected_model_name}`
+        - **Train-Test Split Ratio**: `{split_ratio}`
+        - **Selected Metrics**: `{', '.join(selected_metric_names)}`
+        - **Input Features**: `{', '.join(input_features_selected_names)}`
+        - **Target Feature**: `{target_feature_selected_name}`
+        """)
+
 
         # Step 7: Train the model
         if st.button("Train Model"):
@@ -150,6 +154,23 @@ if input_features_selected and target_feature_selected:
             st.write("## Results")
             for metric, value in results['metrics']:
                 st.write(f"{metric.name}: {value}")
+        # After reporting the results in modelling.py
+
+        # Step 8: Save the pipeline as an artifact
+        st.write("## 💾 Save the Pipeline")
+        pipeline_name = st.text_input("Enter a name for the pipeline")
+        pipeline_version = st.text_input("Enter a version for the pipeline", "1.0.0")
+
+        if st.button("Save Pipeline"):
+            if pipeline_name:
+                # Convert the pipeline into an artifact
+                pipeline_artifact = pipeline.to_artifact(name=pipeline_name, version=pipeline_version)
+                # Register the pipeline artifact
+                automl.registry.register(pipeline_artifact)
+                st.success(f"Pipeline '{pipeline_name}' version '{pipeline_version}' has been saved.")
+            else:
+                st.warning("Please enter a name for the pipeline.")
+
 
     else:
         st.write("Please select a model and metrics to proceed.")

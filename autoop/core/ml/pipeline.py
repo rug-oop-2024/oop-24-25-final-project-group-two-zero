@@ -140,6 +140,29 @@ Pipeline(
         self._train_y = self._output_vector[:int(split * len(self._output_vector))]
         self._test_y = self._output_vector[int(split * len(self._output_vector)):]
 
+    def to_artifact(self, name: str, version: str) -> Artifact:
+        """
+        Converts the pipeline into an Artifact that can be saved.
+        """
+        # Prepare the pipeline data to be pickled
+        pipeline_data = {
+            'model': self._model,
+            'input_features': self._input_features,
+            'target_feature': self._target_feature,
+            'split': self._split,
+            'metrics': self._metrics,
+            'preprocessing_artifacts': self._artifacts,
+        }
+        data_bytes = pickle.dumps(pipeline_data)
+        artifact = Artifact(
+            name=name,
+            asset_path=f"pipelines/{name}_{version}.pkl",
+            data=data_bytes,
+            version=version,
+            type='pipeline',
+        )
+        return artifact
+
     def _compact_vectors(self, vectors: List[np.array]) -> np.array:
         """
         Concatenates the input vectors into a single 2D numpy array.

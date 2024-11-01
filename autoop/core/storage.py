@@ -60,10 +60,12 @@ class LocalStorage(Storage):
 
     def save(self, data: bytes, key: str):
         path = self._join_path(key)
-        if not os.path.exists(path):
-            os.makedirs(os.path.dirname(path), exist_ok=True)
+        directory = os.path.dirname(path)
+        if not os.path.exists(directory):
+            os.makedirs(directory, exist_ok=True)
         with open(path, 'wb') as f:
             f.write(data)
+
 
     def load(self, key: str) -> bytes:
         path = self._join_path(key)
@@ -79,8 +81,14 @@ class LocalStorage(Storage):
     def list(self, prefix: str) -> List[str]:
         path = self._join_path(prefix)
         self._assert_path_exists(path)
-        keys = glob(path + "/**/*", recursive=True)
-        return list(filter(os.path.isfile, keys))
+        # Use os.path.join for cross-platform compatibility
+        keys = glob(os.path.join(path, "**", "*"), recursive=True)
+        # Filter to keep only files
+        files = [f for f in keys if os.path.isfile(f)]
+        # Get paths relative to the base path
+        relative_keys = [os.path.relpath(f, self._base_path) for f in files]
+        return relative_keys
+
 
     def _assert_path_exists(self, path: str):
         if not os.path.exists(path):

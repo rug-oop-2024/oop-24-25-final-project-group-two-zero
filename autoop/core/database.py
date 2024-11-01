@@ -1,6 +1,6 @@
 import json
 from typing import Dict, Tuple, List, Union
-
+import os
 from autoop.core.storage import Storage
 
 class Database():
@@ -77,22 +77,35 @@ class Database():
             if not data:
                 continue
             for id, item in data.items():
-                self._storage.save(json.dumps(item).encode(), f"{collection}/{id}")
+                # Save each item using an OS-independent path
+                path = os.path.join(collection, id)
+                self._storage.save(json.dumps(item).encode(), path)
 
-        # for things that were deleted, we need to remove them from the storage
+        # For things that were deleted, remove them from storage
         keys = self._storage.list("")
         for key in keys:
-            collection, id = key.split("/")[-2:]
-            if not self._data.get(collection, id):
-                self._storage.delete(f"{collection}/{id}")
+            # Normalize and split the path using OS-specific separators
+            normalized_key = os.path.normpath(key)
+            parts = normalized_key.split(os.sep)
+            if len(parts) >= 2:
+                collection, id = parts[-2], parts[-1]
+                # Check if the data exists in memory, and if not, delete it
+                if not self._data.get(collection, {}).get(id):
+                    self._storage.delete(key)
 
     def _load(self):
-        """Load the data from storage"""
+        """Load the data from storage."""
         self._data = {}
         for key in self._storage.list(""):
-            collection, id = key.split("/")[-2:]
-            data = self._storage.load(f"{collection}/{id}")
-            # Ensure the collection exists in the dictionary
-            if collection not in self._data:
-                self._data[collection] = {}
-            self._data[collection][id] = json.loads(data.decode())
+            # Normalize the path to be platform-independent
+            normalized_key = os.path.normpath(key)
+            # Split the path to get the collection and id
+            parts = normalized_key.split(os.sep)
+            if len(parts) >= 2:
+                collection, id = parts[-2], parts[-1]
+                data = self._storage.load(key)
+                # Ensure the collection exists in the dictionary
+                if collection not in self._data:
+                    self._data[collection] = {}
+                self._data[collection][id] = json.loads(data.decode())
+

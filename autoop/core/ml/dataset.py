@@ -30,6 +30,22 @@ class Dataset(Artifact):
             data=data_bytes,
             version=version,
         )
+    @classmethod
+    def from_artifact(cls, artifact: Artifact) -> "Dataset":
+        """
+        Reconstructs a Dataset instance from an Artifact instance.
+        """
+        if artifact.type != "dataset":
+            raise ValueError("Artifact is not of type 'dataset'")
+        return cls(
+            name=artifact.name,
+            asset_path=artifact.asset_path,
+            data=artifact.data,
+            version=artifact.version,
+            tags=artifact.tags,
+            metadata=artifact.metadata,
+            id=artifact.id,
+        )
 
     def to_dataframe(self) -> pd.DataFrame:
         """

@@ -1,7 +1,6 @@
 # app/pages/datasets.py
 import streamlit as st
 import pandas as pd
-
 from app.core.system import AutoMLSystem
 from autoop.core.ml.dataset import Dataset
 
@@ -46,13 +45,20 @@ class Starting:
         self.datasets_list = self.automl.registry.list(type="dataset")
         if self.datasets_list:
             st.write("Available Datasets:")
-            for dataset in self.datasets_list:
-                st.write(f"Name: {dataset.name}, ID: {dataset.id}")
-                # Display the dataset content
-                df = dataset.to_dataframe()
-                st.dataframe(df)
+            for artifact in self.datasets_list:
+                st.write(f"Name: {artifact.name}, ID: {artifact.id}")
+                # Convert artifact to dataset
+                try:
+                    dataset = Dataset.from_artifact(artifact)
+                    # Display the dataset content
+                    df = dataset.to_dataframe()
+                    st.dataframe(df)
+                except Exception as e:
+                    st.write(f"Error loading dataset {artifact.name}: {e}")
         else:
             st.write("No datasets available.")
+
+
 
     def choose_to_upload(self):
         choice = st.radio("Choose an option:", ("Upload Dataset", "List Available Datasets"))

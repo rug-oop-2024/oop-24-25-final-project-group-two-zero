@@ -1,6 +1,6 @@
 # artifact.py
 from pydantic import BaseModel, Field
-import base64
+import pandas as pd
 import os
 from typing_extensions import Literal
 from typing import (List, Dict, Any, Optional, Union)
@@ -99,6 +99,26 @@ class Artifact:
                 metadata=metadata,
                 id=id_
             )
+    @staticmethod
+    def from_dataframe(
+        data: pd.DataFrame,
+        name: str,
+        asset_path: str,
+        version: str = "1.0.0"
+    ) -> "Dataset":
+        """
+        Creates a Dataset artifact from a pandas DataFrame.
+        """
+        if not isinstance(data, pd.DataFrame):
+            raise ValueError("Data must be a pandas DataFrame.")
+        data_bytes = data.to_csv(index=False).encode('utf-8')
+        return Dataset(
+            name=name,
+            asset_path=asset_path,
+            data=data_bytes,
+            version=version,
+        )
+    
     
     """
     self innitialize the variable using something like this

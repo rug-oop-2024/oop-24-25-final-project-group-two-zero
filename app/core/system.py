@@ -42,6 +42,7 @@ class ArtifactRegistry():
                 metadata=data["metadata"],
                 data=self._storage.load(data["asset_path"]),
                 type=data["type"],
+                id=id
             )
             artifacts.append(artifact)
         return artifacts
