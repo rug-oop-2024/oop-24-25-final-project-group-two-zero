@@ -7,15 +7,16 @@ from autoop.core.ml.feature import Feature
 from typing import List
 from autoop.core.ml.feature import Feature
 
-def detect_feature_types(dataset) -> List[Feature]:
-    features = []
-    data = dataset.to_dataframe()  # Convert bytes to DataFrame
-    for column in data.columns:
-        if data[column].dtype == 'object':
-            feature_type = 'categorical'
-        else:
-            feature_type = 'numerical'
-        features.append(Feature(name=column, type=feature_type))
-    return features
+class detect_feature_types:
+    def __call__(dataset) -> List[Feature]:
+        features = []
+        data = dataset.to_dataframe()  # Convert bytes to DataFrame
+        for column in data.columns:
+            if data[column].dtype == 'object':
+                feature_type = 'categorical'
+            else:
+                feature_type = 'numerical'
+            features.append(Feature(name=column, type=feature_type))
+        return features
 
 
