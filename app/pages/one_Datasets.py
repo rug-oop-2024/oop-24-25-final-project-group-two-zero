@@ -1,4 +1,3 @@
-# app/pages/datasets.py
 import streamlit as st
 import pandas as pd
 from app.core.system import AutoMLSystem

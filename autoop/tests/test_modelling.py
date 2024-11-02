@@ -2,7 +2,7 @@ import unittest
 from unittest.mock import patch, MagicMock
 import streamlit as st
 
-from app.pages._2_⚙_Modelling import Modelling
+from app.pages.two_Modelling import Modelling
 
 class TestModelling(unittest.TestCase):
 
