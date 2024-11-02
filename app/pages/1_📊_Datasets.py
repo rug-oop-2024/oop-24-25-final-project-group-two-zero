@@ -90,6 +90,7 @@ class Starting:
         elif choice == "List/Remove Datasets":
             self.available_datasets()
 
-        
 
-Starting().choose_to_upload()
+if __name__ == "__main__":
+    start = Starting()
+    start.choose_to_upload()
