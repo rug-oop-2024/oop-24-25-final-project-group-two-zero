@@ -13,6 +13,18 @@ METRICS = [
 
 
 def get_metric(name: str) -> Any:
+    """
+    Retrieve a metric class by its name.
+
+    Args:
+        name (str): The name of the metric to retrieve.
+
+    Returns:
+        Any: The metric class corresponding to the given name.
+
+    Raises:
+        ValueError: If the metric with the specified name does not exist.
+    """
     if name not in METRICS:
         raise ValueError(f"Metric {name} does not exist")
     return getattr(__import__("autoop.core.ml.metric", fromlist=[name]), name)

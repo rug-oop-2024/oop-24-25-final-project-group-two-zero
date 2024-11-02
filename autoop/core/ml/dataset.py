@@ -6,6 +6,16 @@ from typing import Optional
 
 class Dataset(Artifact):
     def __init__(self, *args, **kwargs) -> None:
+        """
+        Initialize a Dataset instance.
+
+        This method initializes a Dataset instance by calling the Artifact's
+        constructor with the type set to "dataset".
+
+        Args:
+            *args: The positional arguments for the Artifact constructor.
+            **kwargs: The keyword arguments for the Artifact constructor.
+        """
         super().__init__(type="dataset", *args, **kwargs)
 
     @staticmethod
@@ -74,4 +84,12 @@ class Dataset(Artifact):
         return df
 
     def __str__(self) -> str:
+        """
+        Returns a string representation of the Dataset instance.
+
+        The representation includes the dataset's data in a byte format.
+
+        Returns:
+            str: A string that contains the data attribute of the Dataset.
+        """
         return f"data: {self.data}"

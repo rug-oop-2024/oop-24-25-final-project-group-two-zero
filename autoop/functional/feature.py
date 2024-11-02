@@ -9,6 +9,15 @@ class Feature(BaseModel):
     is_target: bool = False
 
     def __str__(self) -> str:
+        """
+        Returns a string representation of the Feature instance.
+
+        The string representation includes the feature name, type, and a flag indicating
+        whether it is the target feature.
+
+        Returns:
+            str: A string in the format 'Feature(name=foo, type=bar, is_target=baz)'.
+        """
         return f"Feature(name={self.name}, type={self.type}, is_target={self.is_target})"
 
     def __repr__(self) -> str:

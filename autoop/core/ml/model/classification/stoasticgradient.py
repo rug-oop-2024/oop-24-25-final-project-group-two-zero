@@ -18,6 +18,8 @@ class StochasticGradient(Model):
             penalty (str): Penalty ('l2', 'l1', 'elasticnet').
             alpha (float): Regularization term.
             max_iter (int): Maximum number of iterations.
+        returns:
+            None
         """
         super().__init__(**kwargs)
         self.loss = loss
@@ -38,6 +40,8 @@ class StochasticGradient(Model):
         Args:
             observations (np.ndarray): Training data features.
             ground_truth (np.ndarray): Training data labels.
+        returns:
+            None
         """
         observations = np.asarray(observations)
         ground_truth = np.asarray(ground_truth)

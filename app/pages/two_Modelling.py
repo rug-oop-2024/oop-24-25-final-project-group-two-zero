@@ -53,12 +53,34 @@ class Modelling:
     }
 
     def __init__(self) -> None:
+        """
+        Initialize the Modelling class.
+
+        This method initializes the AutoMLSystem instance, refreshes the artifact registry, and retrieves a list of all datasets in the system.
+
+        The datasets are stored in the `datasets` attribute of the Modelling instance.
+
+        :return: None
+        """
         self.automl = AutoMLSystem.get_instance()
         self.automl.registry.refresh()
         self.datasets = self.automl.registry.list(type="dataset")
 
     # Function to get a model instance by name
     def get_model(self, model_name: str, task_type: str) -> Model:
+        """
+        Get a model instance by name.
+
+        Args:
+            model_name (str): The name of the model to retrieve.
+            task_type (str): The task type of the model (either "regression" or "classification").
+
+        Returns:
+            Model: The model instance.
+
+        Raises:
+            ValueError: If the task type is unknown.
+        """
         if task_type == "regression":
             return self.REGRESSION_MODELS.get(model_name)()
         elif task_type == "classification":
@@ -68,6 +90,18 @@ class Modelling:
 
     # Function to get metrics based on task type
     def get_metrics(self, task_type: str) -> dict | None:
+        """
+        Get a dictionary of available metrics based on task type.
+
+        Args:
+            task_type (str): The task type of the model (either "regression" or "classification").
+
+        Returns:
+            dict | None: A dictionary of available metrics for the task type, or None if the task type is unknown.
+
+        Raises:
+            ValueError: If the task type is unknown.
+        """
         if task_type == "regression":
             return self.REGRESSION_METRICS
         elif task_type == "classification":
@@ -77,6 +111,22 @@ class Modelling:
 
     def run(self) -> None:
         # Initialize Streamlit page
+        """
+        Initialize Streamlit page for the Modelling page.
+
+        This page will allow users to design a machine learning pipeline to train a model on a dataset.
+
+        The steps are as follows:
+
+        1. Select a dataset from the list of available datasets
+        2. Select input features and target feature from the dataset
+        3. Select a model based on the task type (classification or regression)
+        4. Select dataset split ratio
+        5. Select metrics based on the task type
+        6. Display a pipeline summary
+        7. Train the model
+        8. Save the pipeline as an artifact
+        """
         st.set_page_config(page_title="Modelling", page_icon="📈")
         st.write("# ⚙ Modelling")
         st.write("In this section, you can design a machine learning pipeline to train a model on a dataset.")
@@ -213,6 +263,11 @@ class Modelling:
                 st.write("Please select a model and metrics to proceed.")
 
     def starter_modelling_page(self) -> None:
+        """
+        This is a placeholder method to start the Modelling page with a fresh UI.
+
+        It simply calls the run method to start the page.
+        """
         self.run()
 
 

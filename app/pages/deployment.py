@@ -12,9 +12,29 @@ import numpy as np
 class Deployment:
     def __init__(self) -> None:
         # Initialize the AutoML system
+        """
+        Initialize the Deployment class.
+
+        This method initializes the AutoML system and loads any available artifacts
+        from the local storage.
+        """
         self.automl = AutoMLSystem.get_instance()
 
     def preprocess_new_data(self, df: pd.DataFrame, input_features: List[Feature], preprocessing_artifacts: dict) -> np.ndarray:
+        """
+        Preprocesses new data based on specified input features and preprocessing artifacts.
+
+        Args:
+            df (pd.DataFrame): The input data as a pandas DataFrame containing the features to be preprocessed.
+            input_features (List[Feature]): A list of Feature objects representing the input features to preprocess.
+            preprocessing_artifacts (dict): A dictionary mapping feature names to their corresponding preprocessing artifacts.
+
+        Returns:
+            np.ndarray: A numpy array containing the preprocessed feature data, ready for model prediction.
+
+        Raises:
+            ValueError: If a feature specified in input_features is missing from the DataFrame or if an unknown feature type is encountered.
+        """
         preprocessed_vectors = []
         for feature in input_features:
             feature_name = feature.name
@@ -38,6 +58,15 @@ class Deployment:
         return X_new
 
     def run(self) -> None:
+        """
+        Deploys a saved pipeline and performs predictions on new data.
+
+        This method renders a Streamlit page that allows users to select a saved pipeline and upload a CSV file for prediction.
+        It then preprocesses the data using the pipeline's preprocessing artifacts and makes predictions using the pipeline's model.
+        The predictions are displayed on the page.
+
+        :return: None
+        """
         st.set_page_config(page_title="Deployment", page_icon="🚀")
         st.write("# 🚀 Deployment")
         st.write("In this section, you can load saved pipelines and perform predictions.")

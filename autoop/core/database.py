@@ -6,6 +6,12 @@ from autoop.core.storage import Storage
 
 class Database:
     def __init__(self, storage: Storage) -> None:
+        """
+        Initialize a Database instance.
+
+        Args:
+            storage (Storage): The storage instance for persisting and retrieving data.
+        """
         self._storage = storage
         self._data: Dict[str, Dict[str, dict]] = {}
         self._load()

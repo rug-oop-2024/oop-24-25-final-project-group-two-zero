@@ -11,11 +11,26 @@ class ArtifactRegistry():
     def __init__(self, 
                  database: Database,
                  storage: Storage) -> None:
+        """
+            Initialize an ArtifactRegistry instance.
+
+            Args:
+                database (Database): The database instance for storing artifact metadata.
+                storage (Storage): The storage instance for saving artifact data.
+        """
         self._database = database
         self._storage = storage
 
     def register(self, artifact: Artifact) -> None:
         # Normalize the asset_path
+        """
+        Registers an artifact in the registry.
+
+        Args:
+            artifact (Artifact): Artifact instance to be registered.
+
+        """
+
         artifact.asset_path = os.path.normpath(artifact.asset_path)
         # Save the artifact in the storage
         self._storage.save(artifact.data, artifact.asset_path)
@@ -31,6 +46,15 @@ class ArtifactRegistry():
         self._database.set(f"artifacts", artifact.id, entry)
 
     def list(self, type: str = None) -> List[Artifact]:
+        """
+        Lists all artifacts in the registry.
+
+        Args:
+            type (str, optional): Filter artifacts by type.
+
+        Returns:
+            List[Artifact]: List of artifacts in the registry.
+        """
         entries = self._database.list("artifacts")
         artifacts = []
         for id, data in entries:
@@ -52,6 +76,18 @@ class ArtifactRegistry():
 
 
     def get(self, artifact_id: str) -> Artifact:
+        """
+        Retrieves an artifact from the registry by its unique identifier.
+
+        Args:
+            artifact_id (str): Unique identifier of the artifact.
+
+        Returns:
+            Artifact: The retrieved artifact.
+
+        Raises:
+            KeyError: If the artifact does not exist in the registry.
+        """
         data = self._database.get("artifacts", artifact_id)
         return Artifact(
             name=data["name"],
@@ -64,6 +100,15 @@ class ArtifactRegistry():
         )
 
     def delete(self, artifact_id: str):
+        """
+        Deletes an artifact from the registry by its unique identifier.
+
+        Args:
+            artifact_id (str): Unique identifier of the artifact.
+
+        Raises:
+            KeyError: If the artifact does not exist in the registry.
+        """
         data = self._database.get("artifacts", artifact_id)
         asset_path = os.path.normpath(data["asset_path"])
         self._storage.delete(asset_path)
@@ -79,6 +124,13 @@ class AutoMLSystem:
     _instance = None
 
     def __init__(self, storage: LocalStorage, database: Database) -> None:
+        """
+        Initialize an AutoMLSystem instance.
+
+        Args:
+            storage (LocalStorage): The storage instance for saving artifact data.
+            database (Database): The database instance for storing artifact metadata.
+        """
         self._storage = storage
         self._database = database
         self._registry = ArtifactRegistry(database, storage)
@@ -86,6 +138,17 @@ class AutoMLSystem:
     # Do something here I think
     @staticmethod
     def get_instance() -> "AutoMLSystem":
+        """
+        Returns a singleton instance of the AutoMLSystem.
+
+        This method ensures that only one instance of AutoMLSystem exists by using
+        the singleton pattern. If an instance does not already exist, it initializes
+        one with default storage and database paths, refreshes the database, and then
+        returns the instance.
+
+        Returns:
+            AutoMLSystem: The singleton instance of the AutoMLSystem.
+        """
         if AutoMLSystem._instance is None:
             # Normalize base paths
             object_storage_path = os.path.normpath("./assets/objects")
@@ -102,5 +165,14 @@ class AutoMLSystem:
 
     @property
     def registry(self) -> ArtifactRegistry:
+        """
+        args:
+            None
+
+        returns:
+            ArtifactRegistry: The artifact registry instance.
+
+
+        """
         return self._registry
 

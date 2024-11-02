@@ -60,6 +60,14 @@ class Storage(ABC):
 
 class LocalStorage(Storage):
     def __init__(self, base_path: str = "./assets/objects"):
+        """
+        Initialize the LocalStorage instance.
+
+        Args:
+            base_path (str): The base directory path for storage. Defaults to "./assets/objects".
+
+        This constructor sets the base path for local storage, creating the directory if it does not exist.
+        """
         self._base_path = os.path.abspath(base_path)
         if not os.path.exists(self._base_path):
             os.makedirs(self._base_path)
@@ -71,6 +79,15 @@ class LocalStorage(Storage):
         return os.path.normpath(path)
 
     def save(self, data: bytes, key: str) -> None:
+        """
+        Save data to a given path.
+
+        Args:
+            data (bytes): Data to save.
+            path (str): Path to save data.
+        returns:
+            None
+        """
         path = self._join_path(key)
         print(f"[LocalStorage] Saving data to: {path}")
         directory = os.path.dirname(path)
@@ -80,12 +97,33 @@ class LocalStorage(Storage):
             f.write(data)
 
     def load(self, key: str) -> bytes:
+        """
+        Load data from a given path.
+
+        Args:
+            key (str): The key of the data to load.
+
+        Returns:
+            bytes: The loaded data.
+
+        Raises:
+            NotFoundError: If the specified path does not exist.
+        """
         path = self._join_path(key)
         self._assert_path_exists(path)
         with open(path, 'rb') as f:
             return f.read()
 
     def delete(self, key: str) -> None:
+        """
+        Delete data at a given path.
+
+        Args:
+            key (str): The key of the data to delete.
+
+        Raises:
+            NotFoundError: If the specified path does not exist.
+        """
         path = self._join_path(key)
         if os.path.exists(path):
             os.remove(path)
@@ -93,6 +131,15 @@ class LocalStorage(Storage):
             print(f"Warning: The path '{path}' was not found. Skipping deletion.")
 
     def list(self, path: str) -> List[str]:
+        """
+        List all paths under a given path.
+
+        Args:
+            path (str): Path to list.
+
+        Returns:
+            list: List of paths.
+        """
         full_path = self._join_path(path)
         if os.path.exists(full_path):
             return [
@@ -103,5 +150,14 @@ class LocalStorage(Storage):
         return []
 
     def _assert_path_exists(self, path: str) -> None:
+        """
+        Asserts that a given path exists.
+
+        Args:
+            path (str): The path to assert.
+
+        Raises:
+            NotFoundError: If the path does not exist.
+        """
         if not os.path.exists(path):
             raise NotFoundError(path)
