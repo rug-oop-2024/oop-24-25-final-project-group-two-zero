@@ -148,9 +148,7 @@ class Modelling:
         # Convert the Artifact to a Dataset
         dataset_chosen = Dataset.from_artifact(selected_dataset)
 
-        # Get features from the dataset
-        detector = detect_feature_types()
-        feature_list = detector(dataset_chosen)  # Returns a list of Feature instances
+        feature_list = detect_feature_types(dataset_chosen)  # Returns a list of Feature instances
         feature_names = [feature.name for feature in feature_list]
 
         # Map feature names to Feature instances for easy lookup

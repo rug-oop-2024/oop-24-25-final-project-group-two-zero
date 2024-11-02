@@ -1,53 +1,39 @@
 from .. import Model
 import numpy as np
-from sklearn.linear_model import SGDClassifier
+from sklearn.tree import DecisionTreeClassifier
 
-
-class StochasticGradient(Model):
+class TreeClassification(Model):
     """
-    Stochastic Gradient Descent (SGD) classifier.
+    Decision tree classification model.
     """
-    type = "classification"
-
-    def __init__(self, loss='hinge', penalty='l2', alpha=0.0001, max_iter=1000, **kwargs) -> None:
-        """
-        Initialize the Stochastic Gradient Descent classifier with hyperparameters.
-
+    def __init__(self, criterion='gini', max_depth=None, **kwargs) -> None:
+        '''
+        Initialize the Decision Tree Classifier with hyperparameters.
         Args:
-            loss (str): Loss function ('hinge', 'log_loss', 'modified_huber', etc.).
-            penalty (str): Penalty ('l2', 'l1', 'elasticnet').
-            alpha (float): Regularization term.
-            max_iter (int): Maximum number of iterations.
-        """
+            criterion (str): The function to measure the quality of a split (`'gini'`, `'entropy'`).
+            max_depth (int): The maximum depth of the tree.
+        '''
         super().__init__(**kwargs)
-        self.loss = loss
-        self.penalty = penalty
-        self.alpha = alpha
-        self.max_iter = max_iter
-        self._model = SGDClassifier(
-            loss=self.loss,
-            penalty=self.penalty,
-            alpha=self.alpha,
-            max_iter=self.max_iter
-        )
+        self.criterion = criterion
+        self.max_depth = max_depth
+        self._model = DecisionTreeClassifier(criterion=self.criterion, max_depth=self.max_depth)
 
-    def fit(self, observations: np.ndarray, ground_truth: np.ndarray) -> None:
+    def fit(self, observations: np.ndarray, groundtruth: np.ndarray) -> None:
         """
-        Fit the Stochastic Gradient Descent model.
+        Fits the model to the data.
 
         Args:
-            observations (np.ndarray): Training data features.
-            ground_truth (np.ndarray): Training data labels.
+            observations (np.ndarray): Features.
+            groundtruth (np.ndarray): Target values.
         """
         observations = np.asarray(observations)
         ground_truth = np.asarray(ground_truth)
         self._model.fit(observations, ground_truth)
-        self.parameters['coef_'] = self._model.coef_
-        self.parameters['intercept_'] = self._model.intercept_
+        self.parameters['feature_importances_'] = self._model.feature_importances_
 
     def predict(self, observations: np.ndarray) -> np.ndarray:
         """
-        Predict using the Stochastic Gradient Descent model.
+        Predict using the Decision Tree Classifier model.
 
         Args:
             observations (np.ndarray): Observations to predict.
