@@ -184,12 +184,7 @@ Pipeline(
         # Need to implement this
         X_train = self._compact_vectors(self._train_X)
         Y_train = self._train_y
-        self._training_metric_results = []
         self._model.fit(X_train, Y_train)
-        for metric in self._metrics:
-            result = metric.evaluate(X_train, Y_train)
-            self._metrics_results.append((metric, result))
-        self._predictions = predictions
 
 
     def _evaluate(self):

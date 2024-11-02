@@ -5,6 +5,7 @@ import numpy as np
 from autoop.core.ml.dataset import Dataset
 
 class Feature(BaseModel):
+     
     name : str
     type : Literal["categorical", "numerical"]
 

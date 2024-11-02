@@ -40,7 +40,7 @@ class Dataset(Artifact):
         return cls(
             name=artifact.name,
             asset_path=artifact.asset_path,
-            data=artifact.data,
+            data=artifact.data, # This is in bytes rn
             version=artifact.version,
             tags=artifact.tags,
             metadata=artifact.metadata,

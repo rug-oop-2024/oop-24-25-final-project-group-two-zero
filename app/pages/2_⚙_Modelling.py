@@ -4,6 +4,7 @@ import numpy as np
 from app.core.system import AutoMLSystem
 from autoop.core.ml.pipeline import Pipeline
 from autoop.core.ml.model.model import Model
+from autoop.core.ml.dataset import Dataset
 from autoop.core.ml.model.regression import (
             MultipleLinearRegression,
             RidgeRegression,
@@ -76,15 +77,25 @@ st.write("# ⚙ Modelling")
 st.write("In this section, you can design a machine learning pipeline to train a model on a dataset.")
 
 automl = AutoMLSystem.get_instance()
-datasets = automl._registry.list(type="dataset")
+automl.registry.refresh()  # Ensure registry is up to date
+datasets = automl.registry.list(type="dataset")
 
 if not datasets:
     st.write("No datasets available, please upload a dataset first on the datasets page.")
     st.stop()
 
+# Map display names to Artifact instances
+dataset_options = {f"{artifact.name} (ID: {artifact.id})": artifact for artifact in datasets}
+
 # Allow user to select a dataset
-selected_dataset = st.selectbox('Choose a dataset:', datasets)
-dataset_chosen = automl._registry.get(selected_dataset)
+selected_dataset_name = st.selectbox('Choose a dataset:', list(dataset_options.keys()))
+selected_dataset = dataset_options[selected_dataset_name]
+
+# Convert the Artifact to a Dataset
+dataset_chosen = Dataset.from_artifact(selected_dataset)
+
+# # Rest of your code remains the same...
+# dataset_chosen = automl._registry.get(selected_dataset)
 
 # Get features from the dataset
 # Assuming dataset_chosen.features() returns a list of Feature instances
