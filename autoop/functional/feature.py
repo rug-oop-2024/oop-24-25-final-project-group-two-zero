@@ -3,7 +3,7 @@
 from typing import List
 from autoop.core.ml.feature import Feature
 
-def detect_feature_types(dataset) -> List[Feature]:
+def detect_feature_types(dataset: 'Dataset') -> List[Feature]:
     """
     This is also enforced by the tests to be a function. Cannot
     do anything about it.

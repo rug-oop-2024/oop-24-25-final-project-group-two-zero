@@ -33,8 +33,8 @@ class Pipeline():
                  model: Model,
                  input_features: List[Feature],
                  target_feature: Feature,
-                 split=0.8,
-                 ):
+                 split: float=0.8,
+                 ) -> None:
         self._dataset = dataset
         self._model = model # One model used per pipeline
         self._input_features = input_features # Input features must be given
@@ -48,7 +48,7 @@ class Pipeline():
         if target_feature.type == "numerical" and model.type != "regression":
             raise ValueError("Model type must be regression for numerical target feature")
 
-    def __str__(self):
+    def __str__(self) -> str:
         """
         Return a string representation of this pipeline.
 
@@ -68,7 +68,7 @@ Pipeline(
 """
 
     @property
-    def model(self):
+    def model(self) -> Model:
         """
         Returns the model used in this pipeline.
 
@@ -104,7 +104,7 @@ Pipeline(
         artifacts.append(self._model.to_artifact(name=f"pipeline_model_{self._model.type}"))
         return artifacts
     
-    def _register_artifact(self, name: str, artifact):
+    def _register_artifact(self, name: str, artifact: dict) -> None:
         """
         Registers an artifact with the given name in the pipeline's internal artifact registry.
         
@@ -183,14 +183,14 @@ Pipeline(
         """
         return np.concatenate(vectors, axis=1)
 
-    def _train(self):
+    def _train(self) -> None:
         # Need to implement this
         X_train = self._compact_vectors(self._train_X)
         Y_train = self._train_y
         self._model.fit(X_train, Y_train)
 
 
-    def _evaluate(self):
+    def _evaluate(self) -> None:
         X = self._compact_vectors(self._test_X)
         Y = self._test_y
         self._metrics_results = []
@@ -200,7 +200,7 @@ Pipeline(
             self._metrics_results.append((metric, result))
         self._predictions = predictions
     
-    def _generate_report(self):
+    def _generate_report(self) -> None:
         """
         Generate an experiment report with graphs and metrics.
         """
@@ -231,7 +231,7 @@ Pipeline(
         # For regression, you might include residual plots, etc.
         self._report = report
 
-    def execute(self):
+    def execute(self) -> dict:
         """
         Executes the pipeline.
 
@@ -263,4 +263,3 @@ Pipeline(
             "metrics": self._metrics_results,
             "predictions": self._predictions,
         }
-        

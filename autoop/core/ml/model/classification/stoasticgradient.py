@@ -5,7 +5,7 @@ from sklearn.linear_model import SGDClassifier
 class StochasticGradient(Model):
     type = "classification"
 
-    def __init__(self, loss='hinge', penalty='l2', alpha=0.0001, max_iter=1000, **kwargs):
+    def __init__(self, loss='hinge', penalty='l2', alpha=0.0001, max_iter=1000, **kwargs) -> None:
         '''
         Initialize the Stochastic Gradient Descent classifier with hyperparameters.
 

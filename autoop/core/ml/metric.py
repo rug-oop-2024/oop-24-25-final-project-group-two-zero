@@ -17,20 +17,15 @@ METRICS = [
     "r_squared_error",
 ]
 
-def get_metric(name: str):
+def get_metric(name: str) -> Any:
     if name not in METRICS:
         raise ValueError(f"Metric {name} does not exist")
     return getattr(__import__("autoop.core.ml.metric", fromlist=[name]), name)
 
-
-# metric.py
-from abc import ABC, abstractmethod
-import numpy as np
-
 class Metric(ABC):
     """Base class for all metrics."""
 
-    def __init__(self, name: str):
+    def __init__(self, name: str) -> None:
         self.name = name
 
     @abstractmethod
@@ -45,7 +40,7 @@ class Metric(ABC):
 # metric.py (continued)
 
 class MeanSquaredError(Metric):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(name="Mean Squared Error")
 
     def evaluate(self, y_pred: np.ndarray, y_true: np.ndarray) -> float:
@@ -59,7 +54,7 @@ class MeanAbsoluteError(Metric):
         return np.mean(np.abs(y_true - y_pred))
 
 class R2Score(Metric):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(name="R-Squared")
 
     def evaluate(self, y_pred: np.ndarray, y_true: np.ndarray) -> float:
@@ -68,14 +63,14 @@ class R2Score(Metric):
         return 1 - (ss_res / ss_tot)
 
 class Accuracy(Metric):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(name="Accuracy")
 
     def evaluate(self, y_pred: np.ndarray, y_true: np.ndarray) -> float:
         return np.mean(y_true == y_pred)
 
 class Specificity(Metric):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(name="Specificity")
 
     def evaluate(self, y_pred: np.ndarray, y_true: np.ndarray) -> float:
@@ -86,7 +81,7 @@ class Specificity(Metric):
         return true_negative / (true_negative + false_positive)
 
 class F1Score(Metric):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(name="F1 Score")
 
     def evaluate(self, y_pred: np.ndarray, y_true: np.ndarray) -> float:

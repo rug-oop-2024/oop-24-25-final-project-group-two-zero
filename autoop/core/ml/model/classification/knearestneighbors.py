@@ -8,7 +8,7 @@ class KNearestNeighbors(Model):
     '''
     type = "classification"
 
-    def __init__(self, k=3, distance_metric='euclidean', weights='uniform', **kwargs):
+    def __init__(self, k=3, distance_metric='euclidean', weights='uniform', **kwargs) -> None:
         '''
         Initialize the KNN model with hyperparameters.
 

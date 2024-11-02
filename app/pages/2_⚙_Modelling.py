@@ -52,7 +52,7 @@ class Modelling:
         "Specificity": Specificity(),
     }
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.automl = AutoMLSystem.get_instance()
         self.automl.registry.refresh()
         self.datasets = self.automl.registry.list(type="dataset")
@@ -67,7 +67,7 @@ class Modelling:
             raise ValueError(f"Unknown task type: {task_type}")
 
     # Function to get metrics based on task type
-    def get_metrics(self, task_type: str):
+    def get_metrics(self, task_type: str) -> dict|None:
         if task_type == "regression":
             return self.REGRESSION_METRICS
         elif task_type == "classification":
@@ -75,7 +75,7 @@ class Modelling:
         else:
             raise ValueError(f"Unknown task type: {task_type}")
 
-    def run(self):
+    def run(self) -> None:
         # Initialize Streamlit page
         st.set_page_config(page_title="Modelling", page_icon="📈")
         st.write("# ⚙ Modelling")
@@ -202,10 +202,10 @@ class Modelling:
             else:
                 st.write("Please select a model and metrics to proceed.")
 
-    def starter_modelling_page(self):
+    def starter_modelling_page(self) -> None:
         self.run()
 
 
 if __name__ == "__main__":
-    app = Modelling()
+    app: Modelling = Modelling()
     app.run()

@@ -9,7 +9,7 @@ from autoop.core.ml.artifact import Artifact
 import numpy as np
 
 class Deployment:
-    def __init__(self):
+    def __init__(self) -> None:
         # Initialize the AutoML system
         self.automl = AutoMLSystem.get_instance()
 
@@ -37,7 +37,7 @@ class Deployment:
         return X_new
 
 
-    def run(self):
+    def run(self) -> None:
         st.set_page_config(page_title="Deployment", page_icon="🚀")
         st.write("# 🚀 Deployment")
         st.write("In this section, you can load saved pipelines and perform predictions.")
@@ -96,5 +96,5 @@ class Deployment:
             st.write("Please upload a CSV file to make predictions.")
 
 if __name__ == "__main__":
-    app = Deployment()
+    app: Deployment = Deployment()
     app.run()

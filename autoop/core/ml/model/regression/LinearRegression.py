@@ -8,7 +8,7 @@ class LinearRegressionModel(Model):
     """
     type = "regression"
 
-    def __init__(self, fit_intercept=True, copy_X=True, n_jobs=None, **kwargs):
+    def __init__(self, fit_intercept=True, copy_X=True, n_jobs=None, **kwargs) -> None:
         """
         Initialize the Linear Regression model with hyperparameters.
 
@@ -23,7 +23,7 @@ class LinearRegressionModel(Model):
         self.n_jobs = n_jobs
         self._model = LinearRegression(fit_intercept=self.fit_intercept, copy_X=self.copy_X, n_jobs=self.n_jobs)
 
-    def fit(self, observations: np.ndarray, ground_truth: np.ndarray):
+    def fit(self, observations: np.ndarray, ground_truth: np.ndarray) -> None:
         """
         Fit the Linear Regression model.
 

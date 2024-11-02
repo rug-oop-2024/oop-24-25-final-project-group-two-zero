@@ -5,10 +5,18 @@ import pandas as pd
 import numpy as np
 from sklearn.preprocessing import OneHotEncoder, StandardScaler, LabelEncoder
 
-def preprocess_features(features: List[Feature], dataset: Dataset):
+def preprocess_features(features: List[Feature], dataset: Dataset) -> List[Tuple[str, np.ndarray, dict]]|None:
     """
     This is enforced by the tests to be a function. Cannot
     do anything about it.
+
+    Args:
+        features (List[Feature]): List of features
+        dataset (Dataset): Dataset to preprocess
+
+    returns:
+        List[Tuple[str, np.ndarray, dict]]
+        None if ValueError is raised
     """
     results = []
     df = dataset.to_dataframe()

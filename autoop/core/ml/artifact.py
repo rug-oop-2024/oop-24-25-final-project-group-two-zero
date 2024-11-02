@@ -9,8 +9,6 @@ from autoop.core.storage import Storage
 import json
 import h5py
 
-# Do this later
-
 
 class Artifact:
     def __init__(
@@ -23,7 +21,7 @@ class Artifact:
         tags: List[str] = None,
         metadata: Dict[str, Any] = None,
         id: str = None
-    ):
+    ) -> None:
         if id is None:
             id = os.urandom(16).hex()
         self.name = name
@@ -38,7 +36,7 @@ class Artifact:
 
 
 
-    def save(self, directory: str = 'artifacts'):
+    def save(self, directory: str = 'artifacts') -> None:
         """
         Saves the Artifact instance to an HDF5 file.
 
@@ -62,7 +60,7 @@ class Artifact:
             h5f.attrs['metadata'] = json.dumps(self.metadata)
 
     @classmethod
-    def read(cls, id: str, directory: str = 'artifacts'):
+    def read(cls, id: str, directory: str = 'artifacts') -> 'Artifact':
         """
         Reads the Artifact from an HDF5 file and recreates the Artifact instance.
 
@@ -100,21 +98,3 @@ class Artifact:
                 id=id_
             )
 
-    
-    
-    """
-    self innitialize the variable using something like this
-
-    @staticmethod
-    def get_instance():
-        if AutoMLSystem._instance is None:
-            AutoMLSystem._instance = AutoMLSystem(
-                LocalStorage("./assets/objects"), 
-                Database(
-                    LocalStorage("./assets/dbo")
-                )
-            )
-        AutoMLSystem._instance._database.refresh()
-        return AutoMLSystem._instance
-
-    """

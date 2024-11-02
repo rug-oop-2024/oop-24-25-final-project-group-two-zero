@@ -5,7 +5,7 @@ from sklearn.linear_model import Ridge
 class RidgeRegression(Model):
     type = "regression"
 
-    def __init__(self, alpha=1.0, fit_intercept=True, solver='auto', **kwargs):
+    def __init__(self, alpha=1.0, fit_intercept=True, solver='auto', **kwargs) -> None:
         '''
         Initialize the Ridge Regression model with hyperparameters.
 
@@ -20,7 +20,7 @@ class RidgeRegression(Model):
         self.solver = solver
         self._model = Ridge(alpha=self.alpha, fit_intercept=self.fit_intercept, solver=self.solver)
 
-    def fit(self, observations: np.ndarray, ground_truth: np.ndarray):
+    def fit(self, observations: np.ndarray, ground_truth: np.ndarray) -> None:
         """
         Fit the Ridge Regression model.
 

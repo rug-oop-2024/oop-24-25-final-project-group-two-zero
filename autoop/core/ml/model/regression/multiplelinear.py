@@ -7,7 +7,7 @@ class MultipleLinearRegression(Model):
     """
     type = "regression"
 
-    def __init__(self, fit_intercept=True, **kwargs):
+    def __init__(self, fit_intercept=True, **kwargs) -> None:
         """
         Initialize the multiple linear regression model.
 

@@ -8,7 +8,7 @@ import os
 
 
 class Dataset(Artifact):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(type="dataset", *args, **kwargs)
 
     @staticmethod
@@ -57,6 +57,6 @@ class Dataset(Artifact):
         df = pd.read_csv(data_io)
         return df
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"data: {self.data}"
 

@@ -10,11 +10,11 @@ from typing import List
 class ArtifactRegistry():
     def __init__(self, 
                  database: Database,
-                 storage: Storage):
+                 storage: Storage) -> None:
         self._database = database
         self._storage = storage
 
-    def register(self, artifact: Artifact):
+    def register(self, artifact: Artifact) -> None:
         # Normalize the asset_path
         artifact.asset_path = os.path.normpath(artifact.asset_path)
         # Save the artifact in the storage
@@ -69,7 +69,7 @@ class ArtifactRegistry():
         self._storage.delete(asset_path)
         self._database.delete("artifacts", artifact_id)
     
-    def refresh(self):
+    def refresh(self) -> None:
         """Refresh the registry by reloading data from the database."""
         self._database.refresh()
 
@@ -78,14 +78,14 @@ class ArtifactRegistry():
 class AutoMLSystem:
     _instance = None
 
-    def __init__(self, storage: LocalStorage, database: Database):
+    def __init__(self, storage: LocalStorage, database: Database) -> None:
         self._storage = storage
         self._database = database
         self._registry = ArtifactRegistry(database, storage)
 
     # Do something here I think
     @staticmethod
-    def get_instance():
+    def get_instance() -> "AutoMLSystem":
         if AutoMLSystem._instance is None:
             # Normalize base paths
             object_storage_path = os.path.normpath("./assets/objects")
@@ -101,6 +101,6 @@ class AutoMLSystem:
         return AutoMLSystem._instance
 
     @property
-    def registry(self):
+    def registry(self) -> ArtifactRegistry:
         return self._registry
 

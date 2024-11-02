@@ -4,7 +4,7 @@ from typing import List, Union
 from glob import glob
 
 class NotFoundError(Exception):
-    def __init__(self, path):
+    def __init__(self, path: str) -> None:
         super().__init__(f"Path not found: {path}")
 
 class Storage(ABC):
@@ -103,7 +103,7 @@ class LocalStorage(Storage):
         else:
             return []
 
-    def _assert_path_exists(self, path):
+    def _assert_path_exists(self, path: str):
         if not os.path.exists(path):
             raise NotFoundError(path)
 

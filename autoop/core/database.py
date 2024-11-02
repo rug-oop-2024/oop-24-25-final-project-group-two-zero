@@ -5,7 +5,7 @@ from autoop.core.storage import Storage
 
 class Database():
 
-    def __init__(self, storage: Storage):
+    def __init__(self, storage: Storage) -> None:
         self._storage = storage
         self._data = {}
         self._load()
@@ -67,11 +67,11 @@ class Database():
             return []
         return [(id, data) for id, data in self._data[collection].items()]
 
-    def refresh(self):
+    def refresh(self) -> None:
         """Refresh the database by loading the data from storage"""
         self._load()
 
-    def _persist(self):
+    def _persist(self) -> None:
         """Persist the data to storage"""
         for collection, data in self._data.items():
             if not data:
@@ -93,7 +93,7 @@ class Database():
                 if not self._data.get(collection, {}).get(id):
                     self._storage.delete(key)
 
-    def _load(self):
+    def _load(self) -> None:
         """Load the data from storage."""
         self._data = {}
         for key in self._storage.list(""):
@@ -108,4 +108,3 @@ class Database():
                 if collection not in self._data:
                     self._data[collection] = {}
                 self._data[collection][id] = json.loads(data.decode())
-

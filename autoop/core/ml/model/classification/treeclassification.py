@@ -8,7 +8,7 @@ class TreeClassification(Model):
     """
     type = "classification"
 
-    def __init__(self, criterion='gini', max_depth=None, **kwargs):
+    def __init__(self, criterion='gini', max_depth=None, **kwargs) -> None:
         '''
         Initialize the Decision Tree Classifier with hyperparameters.
 
@@ -21,7 +21,7 @@ class TreeClassification(Model):
         self.max_depth = max_depth
         self._model = DecisionTreeClassifier(criterion=self.criterion, max_depth=self.max_depth)
 
-    def fit(self, observations: np.ndarray, ground_truth: np.ndarray):
+    def fit(self, observations: np.ndarray, ground_truth: np.ndarray) -> None:
         '''
         Fit the Decision Tree model.
 
