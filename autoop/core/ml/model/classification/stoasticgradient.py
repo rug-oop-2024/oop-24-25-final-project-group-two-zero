@@ -1,56 +1,50 @@
 from .. import Model
 import numpy as np
 from sklearn.linear_model import SGDClassifier
-from pydantic import Field, field_validator
 
+class StochasticGradient(Model):
+    type = "classification"
 
-class StoasticGradient(Model):
-    loss_function: str = Field(default="hinge")
-    penalty_function: str = Field(default="elasticnet")
-    _model: SGDClassifier = SGDClassifier(loss = loss_function, penalty=penalty_function)
+    def __init__(self, loss='hinge', penalty='l2', alpha=0.0001, max_iter=1000, **kwargs):
+        '''
+        Initialize the Stochastic Gradient Descent classifier with hyperparameters.
 
-    @field_validator("loss_function")
-    def validate_loss(cls, value):
-        if value not in ["hinge","modified_huber", "log_log"]:
-            raise ValueError("Value not in the list of loss is supported.")
-        return value
-
-    @field_validator("penalty_function")
-    def validate_penalty(cls, value):
-        if value not in ["l1", "l2", "elasticnet"]:
-            raise ValueError("Value not in the list of penalty is supported.")
-        return value
+        Args:
+            loss (str): Loss function ('hinge', 'log', 'modified_huber', etc.).
+            penalty (str): Penalty (`'l2'`, `'l1'`, `'elasticnet'`).
+            alpha (float): Regularization term.
+            max_iter (int): Maximum number of iterations.
+        '''
+        super().__init__(**kwargs)
+        self.loss = loss
+        self.penalty = penalty
+        self.alpha = alpha
+        self.max_iter = max_iter
+        self._model = SGDClassifier(loss=self.loss, penalty=self.penalty, alpha=self.alpha, max_iter=self.max_iter)
 
     def fit(self, observations: np.ndarray, ground_truth: np.ndarray):
-        """
-        Fit the StochasticGradient model using observations and ground truth.
+        '''
+        Fit the Stochastic Gradient Descent model.
 
         Args:
-            observations (np.ndarray): Observations with shape (n_samples, n_features)
-            ground_truth (np.ndarray): Ground truth targets with shape (n_samples,)
-
-        Returns:
-            None
-
-        Stores:
-            self._parameters (dict): Contains the model parameters.
-        """
+            observations (np.ndarray): Training data features.
+            ground_truth (np.ndarray): Training data labels.
+        '''
         observations = np.asarray(observations)
         ground_truth = np.asarray(ground_truth)
-
         self._model.fit(observations, ground_truth)
-        self._parameters = {'coef_': self._model.coef_, 'intercept_': self._model.intercept_}
+        self._parameters['coef_'] = self._model.coef_
+        self._parameters['intercept_'] = self._model.intercept_
 
     def predict(self, observations: np.ndarray) -> np.ndarray:
-        """
-        Predict using the StochasticGradient model.
+        '''
+        Predict using the Stochastic Gradient Descent model.
 
         Args:
-            observations (np.ndarray): Observations with shape (n_samples, n_features)
+            observations (np.ndarray): Observations to predict.
 
         Returns:
-            np.ndarray: Predicted targets with shape (n_samples,)
-        """
-        if self._parameters is None:
-            raise ValueError("Model has not been fitted yet. Please call 'fit' before 'predict'.")
+            np.ndarray: Predicted labels.
+        '''
+        observations = np.asarray(observations)
         return self._model.predict(observations)

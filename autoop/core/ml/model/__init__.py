@@ -6,7 +6,7 @@ from autoop.core.ml.model.regression import LinearRegression
 # Classification
 from autoop.core.ml.model.classification import TreeClassification
 from autoop.core.ml.model.classification import KNearestNeighbors
-from autoop.core.ml.model.classification import StoasticGradient
+from autoop.core.ml.model.classification import StochasticGradient
 
 
 __all__ = [
@@ -16,5 +16,5 @@ __all__ = [
     "LinearRegression",
     "TreeClassification",
     "KNearestNeighbors",
-    "StoasticGradient"
+    "StochasticGradient"
 ]

@@ -11,7 +11,7 @@ from autoop.core.ml.model.regression import (
 )
 from autoop.core.ml.model.classification import (
     KNearestNeighbors,
-    StoasticGradient,
+    StochasticGradient,
     TreeClassification
 )
 from autoop.core.ml.metric import (
@@ -34,7 +34,7 @@ class Modelling:
     }
 
     CLASSIFICATION_MODELS = {
-        "MultipleLinearClassification": StoasticGradient,
+        "StochasticGradient": StochasticGradient,
         "KNearestNeighbors": KNearestNeighbors,
         "DecisionTreeClassification": TreeClassification
     }
@@ -96,7 +96,8 @@ class Modelling:
         dataset_chosen = Dataset.from_artifact(selected_dataset)
 
         # Get features from the dataset
-        feature_list = detect_feature_types(dataset_chosen)  # Returns a list of Feature instances
+        detector = detect_feature_types()
+        feature_list = detector(dataset_chosen)  # Returns a list of Feature instances
         feature_names = [feature.name for feature in feature_list]
 
         # Map feature names to Feature instances for easy lookup

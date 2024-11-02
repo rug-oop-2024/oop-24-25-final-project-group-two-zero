@@ -11,7 +11,7 @@ from autoop.core.ml.model import (
     LinearRegression,
     TreeClassification,
     KNearestNeighbors,
-    StoasticGradient
+    StochasticGradient
 )
 from autoop.core.ml.artifact import Artifact
 from autoop.core.ml.dataset import Dataset

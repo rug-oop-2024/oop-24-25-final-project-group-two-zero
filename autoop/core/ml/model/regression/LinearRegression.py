@@ -4,48 +4,48 @@ from .. import Model
 
 class LinearRegressionModel(Model):
     """
-    A wrapper around scikit-learn's LinearRegression model
-    that implements the same methods structure as the base class.
+    A wrapper around scikit-learn's LinearRegression model.
     """
+    type = "regression"
 
-    _model: LinearRegression = LinearRegression()  # Initialize with default parameters
-    
+    def __init__(self, fit_intercept=True, copy_X=True, n_jobs=None, **kwargs):
+        """
+        Initialize the Linear Regression model with hyperparameters.
+
+        Args:
+            fit_intercept (bool): Whether to calculate the intercept.
+            copy_X (bool): If True, X will be copied; else, it may be overwritten.
+            n_jobs (int): Number of jobs to use for computation.
+        """
+        super().__init__(**kwargs)
+        self.fit_intercept = fit_intercept
+        self.copy_X = copy_X
+        self.n_jobs = n_jobs
+        self._model = LinearRegression(fit_intercept=self.fit_intercept, copy_X=self.copy_X, n_jobs=self.n_jobs)
 
     def fit(self, observations: np.ndarray, ground_truth: np.ndarray):
         """
-        Fit the LinearRegression model using observations and ground truth.
+        Fit the Linear Regression model.
 
         Args:
-            observations (np.ndarray): Observations with shape (n_samples, n_features)
-            ground_truth (np.ndarray): Ground truth targets with shape (n_samples,)
-
-        Returns:
-            None
-
-        Stores:
-            self._parameters (dict): Contains the model parameters.
+            observations (np.ndarray): Training data features.
+            ground_truth (np.ndarray): Training data targets.
         """
         observations = np.asarray(observations)
         ground_truth = np.asarray(ground_truth)
-
         self._model.fit(observations, ground_truth)
-
-        self._parameters = {
-            'coef_': self._model.coef_,
-            'intercept_': self._model.intercept_,
-        }
+        self._parameters['coef_'] = self._model.coef_
+        self._parameters['intercept_'] = self._model.intercept_
 
     def predict(self, observations: np.ndarray) -> np.ndarray:
         """
-        Predict using the LinearRegression model.
+        Predict using the Linear Regression model.
 
         Args:
-            observations (np.ndarray): Observations with shape (n_samples, n_features)
+            observations (np.ndarray): Observations to predict.
 
         Returns:
-            np.ndarray: Predicted targets with shape (n_samples,)
+            np.ndarray: Predicted values.
         """
-        if self._parameters is None:
-            raise ValueError("Model has not been fitted yet. Please call 'fit' before 'predict'.")
         observations = np.asarray(observations)
         return self._model.predict(observations)

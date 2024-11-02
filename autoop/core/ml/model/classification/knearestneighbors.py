@@ -1,56 +1,41 @@
+from .. import Model
 import numpy as np
 from collections import Counter
-from pydantic import Field, field_validator
-from .. import Model
-
 
 class KNearestNeighbors(Model):
     '''
-    This class is for K neighboring neighbors algorithm. It
-    has the functions fit, predict, and _predict_single.
+    K-Nearest Neighbors classifier.
     '''
-    k: int = Field(title="Number of neighbors", default=3)
+    type = "classification"
 
-    @field_validator("k")
-    def k_greater_than_zero(cls, value : int) -> int|None:
+    def __init__(self, k=3, distance_metric='euclidean', weights='uniform', **kwargs):
         '''
-        Validates that the value of k is greater than zero. THis returns
-        the value of k if it's valid.
+        Initialize the KNN model with hyperparameters.
 
         Args:
-            cls (type): The class of the model being validated.
-            value (int): The value of k provided by the user.
-
-        Returns:
-            int: The value of k if it's valid.
-
-        Raises:
-            ValueError: If the value of k is not greater than zero.
+            k (int): Number of neighbors to use.
+            distance_metric (str): Distance metric to use ('euclidean', 'manhattan').
+            weights (str): Weight function ('uniform', 'distance').
         '''
-        if value <= 0:
-            raise ValueError("k must be greater than zero")
-        return value
+        super().__init__(**kwargs)
+        self.k = k
+        self.distance_metric = distance_metric
+        self.weights = weights
 
     def fit(self, observations: np.ndarray, ground_truth: np.ndarray) -> None:
         '''
-        This is for the fit method, it takes in the observations and
-        the ground truth and puts them in the parameters.
+        Fit the model with training data.
 
         Args:
-            observations (np.ndarray): The observations
-            ground_truth (np.ndarray): The ground truth
-
-        Returns:
-            None
+            observations (np.ndarray): Training data features.
+            ground_truth (np.ndarray): Training data labels.
         '''
-        # This changes the values of parameters
-        observations: np.ndarray = np.asarray(observations)
-        ground_truth: np.ndarray = np.asarray(ground_truth)
+        observations = np.asarray(observations)
+        ground_truth = np.asarray(ground_truth)
         if self.k > len(ground_truth):
-            raise ValueError("""k cannot be greater than the number
-                             of training samples""")
-
-        # Putting both the parameters in the dictionary and fitting them in
+            raise ValueError("k cannot be greater than the number of training samples")
+        if self.k <= 0:
+            raise ValueError("k must be greater than zero")
         self._parameters["observations"] = observations
         self._parameters["ground_truth"] = ground_truth
 
@@ -59,39 +44,61 @@ class KNearestNeighbors(Model):
         Predict the labels for the given observations.
 
         Args:
-            observations (np.ndarray): Observations to predict
+            observations (np.ndarray): Observations to predict.
 
         Returns:
-            np.ndarray: Predicted labels
+            np.ndarray: Predicted labels.
         '''
-        # This checks if the model has been fit or not
         if not self._parameters or "observations" not in self._parameters:
-            raise ValueError("Model has not been fit")
-        # This changes the values of parameters
-        observations: np.ndarray = np.asarray(observations)
-        predictions: np.ndarray = [
-            self._predict_single(x) for x in observations
-        ]
+            raise ValueError("Model has not been fitted yet.")
+        observations = np.asarray(observations)
+        predictions = [self._predict_single(x) for x in observations]
         return np.array(predictions)
+
+    def _compute_distance(self, x1: np.ndarray, x2: np.ndarray) -> float:
+        '''
+        Compute the distance between two samples based on the distance metric.
+
+        Args:
+            x1 (np.ndarray): First sample.
+            x2 (np.ndarray): Second sample.
+
+        Returns:
+            float: Computed distance.
+        '''
+        if self.distance_metric == 'euclidean':
+            return np.linalg.norm(x1 - x2)
+        elif self.distance_metric == 'manhattan':
+            return np.sum(np.abs(x1 - x2))
+        else:
+            raise ValueError(f"Unsupported distance metric: {self.distance_metric}")
 
     def _predict_single(self, observation: np.ndarray) -> int:
         '''
-        This is for the predict method, it takes in a single observation
-        and returns the predicted label for this observation
-        args:
-            observation (np.ndarray): The observation
-        returns:
-            int: The predicted label
+        Predict the label for a single observation.
+
+        Args:
+            observation (np.ndarray): The observation.
+
+        Returns:
+            int: The predicted label.
         '''
-        # This gets the distances between the observation
-        distances: np.ndarray = np.linalg.norm(
-            self._parameters["observations"] - observation, axis=1
-        )
-        k_indices: np.ndarray = np.argsort(distances)[:self.k]
-        # This gets the labels of the k nearest
-        # neighbors and stores them in a list
-        k_nearest_labels: np.ndarray = (
-            self._parameters["ground_truth"][k_indices]
-        )
-        most_common: Counter = Counter(k_nearest_labels).most_common(1)
-        return most_common[0][0]
+        distances = np.array([
+            self._compute_distance(observation, train_obs)
+            for train_obs in self._parameters["observations"]
+        ])
+        k_indices = np.argsort(distances)[:self.k]
+        k_nearest_labels = self._parameters["ground_truth"][k_indices]
+        if self.weights == 'uniform':
+            most_common = Counter(k_nearest_labels).most_common(1)
+            return most_common[0][0]
+        elif self.weights == 'distance':
+            k_distances = distances[k_indices]
+            k_distances = np.where(k_distances == 0, 1e-5, k_distances)  # Avoid division by zero
+            weights = 1 / k_distances
+            label_weights = {}
+            for label, weight in zip(k_nearest_labels, weights):
+                label_weights[label] = label_weights.get(label, 0) + weight
+            return max(label_weights.items(), key=lambda x: x[1])[0]
+        else:
+            raise ValueError(f"Unsupported weights: {self.weights}")

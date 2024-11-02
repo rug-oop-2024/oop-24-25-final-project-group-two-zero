@@ -5,9 +5,10 @@ import numpy as np
 from copy import deepcopy
 from typing import Literal
 
-class Model(ABC, BaseModel):
+class Model(ABC):
 
-    _parameters: dict = PrivateAttr(default={})
+    def __init__(self):
+        self._parameters: dict = PrivateAttr(default={})
 
     @property
     def get_parameters(self):

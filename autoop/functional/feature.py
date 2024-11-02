@@ -8,7 +8,7 @@ from typing import List
 from autoop.core.ml.feature import Feature
 
 class detect_feature_types:
-    def __call__(dataset) -> List[Feature]:
+    def __call__(self,dataset) -> List[Feature]:
         features = []
         data = dataset.to_dataframe()  # Convert bytes to DataFrame
         for column in data.columns:
