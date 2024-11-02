@@ -24,8 +24,8 @@ class Deployment:
                 # Use the saved OneHotEncoder directly
                 artifact = preprocessing_artifacts[feature_name]
                 encoder = artifact['encoder']  # Already an encoder instance
-                transformed_data = encoder.transform(feature_data).toarray()
-            elif feature.type == "numerical":
+                transformed_data = encoder.transform(feature_data)  # Remove .toarray()
+            elif feature.type == "continuous":
                 # Use the saved StandardScaler directly
                 artifact = preprocessing_artifacts[feature_name]
                 scaler = artifact['scaler']  # Already a scaler instance
@@ -35,6 +35,7 @@ class Deployment:
             preprocessed_vectors.append(transformed_data)
         X_new = np.concatenate(preprocessed_vectors, axis=1)
         return X_new
+
 
     def run(self):
         st.set_page_config(page_title="Deployment", page_icon="🚀")

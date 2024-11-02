@@ -10,8 +10,8 @@ class StochasticGradient(Model):
         Initialize the Stochastic Gradient Descent classifier with hyperparameters.
 
         Args:
-            loss (str): Loss function ('hinge', 'log', 'modified_huber', etc.).
-            penalty (str): Penalty (`'l2'`, `'l1'`, `'elasticnet'`).
+            loss (str): Loss function ('hinge', 'log_loss', 'modified_huber', etc.).
+            penalty (str): Penalty ('l2', 'l1', 'elasticnet').
             alpha (float): Regularization term.
             max_iter (int): Maximum number of iterations.
         '''
@@ -22,7 +22,7 @@ class StochasticGradient(Model):
         self.max_iter = max_iter
         self._model = SGDClassifier(loss=self.loss, penalty=self.penalty, alpha=self.alpha, max_iter=self.max_iter)
 
-    def fit(self, observations: np.ndarray, ground_truth: np.ndarray):
+    def fit(self, observations: np.ndarray, ground_truth: np.ndarray) -> None:
         '''
         Fit the Stochastic Gradient Descent model.
 

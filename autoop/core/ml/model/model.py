@@ -1,24 +1,19 @@
-from pydantic import BaseModel, PrivateAttr
-from abc import abstractmethod, ABC
-from autoop.core.ml.artifact import Artifact
+from abc import ABC, abstractmethod
 import numpy as np
 from copy import deepcopy
-from typing import Literal
 
 class Model(ABC):
 
     def __init__(self):
-        self._parameters: dict = PrivateAttr(default={})
+        self._parameters = {}  # Initialize as a standard dictionary
 
     @property
     def get_parameters(self):
         return deepcopy(self._parameters)
 
-
     @get_parameters.setter
     def set_parameters(self, parameters):
         self._parameters = parameters
-
 
     @abstractmethod
     def fit(self, observations: np.ndarray, groundtruth: np.ndarray) -> None:
@@ -40,6 +35,3 @@ class Model(ABC):
             np.ndarray: Predictions
         """
         pass
-
-    # @abstractmethod
-    # def 

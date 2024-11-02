@@ -3,6 +3,10 @@
 from typing import List
 import pickle
 import os
+import matplotlib.pyplot as plt
+import seaborn as sns
+import io
+import base64
 
 from autoop.core.ml.model import (
     Model,
@@ -20,7 +24,6 @@ from autoop.core.ml.feature import Feature
 from autoop.core.ml.metric import Metric
 from autoop.functional.preprocessing import preprocess_features
 import numpy as np
-
 
 class Pipeline():
     
@@ -84,7 +87,7 @@ Pipeline(
         artifacts = []
         for name, artifact in self._artifacts.items():
             artifact_type = artifact.get("type")
-            if artifact_type in ["OneHotEncoder"]:
+            if artifact_type in ["OneHotEncoder", "LabelEncoder"]:
                 data = artifact["encoder"]
                 data = pickle.dumps(data)
                 artifacts.append(Artifact(name=name, data=data))
@@ -196,6 +199,37 @@ Pipeline(
             result = metric.evaluate(predictions, Y)
             self._metrics_results.append((metric, result))
         self._predictions = predictions
+    
+    def _generate_report(self):
+        """
+        Generate an experiment report with graphs and metrics.
+        """
+        report = {}
+        # Example: Confusion Matrix for Classification
+        if self._model.type == "classification":
+            from sklearn.metrics import confusion_matrix
+            y_true = self._test_y
+            y_pred = self._predictions
+            cm = confusion_matrix(y_true, y_pred)
+            fig, ax = plt.subplots()
+            sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', ax=ax)
+            ax.set_xlabel('Predicted Labels')
+            ax.set_ylabel('True Labels')
+            plt.title('Confusion Matrix')
+
+            # Save plot to a buffer
+            buf = io.BytesIO()
+            plt.savefig(buf, format='png')
+            buf.seek(0)
+            image_png = buf.getvalue()
+            buf.close()
+            image_base64 = base64.b64encode(image_png).decode('utf-8')
+
+            report['confusion_matrix'] = image_base64
+
+        # Add other plots and metrics as needed
+        # For regression, you might include residual plots, etc.
+        self._report = report
 
     def execute(self):
         """
@@ -224,6 +258,7 @@ Pipeline(
         self._split_data()
         self._train()
         self._evaluate()
+        self._generate_report()
         return {
             "metrics": self._metrics_results,
             "predictions": self._predictions,

@@ -3,29 +3,36 @@ from autoop.core.ml.feature import Feature
 from autoop.core.ml.dataset import Dataset
 import pandas as pd
 import numpy as np
-from sklearn.preprocessing import OneHotEncoder, StandardScaler
+from sklearn.preprocessing import OneHotEncoder, StandardScaler, LabelEncoder
 
-def preprocess_features(features: List[Feature], dataset: Dataset) -> List[Tuple[str, np.ndarray, dict]]:
-    """
-    This is forced to be a function so that it can be called in the pipeline,
-    and I cannot change pipeline.
-    
-    
-    """
+def preprocess_features(features: List[Feature], dataset: Dataset):
     results = []
-    raw = dataset.to_dataframe()  # Use to_dataframe() instead of read()
+    df = dataset.to_dataframe()
     for feature in features:
         if feature.type == "categorical":
-            encoder = OneHotEncoder()
-            data = encoder.fit_transform(raw[feature.name].values.reshape(-1, 1)).toarray()
-            artifact = {"type": "OneHotEncoder", "encoder": encoder}  # Store the actual encoder
-            results.append((feature.name, data, artifact))
-        elif feature.type == "numerical":
-            scaler = StandardScaler()
-            data = scaler.fit_transform(raw[feature.name].values.reshape(-1, 1))
-            artifact = {"type": "StandardScaler", "scaler": scaler}  # Store the actual scaler
-            results.append((feature.name, data, artifact))
+            if getattr(feature, 'is_target', False):
+                # Use LabelEncoder for the target feature
+                encoder = LabelEncoder()
+                data = encoder.fit_transform(df[feature.name])
+                artifact = {
+                    "type": "LabelEncoder",
+                    "encoder": encoder
+                }
+            else:
+                # Use OneHotEncoder for input features
+                encoder = OneHotEncoder(sparse_output=False)
+                data = encoder.fit_transform(df[[feature.name]])
+                artifact = {
+                    "type": "OneHotEncoder",
+                    "encoder": encoder
+                }
         else:
-            raise ValueError(f"Unknown feature type: {feature.type}")
-    results = list(sorted(results, key=lambda x: x[0]))
+            # For numerical features
+            scaler = StandardScaler()
+            data = scaler.fit_transform(df[[feature.name]])
+            artifact = {
+                "type": "StandardScaler",
+                "scaler": scaler
+            }
+        results.append((feature.name, data, artifact))
     return results

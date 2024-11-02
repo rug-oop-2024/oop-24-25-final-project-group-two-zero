@@ -1,16 +1,13 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 from typing import Literal
-import numpy as np
-
-from autoop.core.ml.dataset import Dataset
 
 class Feature(BaseModel):
-     
-    name : str
-    type : Literal["categorical", "numerical"]
+    name: str
+    type: Literal['categorical', 'continuous']
+    is_target: bool = False
 
     def __str__(self):
-        return f"Feature(name={self.name}, type={self.type})"
+        return f"Feature(name={self.name}, type={self.type}, is_target={self.is_target})"
 
     def __repr__(self):
         return self.__str__()

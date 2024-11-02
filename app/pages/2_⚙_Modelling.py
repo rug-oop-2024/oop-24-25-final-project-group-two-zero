@@ -110,8 +110,10 @@ class Modelling:
         # Convert selected feature names to Feature instances
         input_features_selected = [feature_dict[name] for name in input_features_selected_names]
         target_feature_selected = feature_dict[target_feature_selected_name]
-
+        target_feature_selected.is_target = True  # Mark the target feature
         # Step 2: Detect task type (classification or regression)
+        for feature in input_features_selected:
+            feature.is_target = False
         if input_features_selected and target_feature_selected:
             st.write(f"You selected input features: {input_features_selected_names}, and target feature: {target_feature_selected_name}")
 
