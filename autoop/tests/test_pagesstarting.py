@@ -12,7 +12,7 @@ class TestStarting(unittest.TestCase):
     @patch('streamlit.text_input')
     @patch('streamlit.warning')
     @patch('streamlit.stop')
-    def test_name_dataset_empty(self, mock_stop, mock_warning, mock_text_input):
+    def test_name_dataset_empty(self, mock_stop, mock_warning, mock_text_input) -> None:
         mock_text_input.return_value = ''
         self.starting.name_dataset()
         mock_warning.assert_called_once_with('Please enter a dataset name.')

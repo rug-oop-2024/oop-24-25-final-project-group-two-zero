@@ -1,7 +1,8 @@
 import unittest
 from unittest.mock import patch, MagicMock
 import streamlit as st
-
+from autoop.core.ml.model.regression import LinearRegressionModel
+from autoop.core.ml.model.classification import KNearestNeighbors
 from app.pages.two_Modelling import Modelling
 
 class TestModelling(unittest.TestCase):
@@ -25,8 +26,8 @@ class TestModelling(unittest.TestCase):
     @patch('streamlit.slider')
     @patch('streamlit.button')
     @patch('streamlit.text_input')
-    @patch('app.pages._2_⚙_Modelling.Dataset.from_artifact')
-    @patch('app.pages._2_⚙_Modelling.detect_feature_types')
+    @patch('app.pages.two_Modelling.Dataset.from_artifact')
+    @patch('app.pages.two_Modelling.detect_feature_types')
     def test_run_with_datasets(self, mock_detect_feature_types, mock_from_artifact, mock_text_input, mock_button, mock_slider, mock_multiselect, mock_selectbox, mock_write, mock_set_page_config):
         mock_selectbox.side_effect = ['Test Dataset (ID: 1)', 'Feature1', 'LinearRegression']
         mock_multiselect.side_effect = [['Feature1', 'Feature2'], ['Mean Squared Error']]

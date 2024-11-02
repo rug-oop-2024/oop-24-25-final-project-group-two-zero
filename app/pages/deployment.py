@@ -3,7 +3,7 @@ import streamlit as st
 import pandas as pd
 import pickle
 from typing import List
-from autoop.core.ml.feature import Feature
+from autoop.functional import Feature
 from app.core.system import AutoMLSystem
 from autoop.core.ml.artifact import Artifact
 import numpy as np

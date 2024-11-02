@@ -22,7 +22,7 @@ from autoop.core.ml.metric import (
     Specificity,
     F1Score
 )
-from autoop.core.ml.feature import Feature
+from autoop.functional.feature import Feature
 from autoop.functional.feature import detect_feature_types
 
 class Modelling:
