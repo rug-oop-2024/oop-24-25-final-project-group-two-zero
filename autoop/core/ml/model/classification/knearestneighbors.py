@@ -36,8 +36,8 @@ class KNearestNeighbors(Model):
             raise ValueError("k cannot be greater than the number of training samples")
         if self.k <= 0:
             raise ValueError("k must be greater than zero")
-        self._parameters["observations"] = observations
-        self._parameters["ground_truth"] = ground_truth
+        self.parameters["observations"] = observations
+        self.parameters["ground_truth"] = ground_truth
 
     def predict(self, observations: np.ndarray) -> np.ndarray:
         '''
@@ -49,7 +49,7 @@ class KNearestNeighbors(Model):
         Returns:
             np.ndarray: Predicted labels.
         '''
-        if not self._parameters or "observations" not in self._parameters:
+        if not self.parameters or "observations" not in self.parameters:
             raise ValueError("Model has not been fitted yet.")
         observations = np.asarray(observations)
         predictions = [self._predict_single(x) for x in observations]
@@ -85,10 +85,10 @@ class KNearestNeighbors(Model):
         '''
         distances = np.array([
             self._compute_distance(observation, train_obs)
-            for train_obs in self._parameters["observations"]
+            for train_obs in self.parameters["observations"]
         ])
         k_indices = np.argsort(distances)[:self.k]
-        k_nearest_labels = self._parameters["ground_truth"][k_indices]
+        k_nearest_labels = self.parameters["ground_truth"][k_indices]
         if self.weights == 'uniform':
             most_common = Counter(k_nearest_labels).most_common(1)
             return most_common[0][0]

@@ -39,7 +39,7 @@ class MultipleLinearRegression(Model):
         except np.linalg.LinAlgError:
             XtX_inv = np.linalg.pinv(XtX)
         w = XtX_inv @ X_design.T @ ground_truth
-        self._parameters['weights'] = w
+        self.parameters['weights'] = w
 
     def predict(self, observations: np.ndarray) -> np.ndarray:
         """
@@ -51,12 +51,12 @@ class MultipleLinearRegression(Model):
         Returns:
             np.ndarray: Predicted values.
         """
-        if 'weights' not in self._parameters:
+        if 'weights' not in self.parameters:
             raise ValueError("Model is not fitted yet. Please call 'fit' before 'predict'.")
         observations = np.asarray(observations)
         if self.fit_intercept:
             X_design = np.hstack((observations, np.ones((observations.shape[0], 1))))
         else:
             X_design = observations
-        w = self._parameters['weights']
+        w = self.parameters['weights']
         return X_design @ w

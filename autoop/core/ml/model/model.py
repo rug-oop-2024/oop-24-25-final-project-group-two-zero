@@ -5,15 +5,8 @@ from copy import deepcopy
 class Model(ABC):
 
     def __init__(self):
-        self._parameters = {}  # Initialize as a standard dictionary
+        self.parameters = {}  # Initialize as a standard dictionary
 
-    @property
-    def get_parameters(self):
-        return deepcopy(self._parameters)
-
-    @get_parameters.setter
-    def set_parameters(self, parameters):
-        self._parameters = parameters
 
     @abstractmethod
     def fit(self, observations: np.ndarray, groundtruth: np.ndarray) -> None:
