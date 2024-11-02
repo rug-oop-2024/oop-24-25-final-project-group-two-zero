@@ -5,6 +5,15 @@ from autoop.core.ml.dataset import Dataset
 class TestDataset(unittest.TestCase):
 
     def setUp(self) -> None:
+        """
+        Sets up a test environment for the Dataset class.
+
+        This method initializes a sample dataset using a pandas DataFrame 
+        with columns 'A', 'B', and 'C', and assigns it to the `data` attribute.
+        It also sets up the attributes `name`, `asset_path`, and `version` 
+        for the dataset. Finally, it creates a Dataset instance using the 
+        from_dataframe method and assigns it to the `dataset` attribute.
+        """
         self.data = pd.DataFrame({
             'A': [1, 2, 3],
             'B': [4, 5, 6],

@@ -9,9 +9,24 @@ from autoop.functional.feature import detect_feature_types
 class TestFeatures(unittest.TestCase):
 
     def setUp(self) -> None:
+        """
+        Setup method for the test class.
+
+        This method is called before each test, and is used to set up any state that
+        is required for the tests to run. In this case, it does nothing, but it is
+        included for clarity and consistency with other test classes.
+
+        :return: None
+        """
         pass
 
     def test_detect_features_continuous(self):
+        """
+        Test that detect_feature_types correctly identifies all features as numerical in a dataset
+        containing only continuous data.
+
+        :return: None
+        """
         iris = load_iris()
         df = pd.DataFrame(
             iris.data,
@@ -33,6 +48,12 @@ class TestFeatures(unittest.TestCase):
             self.assertEqual(feature.type, "numerical")
         
     def test_detect_features_with_categories(self):
+        """
+        Test that detect_feature_types correctly identifies both numerical and categorical features
+        in a dataset containing a mix of continuous and categorical data.
+
+        :return: None
+        """
         data = fetch_openml(name="adult", version=1, parser="auto")
         df = pd.DataFrame(
             data.data,
