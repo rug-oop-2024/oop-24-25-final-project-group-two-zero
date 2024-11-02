@@ -3,6 +3,7 @@ import os
 import shutil
 from autoop.core.ml.artifact import Artifact
 
+
 class TestArtifact(unittest.TestCase):
 
     def setUp(self):
@@ -52,6 +53,7 @@ class TestArtifact(unittest.TestCase):
     def test_artifact_read_nonexistent(self):
         with self.assertRaises(FileNotFoundError):
             Artifact.read(id='nonexistent_id', directory=self.test_dir)
+
 
 if __name__ == '__main__':
     unittest.main()

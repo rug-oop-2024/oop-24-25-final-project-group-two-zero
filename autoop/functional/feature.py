@@ -1,7 +1,7 @@
-# autoop/functional/feature.py
 from typing import List, Literal
 from autoop.core.ml.feature import Feature
 from pydantic import BaseModel
+
 
 class Feature(BaseModel):
     name: str
@@ -15,11 +15,15 @@ class Feature(BaseModel):
         return self.__str__()
 
     @staticmethod
-    def detect_feature_types(dataset: 'Dataset') -> List[Feature]:
+    def detect_feature_types(dataset: 'Dataset') -> List['Feature']:
         """
-        This is also enforced by the tests to be a function. Cannot
-        do anything about it.
-        
+        Detects the feature types in a dataset.
+
+        Args:
+            dataset (Dataset): The dataset to detect feature types in.
+
+        Returns:
+            List[Feature]: A list of Feature objects, each representing a column in the dataset.
         """
         features = []
         data = dataset.to_dataframe()

@@ -1,7 +1,6 @@
-# feature.py
-
 from pydantic import BaseModel
 from typing import Literal
+
 
 class Feature(BaseModel):
     name: str

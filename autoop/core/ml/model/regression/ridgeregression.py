@@ -1,24 +1,32 @@
-from .. import Model
 import numpy as np
 from sklearn.linear_model import Ridge
+from .. import Model
+
 
 class RidgeRegression(Model):
+    """
+    Ridge Regression model.
+    """
     type = "regression"
 
     def __init__(self, alpha=1.0, fit_intercept=True, solver='auto', **kwargs) -> None:
-        '''
+        """
         Initialize the Ridge Regression model with hyperparameters.
 
         Args:
             alpha (float): Regularization strength.
             fit_intercept (bool): Whether to calculate the intercept.
-            solver (str): Solver to use (`'auto'`, `'svd'`, `'cholesky'`, etc.).
-        '''
+            solver (str): Solver to use ('auto', 'svd', 'cholesky', etc.).
+        """
         super().__init__(**kwargs)
         self.alpha = alpha
         self.fit_intercept = fit_intercept
         self.solver = solver
-        self._model = Ridge(alpha=self.alpha, fit_intercept=self.fit_intercept, solver=self.solver)
+        self._model = Ridge(
+            alpha=self.alpha,
+            fit_intercept=self.fit_intercept,
+            solver=self.solver
+        )
 
     def fit(self, observations: np.ndarray, ground_truth: np.ndarray) -> None:
         """

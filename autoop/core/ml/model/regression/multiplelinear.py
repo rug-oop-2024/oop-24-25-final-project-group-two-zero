@@ -1,6 +1,7 @@
 import numpy as np
 from .. import Model
 
+
 class MultipleLinearRegression(Model):
     """
     Multiple Linear Regression model implemented from scratch.

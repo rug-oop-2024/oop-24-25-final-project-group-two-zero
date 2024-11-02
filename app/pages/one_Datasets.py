@@ -4,6 +4,7 @@ from app.core.system import AutoMLSystem
 from autoop.core.ml.dataset import Dataset
 import os
 
+
 class Starting:
     def __init__(self) -> None:
         self.automl = AutoMLSystem.get_instance()
@@ -43,14 +44,16 @@ class Starting:
         else:
             st.write("No file uploaded.")
 
-
     def available_datasets(self) -> None:
         # Refresh the datasets list
         self.datasets_list = self.automl.registry.list(type="dataset")
         if self.datasets_list:
             st.write("Available Datasets:")
             # Create a dictionary mapping display names to artifact IDs
-            dataset_options = {f"{artifact.name} (ID: {artifact.id})": artifact.id for artifact in self.datasets_list}
+            dataset_options = {
+                f"{artifact.name} (ID: {artifact.id})": artifact.id
+                for artifact in self.datasets_list
+            }
             selected_datasets = st.multiselect("Select datasets to remove:", list(dataset_options.keys()))
             if selected_datasets:
                 if st.button("Remove Selected Datasets"):
@@ -66,7 +69,6 @@ class Starting:
         else:
             st.write("No datasets available.")
 
-
     def remove_dataset(self, dataset_name: str) -> None:
         # Refresh the datasets list
         self.datasets_list = self.automl.registry.list(type="dataset")
@@ -80,8 +82,6 @@ class Starting:
         else:
             st.write("No datasets available.")
 
-
-
     def choose_to_upload(self) -> None:
         choice = st.radio("Choose an option:", ("Upload Dataset", "List/Remove Datasets"))
         if choice == "Upload Dataset":
@@ -91,5 +91,5 @@ class Starting:
 
 
 if __name__ == "__main__":
-    start: Starting = Starting()
+    start = Starting()
     start.choose_to_upload()

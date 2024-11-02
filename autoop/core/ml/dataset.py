@@ -1,10 +1,7 @@
 from autoop.core.ml.artifact import Artifact
-from abc import ABC, abstractmethod
 import pandas as pd
 import io
-import h5py
-import json
-import os
+from typing import Optional
 
 
 class Dataset(Artifact):
@@ -20,6 +17,15 @@ class Dataset(Artifact):
     ) -> "Dataset":
         """
         Creates a Dataset artifact from a pandas DataFrame.
+
+        Args:
+            data (pd.DataFrame): DataFrame containing the dataset.
+            name (str): Name of the dataset.
+            asset_path (str): Path where dataset is stored.
+            version (str): Version of the dataset.
+
+        Returns:
+            Dataset: An instance of the Dataset class.
         """
         if not isinstance(data, pd.DataFrame):
             raise ValueError("Data must be a pandas DataFrame.")
@@ -30,17 +36,24 @@ class Dataset(Artifact):
             data=data_bytes,
             version=version,
         )
+
     @classmethod
     def from_artifact(cls, artifact: Artifact) -> "Dataset":
         """
         Reconstructs a Dataset instance from an Artifact instance.
+
+        Args:
+            artifact (Artifact): Artifact instance to be converted.
+
+        Returns:
+            Dataset: An instance of the Dataset class.
         """
         if artifact.type != "dataset":
             raise ValueError("Artifact is not of type 'dataset'")
         return cls(
             name=artifact.name,
             asset_path=artifact.asset_path,
-            data=artifact.data, # This is in bytes rn
+            data=artifact.data,
             version=artifact.version,
             tags=artifact.tags,
             metadata=artifact.metadata,
@@ -50,6 +63,9 @@ class Dataset(Artifact):
     def to_dataframe(self) -> pd.DataFrame:
         """
         Converts the dataset data to a pandas DataFrame.
+
+        Returns:
+            pd.DataFrame: DataFrame representation of the dataset.
         """
         if not self.data:
             raise ValueError("No data in dataset.")
@@ -59,4 +75,3 @@ class Dataset(Artifact):
 
     def __str__(self) -> str:
         return f"data: {self.data}"
-

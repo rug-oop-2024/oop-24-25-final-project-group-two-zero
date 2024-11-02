@@ -1,30 +1,38 @@
 from abc import ABC, abstractmethod
 import numpy as np
-from copy import deepcopy
+
 
 class Model(ABC):
+    """
+    Abstract base class for all models, containing fit and predict methods.
+    """
 
     def __init__(self) -> None:
-        self.parameters = {}  # Initialize as a standard dictionary
-
+        """
+        Initializes the Model with an empty parameters dictionary.
+        """
+        self.parameters = {}
 
     @abstractmethod
     def fit(self, observations: np.ndarray, groundtruth: np.ndarray) -> None:
         """
-        Fits the model to the data
+        Fits the model to the data.
+
         Args:
-            X (np.ndarray): Features
-            y (np.ndarray): Target
+            observations (np.ndarray): Features.
+            groundtruth (np.ndarray): Target values.
         """
         pass
 
     @abstractmethod
     def predict(self, observations: np.ndarray) -> np.ndarray:
         """
-        Makes predictions
+        Makes predictions based on observations.
+
         Args:
-            observations (np.ndarray): Features
+            observations (np.ndarray): Features for prediction.
+
         Returns:
-            np.ndarray: Predictions
+            np.ndarray: Predicted values.
         """
         pass

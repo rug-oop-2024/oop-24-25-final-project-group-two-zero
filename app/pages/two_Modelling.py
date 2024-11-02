@@ -22,8 +22,8 @@ from autoop.core.ml.metric import (
     Specificity,
     F1Score
 )
-from autoop.functional.feature import Feature
-from autoop.functional.feature import detect_feature_types
+from autoop.functional.feature import Feature, detect_feature_types
+
 
 class Modelling:
     # Define the model lists for regression and classification
@@ -67,7 +67,7 @@ class Modelling:
             raise ValueError(f"Unknown task type: {task_type}")
 
     # Function to get metrics based on task type
-    def get_metrics(self, task_type: str) -> dict|None:
+    def get_metrics(self, task_type: str) -> dict | None:
         if task_type == "regression":
             return self.REGRESSION_METRICS
         elif task_type == "classification":
@@ -86,7 +86,10 @@ class Modelling:
             st.stop()
 
         # Map display names to Artifact instances
-        dataset_options = {f"{artifact.name} (ID: {artifact.id})": artifact for artifact in self.datasets}
+        dataset_options = {
+            f"{artifact.name} (ID: {artifact.id})": artifact
+            for artifact in self.datasets
+        }
 
         # Allow user to select a dataset
         selected_dataset_name = st.selectbox('Choose a dataset:', list(dataset_options.keys()))
@@ -111,11 +114,16 @@ class Modelling:
         input_features_selected = [feature_dict[name] for name in input_features_selected_names]
         target_feature_selected = feature_dict[target_feature_selected_name]
         target_feature_selected.is_target = True  # Mark the target feature
+
         # Step 2: Detect task type (classification or regression)
         for feature in input_features_selected:
             feature.is_target = False
+
         if input_features_selected and target_feature_selected:
-            st.write(f"You selected input features: {input_features_selected_names}, and target feature: {target_feature_selected_name}")
+            st.write(
+                f"You selected input features: {input_features_selected_names}, "
+                f"and target feature: {target_feature_selected_name}"
+            )
 
             # Determine if the target feature is categorical or numerical
             target_feature_type = target_feature_selected.type
@@ -159,7 +167,7 @@ class Modelling:
 
                     # Get the selected model instance
                     model_instance = self.get_model(selected_model_name, task_type)
-            
+
                     # Build the pipeline with the selected model
                     pipeline = Pipeline(
                         metrics=selected_metrics,
@@ -194,7 +202,9 @@ class Modelling:
                             pipeline_artifact = pipeline.to_artifact(name=pipeline_name, version=pipeline_version)
                             # Register the pipeline artifact
                             self.automl.registry.register(pipeline_artifact)
-                            st.success(f"Pipeline '{pipeline_name}' version '{pipeline_version}' has been saved.")
+                            st.success(
+                                f"Pipeline '{pipeline_name}' version '{pipeline_version}' has been saved."
+                            )
                         else:
                             st.warning("Please enter a name for the pipeline.")
                     else:
@@ -207,5 +217,5 @@ class Modelling:
 
 
 if __name__ == "__main__":
-    app: Modelling = Modelling()
+    app = Modelling()
     app.run()

@@ -1,26 +1,22 @@
-
-# metric.py
 from abc import ABC, abstractmethod
-from typing import Any, Callable
 import numpy as np
-from math import sqrt
-# Put the list in a list and then do the class for making the choices and 
-# Putting them like Mo shakoush said
-
+from typing import Any
 
 METRICS = [
-    "MeanSquaredError", # Regression tasks
-    "accuracy", # Classification tasks
+    "MeanSquaredError",  # Regression tasks
+    "accuracy",          # Classification tasks
     "mean_absolute_error",
     "F_one_score",
-    "specificity"
+    "specificity",
     "r_squared_error",
 ]
+
 
 def get_metric(name: str) -> Any:
     if name not in METRICS:
         raise ValueError(f"Metric {name} does not exist")
     return getattr(__import__("autoop.core.ml.metric", fromlist=[name]), name)
+
 
 class Metric(ABC):
     """Base class for all metrics."""
@@ -34,11 +30,6 @@ class Metric(ABC):
         pass
 
 
-
-# add here concrete implementations of the Metric class
-
-# metric.py (continued)
-
 class MeanSquaredError(Metric):
     def __init__(self) -> None:
         super().__init__(name="Mean Squared Error")
@@ -46,12 +37,14 @@ class MeanSquaredError(Metric):
     def evaluate(self, y_pred: np.ndarray, y_true: np.ndarray) -> float:
         return np.mean((y_true - y_pred) ** 2)
 
+
 class MeanAbsoluteError(Metric):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(name="Mean Absolute Error")
 
     def evaluate(self, y_pred: np.ndarray, y_true: np.ndarray) -> float:
         return np.mean(np.abs(y_true - y_pred))
+
 
 class R2Score(Metric):
     def __init__(self) -> None:
@@ -62,12 +55,14 @@ class R2Score(Metric):
         ss_tot = np.sum((y_true - np.mean(y_true)) ** 2)
         return 1 - (ss_res / ss_tot)
 
+
 class Accuracy(Metric):
     def __init__(self) -> None:
         super().__init__(name="Accuracy")
 
     def evaluate(self, y_pred: np.ndarray, y_true: np.ndarray) -> float:
         return np.mean(y_true == y_pred)
+
 
 class Specificity(Metric):
     def __init__(self) -> None:
@@ -79,6 +74,7 @@ class Specificity(Metric):
         if (true_negative + false_positive) == 0:
             return 0.0
         return true_negative / (true_negative + false_positive)
+
 
 class F1Score(Metric):
     def __init__(self) -> None:

@@ -2,6 +2,7 @@ import numpy as np
 from sklearn.linear_model import LinearRegression
 from .. import Model
 
+
 class LinearRegressionModel(Model):
     """
     A wrapper around scikit-learn's LinearRegression model.
@@ -21,7 +22,11 @@ class LinearRegressionModel(Model):
         self.fit_intercept = fit_intercept
         self.copy_X = copy_X
         self.n_jobs = n_jobs
-        self._model = LinearRegression(fit_intercept=self.fit_intercept, copy_X=self.copy_X, n_jobs=self.n_jobs)
+        self._model = LinearRegression(
+            fit_intercept=self.fit_intercept,
+            copy_X=self.copy_X,
+            n_jobs=self.n_jobs
+        )
 
     def fit(self, observations: np.ndarray, ground_truth: np.ndarray) -> None:
         """

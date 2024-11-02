@@ -8,6 +8,7 @@ from app.core.system import AutoMLSystem
 from autoop.core.ml.artifact import Artifact
 import numpy as np
 
+
 class Deployment:
     def __init__(self) -> None:
         # Initialize the AutoML system
@@ -24,7 +25,7 @@ class Deployment:
                 # Use the saved OneHotEncoder directly
                 artifact = preprocessing_artifacts[feature_name]
                 encoder = artifact['encoder']  # Already an encoder instance
-                transformed_data = encoder.transform(feature_data)  # Remove .toarray()
+                transformed_data = encoder.transform(feature_data)
             elif feature.type == "continuous":
                 # Use the saved StandardScaler directly
                 artifact = preprocessing_artifacts[feature_name]
@@ -35,7 +36,6 @@ class Deployment:
             preprocessed_vectors.append(transformed_data)
         X_new = np.concatenate(preprocessed_vectors, axis=1)
         return X_new
-
 
     def run(self) -> None:
         st.set_page_config(page_title="Deployment", page_icon="🚀")
@@ -95,6 +95,7 @@ class Deployment:
         else:
             st.write("Please upload a CSV file to make predictions.")
 
+
 if __name__ == "__main__":
-    app: Deployment = Deployment()
+    app = Deployment()
     app.run()
