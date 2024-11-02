@@ -10,42 +10,30 @@ from autoop.core.ml.artifact import Artifact
 # Add this function in deployment.py
 import numpy as np
 
+# deployment.py
 def preprocess_new_data(df: pd.DataFrame, input_features: List[Feature], preprocessing_artifacts: dict) -> np.ndarray:
-    """
-    Preprocess new data using the saved preprocessing artifacts.
-
-    Parameters:
-    - df: The new data as a pandas DataFrame.
-    - input_features: List of Feature objects representing the input features.
-    - preprocessing_artifacts: Dictionary of preprocessing artifacts saved in the pipeline.
-
-    Returns:
-    - X_new: The preprocessed feature matrix as a numpy array.
-    """
     preprocessed_vectors = []
     for feature in input_features:
         feature_name = feature.name
         if feature_name not in df.columns:
             raise ValueError(f"Feature '{feature_name}' is missing in the uploaded data.")
-
+        feature_data = df[feature_name].values.reshape(-1, 1)
         if feature.type == "categorical":
-            # Use the saved OneHotEncoder
+            # Use the saved OneHotEncoder directly
             artifact = preprocessing_artifacts[feature_name]
-            encoder = pickle.loads(artifact['encoder'])
-            feature_data = df[feature_name].values.reshape(-1, 1)
+            encoder = artifact['encoder']  # Already an encoder instance
             transformed_data = encoder.transform(feature_data).toarray()
         elif feature.type == "numerical":
-            # Use the saved StandardScaler
+            # Use the saved StandardScaler directly
             artifact = preprocessing_artifacts[feature_name]
-            scaler = pickle.loads(artifact['scaler'])
-            feature_data = df[feature_name].values.reshape(-1, 1)
+            scaler = artifact['scaler']  # Already a scaler instance
             transformed_data = scaler.transform(feature_data)
         else:
             raise ValueError(f"Unknown feature type: {feature.type}")
         preprocessed_vectors.append(transformed_data)
-    # Concatenate the preprocessed feature vectors
     X_new = np.concatenate(preprocessed_vectors, axis=1)
     return X_new
+
 
 
 st.set_page_config(page_title="Deployment", page_icon="🚀")

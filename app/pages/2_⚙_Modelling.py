@@ -1,4 +1,3 @@
-# modelling.py
 import streamlit as st
 import numpy as np
 from app.core.system import AutoMLSystem
@@ -6,23 +5,23 @@ from autoop.core.ml.pipeline import Pipeline
 from autoop.core.ml.model.model import Model
 from autoop.core.ml.dataset import Dataset
 from autoop.core.ml.model.regression import (
-            MultipleLinearRegression,
-            RidgeRegression,
-            LinearRegressionModel
-            )
+    MultipleLinearRegression,
+    RidgeRegression,
+    LinearRegressionModel
+)
 from autoop.core.ml.model.classification import (
-            KNearestNeighbors,
-            StoasticGradient,
-            TreeClassification
-            )
+    KNearestNeighbors,
+    StoasticGradient,
+    TreeClassification
+)
 from autoop.core.ml.metric import (
-            accuracy,
-            MeanSquaredError,
-            mean_absolute_error,
-            r_squared_error,
-            specificity,
-            F_one_score
-            )
+    Accuracy,
+    MeanSquaredError,
+    MeanAbsoluteError,
+    R2Score,
+    Specificity,
+    F1Score
+)
 from autoop.core.ml.feature import Feature
 from autoop.functional.feature import detect_feature_types
 
@@ -39,18 +38,17 @@ CLASSIFICATION_MODELS = {
     "DecisionTreeClassification": TreeClassification
 }
 
-
 # Define the metrics for regression and classification
 REGRESSION_METRICS = {
     "Mean Squared Error": MeanSquaredError(),
-    "Mean Absolute Error": mean_absolute_error(),
-    "R-Squared": r_squared_error(),
+    "Mean Absolute Error": MeanAbsoluteError(),
+    "R-Squared": R2Score(),
 }
 
 CLASSIFICATION_METRICS = {
-    "Accuracy": accuracy(),
-    "F1 Score": F_one_score(),
-    "Specificity": specificity(),
+    "Accuracy": Accuracy(),
+    "F1 Score": F1Score(),
+    "Specificity": Specificity(),
 }
 
 # Function to get a model instance by name
@@ -94,11 +92,7 @@ selected_dataset = dataset_options[selected_dataset_name]
 # Convert the Artifact to a Dataset
 dataset_chosen = Dataset.from_artifact(selected_dataset)
 
-# # Rest of your code remains the same...
-# dataset_chosen = automl._registry.get(selected_dataset)
-
 # Get features from the dataset
-# Assuming dataset_chosen.features() returns a list of Feature instances
 feature_list = detect_feature_types(dataset_chosen)  # Returns a list of Feature instances
 feature_names = [feature.name for feature in feature_list]
 
@@ -143,7 +137,6 @@ if input_features_selected and target_feature_selected:
     selected_metrics = [available_metrics[name] for name in selected_metric_names]
 
     # Step 6: Display a pipeline summary
-# Enhanced Pipeline Summary
     if selected_model_name and selected_metrics:
         st.write("## 📋 Pipeline Summary")
         st.markdown(f"""
@@ -153,7 +146,6 @@ if input_features_selected and target_feature_selected:
         - **Input Features**: `{', '.join(input_features_selected_names)}`
         - **Target Feature**: `{target_feature_selected_name}`
         """)
-
 
         # Step 7: Train the model
         if st.button("Train Model"):
@@ -177,9 +169,11 @@ if input_features_selected and target_feature_selected:
 
             # Report the selected metrics
             st.write("## Results")
-            for metric, value in results['metrics']:
+            for metric, value in results["metrics"]:
                 st.write(f"{metric.name}: {value}")
-        # After reporting the results in modelling.py
+
+            # Store the trained pipeline in session state
+            st.session_state['trained_pipeline'] = pipeline
 
         # Step 8: Save the pipeline as an artifact
         st.write("## 💾 Save the Pipeline")
@@ -187,15 +181,17 @@ if input_features_selected and target_feature_selected:
         pipeline_version = st.text_input("Enter a version for the pipeline", "1.0.0")
 
         if st.button("Save Pipeline"):
-            if pipeline_name:
-                # Convert the pipeline into an artifact
-                pipeline_artifact = pipeline.to_artifact(name=pipeline_name, version=pipeline_version)
-                # Register the pipeline artifact
-                automl.registry.register(pipeline_artifact)
-                st.success(f"Pipeline '{pipeline_name}' version '{pipeline_version}' has been saved.")
+            if 'trained_pipeline' in st.session_state:
+                pipeline = st.session_state['trained_pipeline']
+                if pipeline_name:
+                    # Convert the pipeline into an artifact
+                    pipeline_artifact = pipeline.to_artifact(name=pipeline_name, version=pipeline_version)
+                    # Register the pipeline artifact
+                    automl.registry.register(pipeline_artifact)
+                    st.success(f"Pipeline '{pipeline_name}' version '{pipeline_version}' has been saved.")
+                else:
+                    st.warning("Please enter a name for the pipeline.")
             else:
-                st.warning("Please enter a name for the pipeline.")
-
-
+                st.warning("Please train a model before saving the pipeline.")
     else:
         st.write("Please select a model and metrics to proceed.")
