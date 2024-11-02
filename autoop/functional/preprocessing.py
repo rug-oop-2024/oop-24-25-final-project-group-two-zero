@@ -6,6 +6,10 @@ import numpy as np
 from sklearn.preprocessing import OneHotEncoder, StandardScaler, LabelEncoder
 
 def preprocess_features(features: List[Feature], dataset: Dataset):
+    """
+    This is enforced by the tests to be a function. Cannot
+    do anything about it.
+    """
     results = []
     df = dataset.to_dataframe()
     for feature in features:
@@ -26,7 +30,7 @@ def preprocess_features(features: List[Feature], dataset: Dataset):
                     "type": "OneHotEncoder",
                     "encoder": encoder
                 }
-        else:
+        elif feature.type == "numerical":
             # For numerical features
             scaler = StandardScaler()
             data = scaler.fit_transform(df[[feature.name]])
@@ -34,5 +38,7 @@ def preprocess_features(features: List[Feature], dataset: Dataset):
                 "type": "StandardScaler",
                 "scaler": scaler
             }
+        else:
+            raise ValueError(f"Unknown feature type: {feature.type}")
         results.append((feature.name, data, artifact))
     return results

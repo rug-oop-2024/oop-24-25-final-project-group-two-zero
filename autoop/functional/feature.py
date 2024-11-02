@@ -3,14 +3,18 @@
 from typing import List
 from autoop.core.ml.feature import Feature
 
-class detect_feature_types:
-    def __call__(self, dataset) -> List[Feature]:
-        features = []
-        data = dataset.to_dataframe()  # Convert bytes to DataFrame
-        for column in data.columns:
-            if data[column].dtype == 'object' or data[column].dtype.name == 'category':
-                feature_type = 'categorical'
-            else:
-                feature_type = 'continuous'
-            features.append(Feature(name=column, type=feature_type))
-        return features
+def detect_feature_types(dataset) -> List[Feature]:
+    """
+    This is also enforced by the tests to be a function. Cannot
+    do anything about it.
+    
+    """
+    features = []
+    data = dataset.to_dataframe()
+    for column in data.columns:
+        if data[column].dtype == 'object' or data[column].dtype.name == 'category':
+            feature_type = 'categorical'
+        else:
+            feature_type = 'numerical'
+        features.append(Feature(name=column, type=feature_type))
+    return features

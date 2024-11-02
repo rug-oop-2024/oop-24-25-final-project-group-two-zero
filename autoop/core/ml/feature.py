@@ -1,9 +1,11 @@
+# feature.py
+
 from pydantic import BaseModel
 from typing import Literal
 
 class Feature(BaseModel):
     name: str
-    type: Literal['categorical', 'continuous']
+    type: Literal['categorical', 'numerical']
     is_target: bool = False
 
     def __str__(self):

@@ -45,8 +45,8 @@ class Pipeline():
                             # If the split is not given, it will default to 0.8
         if target_feature.type == "categorical" and model.type != "classification":
             raise ValueError("Model type must be classification for categorical target feature")
-        if target_feature.type == "continuous" and model.type != "regression":
-            raise ValueError("Model type must be regression for continuous target feature")
+        if target_feature.type == "numerical" and model.type != "regression":
+            raise ValueError("Model type must be regression for numerical target feature")
 
     def __str__(self):
         """
