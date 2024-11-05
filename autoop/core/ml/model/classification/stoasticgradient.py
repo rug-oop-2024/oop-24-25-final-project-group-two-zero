@@ -1,57 +1,50 @@
-from .. import Model
-import numpy as np
+# sgd.py
 from sklearn.linear_model import SGDClassifier
+from .model import Model
+import numpy as np
 
 
 class StochasticGradient(Model):
     """
     Stochastic Gradient Descent (SGD) classifier.
     """
-    type = "classification"
 
-    def __init__(self, loss='hinge', penalty='l2', alpha=0.0001, max_iter=1000, **kwargs) -> None:
+    _type = "classification"
+    _available_hyperparameters = {
+        'loss': ['hinge', 'log_loss', 'modified_huber', 'squared_hinge', 'perceptron'],
+        'penalty': ['l2', 'l1', 'elasticnet'],
+        'alpha': 0.0001,
+        'max_iter': 1000,
+        'tol': 1e-3,
+        'learning_rate': ['optimal', 'constant', 'invscaling', 'adaptive'],
+        'eta0': 0.0,
+    }
+
+    def __init__(self, **hyperparameters) -> None:
         """
-        Initialize the Stochastic Gradient Descent classifier with hyperparameters.
+        Initializes the StochasticGradient model with hyperparameters.
 
         Args:
-            loss (str): Loss function ('hinge', 'log_loss', 'modified_huber', etc.).
-            penalty (str): Penalty ('l2', 'l1', 'elasticnet').
-            alpha (float): Regularization term.
-            max_iter (int): Maximum number of iterations.
-        returns:
-            None
+            **hyperparameters: Hyperparameters for the model.
         """
-        super().__init__(**kwargs)
-        self.loss = loss
-        self.penalty = penalty
-        self.alpha = alpha
-        self.max_iter = max_iter
-        self._model = SGDClassifier(
-            loss=self.loss,
-            penalty=self.penalty,
-            alpha=self.alpha,
-            max_iter=self.max_iter
-        )
+
+        super().__init__(**hyperparameters)
+        params = {k: self._hyperparameters.get(k, v) for k, v in self._available_hyperparameters.items()}
+        self._model = SGDClassifier(**params)
 
     def fit(self, observations: np.ndarray, ground_truth: np.ndarray) -> None:
         """
-        Fit the Stochastic Gradient Descent model.
+        Fits the model to the data.
 
         Args:
-            observations (np.ndarray): Training data features.
-            ground_truth (np.ndarray): Training data labels.
-        returns:
-            None
+            observations (np.ndarray): Features.
+            ground_truth (np.ndarray): Target values.
         """
-        observations = np.asarray(observations)
-        ground_truth = np.asarray(ground_truth)
         self._model.fit(observations, ground_truth)
-        self._parameters['coef_'] = self._model.coef_
-        self._parameters['intercept_'] = self._model.intercept_
 
     def predict(self, observations: np.ndarray) -> np.ndarray:
         """
-        Predict using the Stochastic Gradient Descent model.
+        Predict using the StochasticGradient model.
 
         Args:
             observations (np.ndarray): Observations to predict.
@@ -59,5 +52,4 @@ class StochasticGradient(Model):
         Returns:
             np.ndarray: Predicted labels.
         """
-        observations = np.asarray(observations)
         return self._model.predict(observations)
