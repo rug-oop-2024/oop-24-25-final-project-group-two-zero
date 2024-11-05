@@ -6,8 +6,27 @@ from sklearn.neighbors import KNeighborsClassifier
 class KNearestNeighbors(Model):
     """
     K-Nearest Neighbors classifier.
+    6th of November:
+    1) Add all the different methods that can be used of the hyperparameter as a shared
+    between all the models, allow the user to see this with a getter so he cannot change it,
+    then allow the user to choose which hyperparameters he wants to use.
+
+    2) Also, make one of the classification models accept pictures as input.
+    
+    3) Make sure all the functions ever made are all protected if they shouldnt change
+    or public if they can be changed. This will only be inputs
+
+    7th and 8th of November:
+    Do the testing for all the models and all the classes. Good luck with that
+     
+    The HTML interface for the model will be done on the 9th of November. This is
+    when everything will be ready, and the project shall be over.
+
+    10th of November:
+    Final checking ocer all the code and enusure that I can use all the code and it's presentable.
     """
     _type = "classification"
+
 
     def __init__(self, k=3, distance_metric='euclidean', weights='uniform', **kwargs) -> None:
         """

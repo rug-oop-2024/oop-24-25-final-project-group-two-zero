@@ -1,3 +1,4 @@
+# model.py
 from abc import ABC, abstractmethod
 import numpy as np
 import copy
@@ -7,21 +8,46 @@ class Model(ABC):
     """
     Abstract base class for all models, containing fit and predict methods.
     """
-    _type  = None
-    def __init__(self) -> None:
+
+    _type = None  # Should be set in subclasses
+    _available_hyperparameters = {}  # Should be defined in subclasses
+
+    def __init__(self, **hyperparameters) -> None:
         """
-        Initializes the Model with an empty parameters dictionary.
+        Initializes the Model with hyperparameters.
+
+        Args:
+            **hyperparameters: Hyperparameters for the model.
         """
         self._parameters = {}
+        self._hyperparameters = hyperparameters
+
+    @property
+    def type(self) -> str:
+        return self._type
+
+    @property
+    def parameters(self) -> dict:
+        return copy.deepcopy(self._parameters)
+
+    @property
+    def available_hyperparameters(self) -> dict:
+        """
+        Get the available hyperparameters and their default values.
+
+        Returns:
+            dict: A dictionary of hyperparameter names and default values.
+        """
+        return self._available_hyperparameters.copy()
 
     @abstractmethod
-    def fit(self, observations: np.ndarray, groundtruth: np.ndarray) -> None:
+    def fit(self, observations: np.ndarray, ground_truth: np.ndarray) -> None:
         """
         Fits the model to the data.
 
         Args:
             observations (np.ndarray): Features.
-            groundtruth (np.ndarray): Target values.
+            ground_truth (np.ndarray): Target values.
         """
         pass
 
@@ -37,11 +63,3 @@ class Model(ABC):
             np.ndarray: Predicted values.
         """
         pass
-
-    @property
-    def type(self) -> str:
-        return self._type
-    
-    @property
-    def parameters(self) -> dict:
-        return copy.deepcopy(self._parameters)
