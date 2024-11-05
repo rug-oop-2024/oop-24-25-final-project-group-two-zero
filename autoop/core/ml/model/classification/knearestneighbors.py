@@ -1,67 +1,52 @@
-from .. import Model
-import numpy as np
-from collections import Counter
+# knn.py
 from sklearn.neighbors import KNeighborsClassifier
+from .model import Model
+import numpy as np
+
 
 class KNearestNeighbors(Model):
     """
     K-Nearest Neighbors classifier.
-    6th of November:
-    1) Add all the different methods that can be used of the hyperparameter as a shared
-    between all the models, allow the user to see this with a getter so he cannot change it,
-    then allow the user to choose which hyperparameters he wants to use.
-
-    2) Also, make one of the classification models accept pictures as input.
-    
-    3) Make sure all the functions ever made are all protected if they shouldnt change
-    or public if they can be changed. This will only be inputs
-
-    7th and 8th of November:
-    Do the testing for all the models and all the classes. Good luck with that
-     
-    The HTML interface for the model will be done on the 9th of November. This is
-    when everything will be ready, and the project shall be over.
-
-    10th of November:
-    Final checking ocer all the code and enusure that I can use all the code and it's presentable.
     """
+
     _type = "classification"
+    _available_hyperparameters = {
+        'n_neighbors': 5,
+        'weights': ['uniform', 'distance'],
+        'algorithm': ['auto', 'ball_tree', 'kd_tree', 'brute'],
+        'leaf_size': 30,
+        'p': 2,  # Power parameter for the Minkowski metric
+        'metric': ['minkowski', 'euclidean', 'manhattan'],
+        'metric_params': None,
+        'n_jobs': None
+    }
 
-
-    def __init__(self, k=3, distance_metric='euclidean', weights='uniform', **kwargs) -> None:
+    def __init__(self, **hyperparameters) -> None:
         """
-        Initialize the KNN model with hyperparameters.
+        Initializes the KNearestNeighbors model with hyperparameters.
 
         Args:
-            k (int): Number of neighbors to use.
-            distance_metric (str): Distance metric to use ('euclidean', 'manhattan').
-            weights (str): Weight function ('uniform', 'distance').
+            **hyperparameters: Hyperparameters for the model.
         """
-        super().__init__(**kwargs)
-        self.k = k
-        self.distance_metric = distance_metric
-        self.weights = weights
+
+        super().__init__(**hyperparameters)
+        # Merge default hyperparameters with user-specified ones
+        params = {k: self._hyperparameters.get(k, v) for k, v in self._available_hyperparameters.items()}
+        self._model = KNeighborsClassifier(**params)
 
     def fit(self, observations: np.ndarray, ground_truth: np.ndarray) -> None:
         """
-        Fit the model with training data.
+        Fits the model to the data.
 
         Args:
-            observations (np.ndarray): Training data features.
-            ground_truth (np.ndarray): Training data labels.
+            observations (np.ndarray): Features.
+            ground_truth (np.ndarray): Target values.
         """
-        observations = np.asarray(observations)
-        ground_truth = np.asarray(ground_truth)
-        if self.k > len(ground_truth):
-            raise ValueError("k cannot be greater than the number of training samples")
-        if self.k <= 0:
-            raise ValueError("k must be greater than zero")
-        self._parameters["observations"] = observations
-        self._parameters["ground_truth"] = ground_truth
+        self._model.fit(observations, ground_truth)
 
     def predict(self, observations: np.ndarray) -> np.ndarray:
         """
-        Predict the labels for the given observations.
+        Predict using the KNearestNeighbors model.
 
         Args:
             observations (np.ndarray): Observations to predict.
@@ -69,59 +54,5 @@ class KNearestNeighbors(Model):
         Returns:
             np.ndarray: Predicted labels.
         """
-        if not self._parameters or "observations" not in self._parameters:
-            raise ValueError("Model has not been fitted yet.")
-        observations = np.asarray(observations)
-        predictions = [self._predict_single(x) for x in observations]
-        return np.array(predictions)
 
-    def _compute_distance(self, x1: np.ndarray, x2: np.ndarray) -> float:
-        """
-        Compute the distance between two samples based on the distance metric.
-
-        Args:
-            x1 (np.ndarray): First sample.
-            x2 (np.ndarray): Second sample.
-
-        Returns:
-            float: Computed distance.
-        """
-        if self.distance_metric == 'euclidean':
-            return np.linalg.norm(x1 - x2)
-        elif self.distance_metric == 'manhattan':
-            return np.sum(np.abs(x1 - x2))
-        else:
-            raise ValueError(f"Unsupported distance metric: {self.distance_metric}")
-
-    def _predict_single(self, observation: np.ndarray) -> int:
-        """
-        Predict the label for a single observation.
-
-        Args:
-            observation (np.ndarray): The observation.
-
-        Returns:
-            int: The predicted label.
-        """
-        distances = np.array([
-            self._compute_distance(observation, train_obs)
-            for train_obs in self.parameters["observations"]
-        ])
-        k_indices = np.argsort(distances)[:self.k]
-        k_nearest_labels = self._parameters["ground_truth"][k_indices]
-
-        if self.weights == 'uniform':
-            most_common = Counter(k_nearest_labels).most_common(1)
-            return most_common[0][0]
-
-        elif self.weights == 'distance':
-            k_distances = distances[k_indices]
-            k_distances = np.where(k_distances == 0, 1e-5, k_distances)  # Avoid division by zero
-            weights = 1 / k_distances
-            label_weights = {}
-            for label, weight in zip(k_nearest_labels, weights):
-                label_weights[label] = label_weights.get(label, 0) + weight
-            return max(label_weights.items(), key=lambda x: x[1])[0]
-
-        else:
-            raise ValueError(f"Unsupported weights: {self.weights}")
+        return self._model.predict(observations)
