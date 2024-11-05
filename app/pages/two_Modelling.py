@@ -117,6 +117,13 @@ class Modelling:
             return self.CLASSIFICATION_METRICS
         else:
             raise ValueError(f"Unknown task type: {task_type}")
+    
+    def _mapping_display_name(self) -> str:
+        dataset_options = {
+            f"{artifact.name} (ID: {artifact.id})": artifact
+            for artifact in self.datasets
+        }
+        return dataset_options
 
     def run(self) -> None:
         # Initialize Streamlit page
@@ -145,11 +152,9 @@ class Modelling:
             st.stop()
 
         # Map display names to Artifact instances
-        dataset_options = {
-            f"{artifact.name} (ID: {artifact.id})": artifact
-            for artifact in self.datasets
-        }
+        dataset_options = self._mapping_display_name(self.datasets)
 
+        # Make this into another method
         # Allow user to select a dataset
         selected_dataset_name = st.selectbox('Choose a dataset:', list(dataset_options.keys()))
         selected_dataset = dataset_options[selected_dataset_name]

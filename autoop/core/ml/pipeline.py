@@ -257,8 +257,6 @@ Pipeline(
         for both classification and regression models.
         """
         report = {}
-
-        # Existing confusion matrix code for classification
         if self._model.type == "classification":
             from sklearn.metrics import confusion_matrix
             y_true = self._test_y
@@ -275,10 +273,9 @@ Pipeline(
             image_png_cm = buf_cm.getvalue()
             buf_cm.close()
             report['confusion_matrix'] = base64.b64encode(image_png_cm).decode('utf-8')
+    
 
-        # Compute SHAP values
         self._compute_shap_values()
-
         # Generate SHAP summary plot
         shap_fig = shap.plots._waterfall.waterfall_legacy(self._shap_values[0])
         buf_shap = io.BytesIO()
@@ -291,7 +288,6 @@ Pipeline(
 
         self._report = report
 
-# In the Pipeline class
     def _sensitivity_analysis(self):
         """
         Performs sensitivity analysis on the test data.
