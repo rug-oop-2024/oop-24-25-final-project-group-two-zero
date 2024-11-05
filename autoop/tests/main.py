@@ -9,7 +9,6 @@ from autoop.tests.test_artifact import TestArtifact
 from autoop.tests.test_metrics import TestMetrics
 from autoop.tests.test_modelling import TestModelling
 from autoop.tests.test_knearestneighbors import TestKNearestNeighbors
-from 
 
 
 if __name__ == '__main__':
