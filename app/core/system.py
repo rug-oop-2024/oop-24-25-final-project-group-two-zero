@@ -28,9 +28,7 @@ class ArtifactRegistry():
 
         Args:
             artifact (Artifact): Artifact instance to be registered.
-
         """
-
         artifact.asset_path = os.path.normpath(artifact.asset_path)
         # Save the artifact in the storage
         self._storage.save(artifact.data, artifact.asset_path)

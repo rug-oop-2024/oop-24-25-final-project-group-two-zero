@@ -3,7 +3,7 @@ from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense
 from tensorflow.keras.utils import to_categorical
 from ..model import Model
 import numpy as np
-
+from typing import Any
 
 class ImageClassificationModel(Model):
     """
@@ -21,7 +21,7 @@ class ImageClassificationModel(Model):
         'batch_size': 32,
     }
 
-    def __init__(self, **hyperparameters) -> None:
+    def __init__(self, **hyperparameters: Any) -> None:
         """
         Initializes the ImageClassificationModel model with hyperparameters.
 
@@ -30,7 +30,7 @@ class ImageClassificationModel(Model):
         """
         
         super().__init__(**hyperparameters)
-        self._hyperparameters = {**self._available_hyperparameters, **self._hyperparameters}
+        self._hyperparameters: dict = {**self._available_hyperparameters, **self._hyperparameters}
         self._build_model()
 
     def _build_model(self):
@@ -50,11 +50,11 @@ class ImageClassificationModel(Model):
         :param metrics: The metrics to track during training.
         :type metrics: list
         """
-        input_shape = self._hyperparameters['input_shape']
-        num_classes = self._hyperparameters['num_classes']
-        optimizer = self._hyperparameters['optimizer']
-        loss = self._hyperparameters['loss']
-        metrics = self._hyperparameters['metrics']
+        input_shape: tuple = self._hyperparameters['input_shape']
+        num_classes: int = self._hyperparameters['num_classes']
+        optimizer: str = self._hyperparameters['optimizer']
+        loss: str = self._hyperparameters['loss']
+        metrics: list = self._hyperparameters['metrics']
 
         self._model = Sequential()
         self._model.add(Conv2D(32, kernel_size=(3, 3), activation='relu', input_shape=input_shape))
