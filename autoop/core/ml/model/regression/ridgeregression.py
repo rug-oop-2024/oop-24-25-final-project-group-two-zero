@@ -1,50 +1,48 @@
-import numpy as np
+# ridge_regression.py
 from sklearn.linear_model import Ridge
-from .. import Model
+from ..model import Model
+import numpy as np
 
 
 class RidgeRegression(Model):
     """
     Ridge Regression model.
     """
-    type = "regression"
 
-    def __init__(self, alpha=1.0, fit_intercept=True, solver='auto', **kwargs) -> None:
+    _type = "regression"
+    _available_hyperparameters = {
+        'alpha': 1.0,
+        'fit_intercept': True,
+        'solver': ['auto', 'svd', 'cholesky', 'lsqr', 'sparse_cg', 'sag', 'saga'],
+        'max_iter': None,
+        'tol': 1e-3,
+    }
+
+    def __init__(self, **hyperparameters) -> None:
         """
-        Initialize the Ridge Regression model with hyperparameters.
+        Initializes the RidgeRegression model with specified hyperparameters.
 
         Args:
-            alpha (float): Regularization strength.
-            fit_intercept (bool): Whether to calculate the intercept.
-            solver (str): Solver to use ('auto', 'svd', 'cholesky', etc.).
+            **hyperparameters: Arbitrary keyword arguments for model hyperparameters.
         """
-        super().__init__(**kwargs)
-        self.alpha = alpha
-        self.fit_intercept = fit_intercept
-        self.solver = solver
-        self._model = Ridge(
-            alpha=self.alpha,
-            fit_intercept=self.fit_intercept,
-            solver=self.solver
-        )
+        super().__init__(**hyperparameters)
+        params = {k: self._hyperparameters.get(k, v) for k, v in self._available_hyperparameters.items()}
+        self._model = Ridge(**params)
 
     def fit(self, observations: np.ndarray, ground_truth: np.ndarray) -> None:
         """
-        Fit the Ridge Regression model.
+        Fits the RidgeRegression model to the data.
 
         Args:
-            observations (np.ndarray): Training data features.
-            ground_truth (np.ndarray): Training data targets.
+            observations (np.ndarray): Features.
+            ground_truth (np.ndarray): Target values.
         """
-        observations = np.asarray(observations)
-        ground_truth = np.asarray(ground_truth)
+
         self._model.fit(observations, ground_truth)
-        self._parameters['coef_'] = self._model.coef_
-        self._parameters['intercept_'] = self._model.intercept_
 
     def predict(self, observations: np.ndarray) -> np.ndarray:
         """
-        Predict using the Ridge Regression model.
+        Predict using the RidgeRegression model.
 
         Args:
             observations (np.ndarray): Observations to predict.
@@ -52,5 +50,4 @@ class RidgeRegression(Model):
         Returns:
             np.ndarray: Predicted values.
         """
-        observations = np.asarray(observations)
         return self._model.predict(observations)
