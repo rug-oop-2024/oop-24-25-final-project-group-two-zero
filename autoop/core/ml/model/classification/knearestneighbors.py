@@ -1,6 +1,6 @@
 # knn.py
 from sklearn.neighbors import KNeighborsClassifier
-from .model import Model
+from ..model import Model
 import numpy as np
 
 

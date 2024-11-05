@@ -366,25 +366,38 @@ class Modelling:
                 else:
                     st.warning("Please train a model before saving the pipeline.")
 
+    def select_model_hyperparameters(self, model_instance: Model) -> dict:
+        """
+        Allow user to select hyperparameters for the selected model.
+
+        Args:
+            model_instance (Model): The model instance.
+
+        Returns:
+            dict: The hyperparameters selected by the user.
+        """
+        st.write("### Model Hyperparameters")
+        hyperparameters = model_instance.available_hyperparameters
+        selected_hyperparameters = {}
+        for param, default in hyperparameters.items():
+            if isinstance(default, list):
+                value = st.selectbox(f"{param}", options=default, index=default.index(default) if default in default else 0)
+            elif isinstance(default, bool):
+                value = st.checkbox(f"{param}", value=default)
+            elif isinstance(default, int):
+                value = st.number_input(f"{param}", value=default, step=1)
+            elif isinstance(default, float):
+                value = st.number_input(f"{param}", value=default)
+            elif isinstance(default, str):
+                value = st.text_input(f"{param}", value=default)
+            else:
+                value = st.text_input(f"{param}", value=str(default))
+            selected_hyperparameters[param] = value
+        return selected_hyperparameters
+
     def run(self) -> None:
         """
-        Initialize Streamlit page for the Modelling page.
-
-        This page allows users to design a machine learning pipeline to train a model on a dataset.
-
-        The steps are as follows:
-
-        1. Select a dataset from the list of available datasets
-        2. Select input features and target feature from the dataset
-        3. Select feature extractors for each input feature
-        4. Select a model based on the task type (classification or regression)
-        5. Select dataset split ratio
-        6. Select metrics based on the task type
-        7. Display a pipeline summary
-        8. Train the model
-        9. Save the pipeline as an artifact
-
-        Do this or call a function inside a function.
+        Main method to run the Modelling page.
         """
         st.set_page_config(page_title="Modelling", page_icon="📈")
         st.write("# ⚙ Modelling")
@@ -453,9 +466,16 @@ class Modelling:
                 input_features_selected_names, target_feature_selected_name
             )
 
-            # Step 8: Train the model
-            model_instance = self.get_model(selected_model_name, task_type)
+            # Step 8: Get the model instance
+            model_class = self.get_model_class(selected_model_name, task_type)
+            model_instance = model_class()
 
+            # Step 9: Select hyperparameters
+            hyperparameters = self.select_model_hyperparameters(model_instance)
+            # Re-initialize the model instance with selected hyperparameters
+            model_instance = model_class(**hyperparameters)
+
+            # Step 10: Train the model
             pipeline = self.train_model(
                 model_instance=model_instance,
                 dataset_chosen=dataset_chosen,
@@ -466,7 +486,7 @@ class Modelling:
                 feature_extractors_selected=feature_extractors_selected
             )
 
-            # Step 9: Save the pipeline as an artifact
+            # Step 11: Save the pipeline as an artifact
             self.save_pipeline(pipeline)
 
     def starter_modelling_page(self) -> None:
