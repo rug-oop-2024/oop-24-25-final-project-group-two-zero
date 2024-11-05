@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 import numpy as np
+import copy
 
 
 class Model(ABC):
@@ -11,7 +12,7 @@ class Model(ABC):
         """
         Initializes the Model with an empty parameters dictionary.
         """
-        self.parameters = {}
+        self._parameters = {}
 
     @abstractmethod
     def fit(self, observations: np.ndarray, groundtruth: np.ndarray) -> None:
@@ -40,3 +41,7 @@ class Model(ABC):
     @property
     def type(self) -> str:
         return self._type
+    
+    @property
+    def parameters(self) -> dict:
+        return copy.deepcopy(self._parameters)

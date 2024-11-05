@@ -29,7 +29,7 @@ class TreeClassification(Model):
         observations = np.asarray(observations)
         ground_truth = np.asarray(ground_truth)
         self._model.fit(observations, ground_truth)
-        self.parameters['feature_importances_'] = self._model.feature_importances_
+        self._parameters['feature_importances_'] = self._model.feature_importances_
 
     def predict(self, observations: np.ndarray) -> np.ndarray:
         """

@@ -46,8 +46,8 @@ class StochasticGradient(Model):
         observations = np.asarray(observations)
         ground_truth = np.asarray(ground_truth)
         self._model.fit(observations, ground_truth)
-        self.parameters['coef_'] = self._model.coef_
-        self.parameters['intercept_'] = self._model.intercept_
+        self._parameters['coef_'] = self._model.coef_
+        self._parameters['intercept_'] = self._model.intercept_
 
     def predict(self, observations: np.ndarray) -> np.ndarray:
         """

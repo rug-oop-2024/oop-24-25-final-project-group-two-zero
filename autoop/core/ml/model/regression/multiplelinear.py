@@ -1,5 +1,6 @@
 import numpy as np
 from .. import Model
+from sklearn.linear_model import LinearRegression
 
 
 class MultipleLinearRegression(Model):
@@ -59,5 +60,5 @@ class MultipleLinearRegression(Model):
             X_design = np.hstack((observations, np.ones((observations.shape[0], 1))))
         else:
             X_design = observations
-        w = self.parameters['weights']
+        w = self._parameters['weights']
         return X_design @ w
