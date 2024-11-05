@@ -1,39 +1,48 @@
-from .. import Model
-import numpy as np
+# decision_tree.py
 from sklearn.tree import DecisionTreeClassifier
+from .model import Model
+import numpy as np
+
 
 class TreeClassification(Model):
     """
-    Decision tree classification model.
+    Decision Tree Classifier.
     """
-    def __init__(self, criterion='gini', max_depth=None, **kwargs) -> None:
-        '''
-        Initialize the Decision Tree Classifier with hyperparameters.
-        Args:
-            criterion (str): The function to measure the quality of a split (`'gini'`, `'entropy'`).
-            max_depth (int): The maximum depth of the tree.
-        '''
-        super().__init__(**kwargs)
-        self.criterion = criterion
-        self.max_depth = max_depth
-        self._model = DecisionTreeClassifier(criterion=self.criterion, max_depth=self.max_depth)
 
-    def fit(self, observations: np.ndarray, groundtruth: np.ndarray) -> None:
+    _type = "classification"
+    _available_hyperparameters = {
+        'criterion': ['gini', 'entropy', 'log_loss'],
+        'splitter': ['best', 'random'],
+        'max_depth': None,
+        'min_samples_split': 2,
+        'min_samples_leaf': 1,
+        'max_features': None,
+    }
+
+    def __init__(self, **hyperparameters) -> None:
+        """
+        Initializes the TreeClassification model with hyperparameters.
+
+        Args:
+            **hyperparameters: Hyperparameters for configuring the DecisionTreeClassifier.
+        """
+        super().__init__(**hyperparameters)
+        params = {k: self._hyperparameters.get(k, v) for k, v in self._available_hyperparameters.items()}
+        self._model = DecisionTreeClassifier(**params)
+
+    def fit(self, observations: np.ndarray, ground_truth: np.ndarray) -> None:
         """
         Fits the model to the data.
 
         Args:
             observations (np.ndarray): Features.
-            groundtruth (np.ndarray): Target values.
+            ground_truth (np.ndarray): Target values.
         """
-        observations = np.asarray(observations)
-        ground_truth = np.asarray(ground_truth)
         self._model.fit(observations, ground_truth)
-        self._parameters['feature_importances_'] = self._model.feature_importances_
 
     def predict(self, observations: np.ndarray) -> np.ndarray:
         """
-        Predict using the Decision Tree Classifier model.
+        Predict using the TreeClassification model.
 
         Args:
             observations (np.ndarray): Observations to predict.
@@ -41,5 +50,4 @@ class TreeClassification(Model):
         Returns:
             np.ndarray: Predicted labels.
         """
-        observations = np.asarray(observations)
         return self._model.predict(observations)
