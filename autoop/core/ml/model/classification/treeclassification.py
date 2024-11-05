@@ -1,4 +1,3 @@
-# decision_tree.py
 from sklearn.tree import DecisionTreeClassifier
 from ..model import Model
 import numpy as np

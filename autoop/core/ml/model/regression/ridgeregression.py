@@ -1,4 +1,3 @@
-# ridge_regression.py
 from sklearn.linear_model import Ridge
 from ..model import Model
 import numpy as np

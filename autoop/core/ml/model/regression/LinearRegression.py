@@ -1,4 +1,3 @@
-# linear_regression.py
 from sklearn.linear_model import LinearRegression
 from ..model import Model
 import numpy as np

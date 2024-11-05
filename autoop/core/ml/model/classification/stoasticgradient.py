@@ -1,4 +1,3 @@
-# sgd.py
 from sklearn.linear_model import SGDClassifier
 from ..model import Model
 import numpy as np
