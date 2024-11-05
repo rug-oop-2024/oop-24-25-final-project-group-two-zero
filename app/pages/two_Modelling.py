@@ -1,5 +1,7 @@
 import streamlit as st
 import numpy as np
+import base64
+from sklearn.preprocessing import StandardScaler, MinMaxScaler, OneHotEncoder
 from app.core.system import AutoMLSystem
 from autoop.core.ml.pipeline import Pipeline
 from autoop.core.ml.model.model import Model
@@ -51,6 +53,13 @@ class Modelling:
         "F1 Score": F1Score(),
         "Specificity": Specificity(),
     }
+
+    FEATURE_EXTRACTORS = {
+        "StandardScaler": StandardScaler,
+        "MinMaxScaler": MinMaxScaler,
+        "OneHotEncoder": OneHotEncoder,
+    }
+
 
     def __init__(self) -> None:
         """
@@ -158,6 +167,17 @@ class Modelling:
         input_features_selected_names = st.multiselect("Select input features", feature_names)
         target_feature_selected_name = st.selectbox("Select target feature", feature_names)
 
+        # Step 1.1: Select feature extractors for each input feature
+        feature_extractors_selected = {}
+        for feature_name in input_features_selected_names:
+            extractor_name = st.selectbox(
+                f"Select feature extractor for {feature_name}",
+                list(self.FEATURE_EXTRACTORS.keys()),
+                key=f"extractor_{feature_name}"
+            )
+            feature_extractors_selected[feature_name] = extractor_name
+
+
         # Convert selected feature names to Feature instances
         input_features_selected = [feature_dict[name] for name in input_features_selected_names]
         target_feature_selected = feature_dict[target_feature_selected_name]
@@ -234,31 +254,54 @@ class Modelling:
                     for metric, value in results["metrics"]:
                         st.write(f"{metric.name}: {value}")
 
+                    # Display the report (e.g., confusion matrix, SHAP plots)
+                    report = results.get("report", {})
+                    if report:
+                        st.write("## Model Explanation")
+                        # Display Confusion Matrix if available
+                        confusion_matrix_png = report.get('confusion_matrix')
+                        if confusion_matrix_png:
+                            st.write("### Confusion Matrix")
+                            st.image(base64.b64decode(confusion_matrix_png), format='PNG')
+
+                        # Display SHAP Summary Plot
+                        shap_summary_png = report.get('shap_summary')
+                        if shap_summary_png:
+                            st.write("### SHAP Summary Plot")
+                            st.image(base64.b64decode(shap_summary_png), format='PNG')
+
+                        # Display SHAP Dependence Plotsensitivities = results.get('sensitivity_results')
+                        if sensitivities:
+                            st.write("### Sensitivity Analysis")
+                            sensitivity_df = pd.DataFrame(list(sensitivities.items()), columns=['Feature', 'Sensitivity'])
+                            st.bar_chart(sensitivity_df.set_index('Feature'))
+
                     # Store the trained pipeline in session state
                     st.session_state['trained_pipeline'] = pipeline
 
-                # Step 8: Save the pipeline as an artifact
-                st.write("## 💾 Save the Pipeline")
-                pipeline_name = st.text_input("Enter a name for the pipeline")
-                pipeline_version = st.text_input("Enter a version for the pipeline", "1.0.0")
 
-                if st.button("Save Pipeline"):
-                    if 'trained_pipeline' in st.session_state:
-                        pipeline = st.session_state['trained_pipeline']
-                        if pipeline_name:
-                            # Convert the pipeline into an artifact
-                            pipeline_artifact = pipeline.to_artifact(name=pipeline_name, version=pipeline_version)
-                            # Register the pipeline artifact
-                            self.automl.registry.register(pipeline_artifact)
-                            st.success(
-                                f"Pipeline '{pipeline_name}' version '{pipeline_version}' has been saved."
-                            )
+                    # Step 8: Save the pipeline as an artifact
+                    st.write("## 💾 Save the Pipeline")
+                    pipeline_name = st.text_input("Enter a name for the pipeline")
+                    pipeline_version = st.text_input("Enter a version for the pipeline", "1.0.0")
+
+                    if st.button("Save Pipeline"):
+                        if 'trained_pipeline' in st.session_state:
+                            pipeline = st.session_state['trained_pipeline']
+                            if pipeline_name:
+                                # Convert the pipeline into an artifact
+                                pipeline_artifact = pipeline.to_artifact(name=pipeline_name, version=pipeline_version)
+                                # Register the pipeline artifact
+                                self.automl.registry.register(pipeline_artifact)
+                                st.success(
+                                    f"Pipeline '{pipeline_name}' version '{pipeline_version}' has been saved."
+                                )
+                            else:
+                                st.warning("Please enter a name for the pipeline.")
                         else:
-                            st.warning("Please enter a name for the pipeline.")
-                    else:
-                        st.warning("Please train a model before saving the pipeline.")
-            else:
-                st.write("Please select a model and metrics to proceed.")
+                            st.warning("Please train a model before saving the pipeline.")
+                else:
+                    st.write("Please select a model and metrics to proceed.")
 
     def starter_modelling_page(self) -> None:
         """

@@ -12,6 +12,7 @@ from autoop.core.ml.dataset import Dataset
 from autoop.core.ml.feature import Feature
 from autoop.core.ml.metric import Metric
 from autoop.functional.preprocessing import preprocess_features
+import shap
 
 
 class Pipeline:
@@ -236,43 +237,93 @@ Pipeline(
             self._metrics_results.append((metric, result))
         self._predictions = predictions
 
-    def _generate_report(self) -> None:
+    def _compute_shap_values(self):
         """
-        Generates a report containing a confusion matrix for classification models.
+        Computes SHAP values for the test data.
 
-        The report is generated only for classification models, and it contains a
-        confusion matrix as a base64-encoded PNG image.
+        This method uses the trained model to compute SHAP values for the test dataset.
+        The SHAP values are stored in the `_shap_values` attribute.
+        """
+        X_test = self._compact_vectors(self._test_X)
+        # Use KernelExplainer for models without built-in SHAP explainers
+        explainer = shap.Explainer(self._model.predict, X_test)
+        self._shap_values = explainer(X_test)
 
-        Returns:
-            None
+    def _generate_report(self):
+        """
+        Generates a report containing explainability plots.
+
+        The report includes a confusion matrix for classification models and SHAP plots
+        for both classification and regression models.
         """
         report = {}
+
+        # Existing confusion matrix code for classification
         if self._model.type == "classification":
             from sklearn.metrics import confusion_matrix
             y_true = self._test_y
             y_pred = self._predictions
             cm = confusion_matrix(y_true, y_pred)
-            fig, ax = plt.subplots()
-            sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', ax=ax)
-            ax.set_xlabel('Predicted Labels')
-            ax.set_ylabel('True Labels')
+            fig_cm, ax_cm = plt.subplots()
+            sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', ax=ax_cm)
+            ax_cm.set_xlabel('Predicted Labels')
+            ax_cm.set_ylabel('True Labels')
             plt.title('Confusion Matrix')
-            buf = io.BytesIO()
-            plt.savefig(buf, format='png')
-            buf.seek(0)
-            image_png = buf.getvalue()
-            buf.close()
-            report['confusion_matrix'] = base64.b64encode(image_png).decode('utf-8')
+            buf_cm = io.BytesIO()
+            plt.savefig(buf_cm, format='png')
+            buf_cm.seek(0)
+            image_png_cm = buf_cm.getvalue()
+            buf_cm.close()
+            report['confusion_matrix'] = base64.b64encode(image_png_cm).decode('utf-8')
+
+        # Compute SHAP values
+        self._compute_shap_values()
+
+        # Generate SHAP summary plot
+        shap_fig = shap.plots._waterfall.waterfall_legacy(self._shap_values[0])
+        buf_shap = io.BytesIO()
+        plt.savefig(buf_shap, format='png', bbox_inches='tight')
+        buf_shap.seek(0)
+        image_png_shap = buf_shap.getvalue()
+        buf_shap.close()
+        report['shap_summary'] = base64.b64encode(image_png_shap).decode('utf-8')
+        plt.close(shap_fig)
+
         self._report = report
+
+# In the Pipeline class
+    def _sensitivity_analysis(self):
+        """
+        Performs sensitivity analysis on the test data.
+
+        For each feature, this method perturbs the feature values and observes the change in predictions.
+        The results are stored in the `_sensitivity_results` attribute.
+        """
+        X_test = self._compact_vectors(self._test_X)
+        sensitivities = {}
+        for i, feature in enumerate(self._input_features):
+            X_perturbed = X_test.copy()
+            # Perturb the feature by adding a small value (e.g., 0.1 times the standard deviation)
+            perturbation = 0.1 * np.std(X_test[:, i])
+            X_perturbed[:, i] += perturbation
+            y_pred_original = self._model.predict(X_test)
+            y_pred_perturbed = self._model.predict(X_perturbed)
+            # Compute the mean absolute change in predictions
+            sensitivity = np.mean(np.abs(y_pred_perturbed - y_pred_original))
+            sensitivities[feature.name] = sensitivity
+        self._sensitivity_results = sensitivities
+
 
     def execute(self) -> dict:
         """
         Executes the pipeline and returns the results.
 
-        The method preprocesses the input data, splits it into training and testing sets, trains the model, evaluates the model, and generates a report.
+        The method preprocesses the input data, splits it into training and testing sets,
+        trains the model, evaluates the model, generates a report, and returns the metrics,
+        predictions, and report.
 
         Returns:
-            A dictionary containing the evaluation metrics and the predictions of the model.
+            dict: A dictionary containing the evaluation metrics, predictions, and report.
         """
         self._preprocess_features()
         self._split_data()
@@ -282,4 +333,5 @@ Pipeline(
         return {
             "metrics": self._metrics_results,
             "predictions": self._predictions,
+            "report": self._report,
         }
