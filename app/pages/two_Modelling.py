@@ -28,6 +28,9 @@ from autoop.functional.feature import Feature, detect_feature_types
 
 
 class Modelling:
+    """
+    Check if metrics even need to hava a name
+    """
     # Define the model lists for regression and classification
     REGRESSION_MODELS = {
         "MultipleLinearRegression": MultipleLinearRegression,

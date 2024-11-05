@@ -32,35 +32,34 @@ def get_metric(name: str) -> Any:
 
 class Metric(ABC):
     """Base class for all metrics."""
-
-    def __init__(self, name: str) -> None:
-        self.name = name
+    _name = None
 
     @abstractmethod
     def evaluate(self, y_pred: np.ndarray, y_true: np.ndarray) -> float:
         """Compute the metric."""
         pass
 
+    @property
+    def name(self) -> str:
+        return self._name
+
 
 class MeanSquaredError(Metric):
-    def __init__(self) -> None:
-        super().__init__(name="Mean Squared Error")
+    _name = "Mean Squared Error"
 
     def evaluate(self, y_pred: np.ndarray, y_true: np.ndarray) -> float:
         return np.mean((y_true - y_pred) ** 2)
 
 
 class MeanAbsoluteError(Metric):
-    def __init__(self) -> None:
-        super().__init__(name="Mean Absolute Error")
+    _name = "Mean Absolute Error"
 
     def evaluate(self, y_pred: np.ndarray, y_true: np.ndarray) -> float:
         return np.mean(np.abs(y_true - y_pred))
 
 
 class R2Score(Metric):
-    def __init__(self) -> None:
-        super().__init__(name="R-Squared")
+    _name = "R-Squared"
 
     def evaluate(self, y_pred: np.ndarray, y_true: np.ndarray) -> float:
         ss_res = np.sum((y_true - y_pred) ** 2)
