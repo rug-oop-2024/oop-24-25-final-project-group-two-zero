@@ -68,16 +68,14 @@ class R2Score(Metric):
 
 
 class Accuracy(Metric):
-    def __init__(self) -> None:
-        super().__init__(name="Accuracy")
+    _name="Accuracy"
 
     def evaluate(self, y_pred: np.ndarray, y_true: np.ndarray) -> float:
         return np.mean(y_true == y_pred)
 
 
 class Specificity(Metric):
-    def __init__(self) -> None:
-        super().__init__(name="Specificity")
+    _name="Specificity"
 
     def evaluate(self, y_pred: np.ndarray, y_true: np.ndarray) -> float:
         true_negative = np.sum((y_true == 0) & (y_pred == 0))
@@ -88,8 +86,7 @@ class Specificity(Metric):
 
 
 class F1Score(Metric):
-    def __init__(self) -> None:
-        super().__init__(name="F1 Score")
+    _name="F1 Score"
 
     def evaluate(self, y_pred: np.ndarray, y_true: np.ndarray) -> float:
         true_positive = np.sum((y_true == 1) & (y_pred == 1))
