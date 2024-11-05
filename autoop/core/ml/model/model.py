@@ -6,7 +6,7 @@ class Model(ABC):
     """
     Abstract base class for all models, containing fit and predict methods.
     """
-
+    _type  = None
     def __init__(self) -> None:
         """
         Initializes the Model with an empty parameters dictionary.
@@ -36,3 +36,7 @@ class Model(ABC):
             np.ndarray: Predicted values.
         """
         pass
+
+    @property
+    def type(self) -> str:
+        return self._type

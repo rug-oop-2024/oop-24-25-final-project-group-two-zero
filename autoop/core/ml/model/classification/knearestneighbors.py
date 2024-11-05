@@ -7,7 +7,7 @@ class KNearestNeighbors(Model):
     """
     K-Nearest Neighbors classifier.
     """
-    type = "classification"
+    _type = "classification"
 
     def __init__(self, k=3, distance_metric='euclidean', weights='uniform', **kwargs) -> None:
         """
