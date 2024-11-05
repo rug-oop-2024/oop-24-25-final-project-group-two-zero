@@ -50,6 +50,8 @@ class Artifact:
 
         Args:
             directory (str): The directory where the file will be saved.
+
+        Not too sure this is correct
         """
         if not os.path.exists(directory):
             os.makedirs(directory)
