@@ -1,4 +1,3 @@
-# support_vector_regression.py
 from sklearn.svm import SVR
 from ..model import Model
 import numpy as np

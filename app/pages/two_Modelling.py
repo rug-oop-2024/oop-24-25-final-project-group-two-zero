@@ -10,7 +10,7 @@ from autoop.core.ml.dataset import Dataset
 from autoop.core.ml.model.regression import (
     MultipleLinearRegression,
     RidgeRegression,
-    LinearRegressionModel
+    SupportVectorRegression
 )
 from autoop.core.ml.model.classification import (
     KNearestNeighbors,
@@ -41,7 +41,7 @@ class Modelling:
     REGRESSION_MODELS = {
         "MultipleLinearRegression": MultipleLinearRegression,
         "RidgeRegression": RidgeRegression,
-        "LinearRegression": LinearRegressionModel
+        "SupportVectorRegression": SupportVectorRegression
     }
 
     CLASSIFICATION_MODELS = {

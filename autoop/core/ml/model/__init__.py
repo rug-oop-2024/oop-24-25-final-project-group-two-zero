@@ -1,20 +1,28 @@
 from .model import Model
 # Regression
-from autoop.core.ml.model.regression import LinearRegressionModel
+from autoop.core.ml.model.regression import MultipleLinearRegression
 from autoop.core.ml.model.regression import RidgeRegression
-from autoop.core.ml.model.regression import LinearRegression
+from autoop.core.ml.model.regression import SupportVectorRegression
 # Classification
 from autoop.core.ml.model.classification import TreeClassification
 from autoop.core.ml.model.classification import KNearestNeighbors
 from autoop.core.ml.model.classification import StochasticGradient
+from autoop.core.ml.model.classification import ImageClassificationModel
+from autoop.core.ml.model.classification import TextClassificationModel
+from autoop.core.ml.model.classification import AudioClassificationModel
+from autoop.core.ml.model.classification import VideoClassificationModel
 
 
 __all__ = [
     "Model",
-    "LinearRegressionModel",
+    "MultipleLinearRegression",
     "RidgeRegression",
-    "LinearRegression",
+    "SupportVectorRegression",
     "TreeClassification",
     "KNearestNeighbors",
-    "StochasticGradient"
+    "StochasticGradient",
+    "ImageClassificationModel",
+    "TextClassificationModel",
+    "AudioClassificationModel",
+    "VideoClassificationModel"
 ]
