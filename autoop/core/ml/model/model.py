@@ -2,6 +2,7 @@
 from abc import ABC, abstractmethod
 import numpy as np
 import copy
+from typing import List
 
 
 class Model(ABC):
@@ -9,8 +10,10 @@ class Model(ABC):
     Abstract base class for all models, containing fit and predict methods.
     """
 
-    _type = None  # Should be set in subclasses
-    _available_hyperparameters = {}  # Should be defined in subclasses
+    _type = None
+    _available_hyperparameters = {}
+    _supported_feature_types: List[str] = []
+    _supported_target_types: List[str] = []
 
     def __init__(self, **hyperparameters) -> None:
         """
@@ -39,6 +42,26 @@ class Model(ABC):
             dict: A dictionary of hyperparameter names and default values.
         """
         return self._available_hyperparameters.copy()
+
+    @property
+    def supported_feature_types(self) -> List[str]:
+        """
+        Get the list of supported feature types.
+
+        Returns:
+            List[str]: Supported feature types.
+        """
+        return self._supported_feature_types
+
+    @property
+    def supported_target_types(self) -> List[str]:
+        """
+        Get the list of supported target types.
+
+        Returns:
+            List[str]: Supported target types.
+        """
+        return self._supported_target_types
 
     @abstractmethod
     def fit(self, observations: np.ndarray, ground_truth: np.ndarray) -> None:

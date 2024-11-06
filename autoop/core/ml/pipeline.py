@@ -13,6 +13,7 @@ from autoop.core.ml.feature import Feature
 from autoop.core.ml.metric import Metric
 from autoop.functional.preprocessing import preprocess_features
 import shap
+from typing import List, Dict, Any
 
 
 class Pipeline:
@@ -47,10 +48,9 @@ class Pipeline:
         self._metrics = metrics
         self._artifacts = {}
         self._split = split
-        if target_feature.type == "categorical" and model.type != "classification":
-            raise ValueError("Model type must be classification for categorical target feature")
-        if target_feature.type == "numerical" and model.type != "regression":
-            raise ValueError("Model type must be regression for numerical target feature")
+
+        # Validate feature and target types
+        self._validate_feature_and_target_types()
 
     def __str__(self) -> str:
         """
@@ -117,24 +117,59 @@ Pipeline(
         """
         self._artifacts[name] = artifact
 
+    def _validate_feature_and_target_types(self):
+        """
+        Validates that the model supports the selected feature and target types.
+        """
+        feature_types = set(feature.type for feature in self._input_features)
+        target_type = self._target_feature.type
+
+        # Ensure the model supports all input feature types
+        if not all(ftype in self._model.supported_feature_types for ftype in feature_types):
+            raise ValueError(f"Model {self._model.__class__.__name__} does not support feature types {feature_types}")
+
+        if target_type not in self._model.supported_target_types:
+            raise ValueError(f"Model {self._model.__class__.__name__} does not support target type {target_type}")
+
     def _preprocess_features(self) -> None:
         """
-        Preprocesses the input features and target feature using the preprocess_features function.
+        Preprocesses the input features and target feature.
+        """
+        # For each feature, apply preprocessing based on its type
+        self._input_vectors = []
+        for feature in self._input_features:
+            data = self._dataset.data[feature.name]
+            preprocessed_data = self._preprocess_feature_data(feature, data)
+            self._input_vectors.append(preprocessed_data)
 
-        The function takes the list of input features and the target feature, and preprocesses them
-        using the preprocess_features function. The preprocessed data is stored in the _input_vectors
-        and _output_vector attributes of the Pipeline object.
+        # Preprocess target feature
+        target_data = self._dataset.data[self._target_feature.name]
+        self._output_vector = self._preprocess_feature_data(self._target_feature, target_data)
+
+    def _preprocess_feature_data(self, feature: Feature, data):
+        """
+        Preprocesses data based on feature type.
+
+        Args:
+            feature (Feature): The feature to preprocess.
+            data: The data corresponding to the feature.
 
         Returns:
-            None
+            np.ndarray: Preprocessed data.
         """
-        (target_feature_name, target_data, artifact) = preprocess_features([self._target_feature], self._dataset)[0]
-        self._register_artifact(target_feature_name, artifact)
-        input_results = preprocess_features(self._input_features, self._dataset)
-        for (feature_name, data, artifact) in input_results:
-            self._register_artifact(feature_name, artifact)
-        self._output_vector = target_data
-        self._input_vectors = [data for (_, data, _) in input_results]
+        if feature.type == 'image':
+            # Assume images are already loaded as arrays
+            preprocessed_data = np.stack(data.values)
+        elif feature.type == 'text':
+            preprocessed_data = data.tolist()
+        elif feature.type == 'audio':
+            preprocessed_data = np.stack(data.values)
+        elif feature.type == 'video':
+            preprocessed_data = np.stack(data.values)
+        else:
+            # For numerical and categorical data, use existing preprocessing
+            preprocessed_data = data.values.reshape(-1, 1)
+        return preprocessed_data
 
     def _split_data(self) -> None:
         """
@@ -184,21 +219,28 @@ Pipeline(
             type='pipeline',
         )
 
-    def _compact_vectors(self, vectors: List[np.array]) -> np.array:
+    def _compact_vectors(self, vectors: List) -> Any:
         """
-        Concatenates the input vectors into a single array along the second axis.
+        Compacts the input vectors into a format suitable for the model.
 
-        The input vectors are concatenated into a single array, which is
-        returned as the output. The concatenation is done along the second
-        axis (i.e., axis=1).
+        For models that accept lists (e.g., text data), we might need to return the list as is.
+        For numerical data, we concatenate the vectors.
 
         Args:
-            vectors (List[np.array]): The input vectors to be concatenated.
+            vectors (List): The input vectors.
 
         Returns:
-            np.array: The concatenated array.
+            Any: Compacted data.
         """
-        return np.concatenate(vectors, axis=1)
+        if self._model.supported_feature_types == ['text']:
+            # Return list of strings
+            return vectors[0]  # Assuming one text feature
+        elif self._model.supported_feature_types == ['image', 'audio', 'video']:
+            # Stack along the first axis
+            return np.concatenate(vectors, axis=0)
+        else:
+            # For numerical data
+            return np.concatenate(vectors, axis=1)
 
     def _train(self) -> None:
         """

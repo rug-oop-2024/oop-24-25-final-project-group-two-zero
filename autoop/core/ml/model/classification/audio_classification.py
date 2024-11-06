@@ -1,19 +1,19 @@
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense
+from tensorflow.keras.layers import Conv1D, MaxPooling1D, Flatten, Dense
 from tensorflow.keras.utils import to_categorical
 from ..model import Model
 import numpy as np
-from typing import Any, List
+from typing import Any
 
 
-class ImageClassificationModel(Model):
+class AudioClassificationModel(Model):
     """
-    Image classification model using a simple CNN.
+    Audio classification model using a simple CNN.
     """
 
     _type = "classification"
     _available_hyperparameters = {
-        'input_shape': (28, 28, 1),
+        'input_shape': (16000, 1),
         'num_classes': 10,
         'optimizer': ['adam', 'sgd', 'rmsprop'],
         'loss': ['categorical_crossentropy', 'sparse_categorical_crossentropy'],
@@ -21,12 +21,12 @@ class ImageClassificationModel(Model):
         'epochs': 10,
         'batch_size': 32,
     }
-    _supported_feature_types = ['image']
+    _supported_feature_types = ['audio']
     _supported_target_types = ['categorical']
 
     def __init__(self, **hyperparameters: Any) -> None:
         """
-        Initializes the ImageClassificationModel with hyperparameters.
+        Initializes the AudioClassificationModel with hyperparameters.
 
         Args:
             **hyperparameters: Hyperparameters for the model.
@@ -37,7 +37,7 @@ class ImageClassificationModel(Model):
 
     def _build_model(self):
         """
-        Builds the ImageClassificationModel based on the given hyperparameters.
+        Builds the AudioClassificationModel based on the given hyperparameters.
         """
         input_shape = self._hyperparameters['input_shape']
         num_classes = self._hyperparameters['num_classes']
@@ -46,10 +46,10 @@ class ImageClassificationModel(Model):
         metrics = self._hyperparameters['metrics']
 
         self._model = Sequential()
-        self._model.add(Conv2D(32, kernel_size=(3, 3), activation='relu', input_shape=input_shape))
-        self._model.add(MaxPooling2D(pool_size=(2, 2)))
+        self._model.add(Conv1D(16, kernel_size=3, activation='relu', input_shape=input_shape))
+        self._model.add(MaxPooling1D(pool_size=2))
         self._model.add(Flatten())
-        self._model.add(Dense(128, activation='relu'))
+        self._model.add(Dense(64, activation='relu'))
         self._model.add(Dense(num_classes, activation='softmax'))
         self._model.compile(optimizer=optimizer, loss=loss, metrics=metrics)
 
@@ -58,7 +58,7 @@ class ImageClassificationModel(Model):
         Fits the model to the given data.
 
         Args:
-            observations (np.ndarray): The input data to fit the model to.
+            observations (np.ndarray): The input audio data to fit the model to.
             ground_truth (np.ndarray): The target values to fit the model to.
         """
         epochs = self._hyperparameters['epochs']
@@ -76,7 +76,7 @@ class ImageClassificationModel(Model):
         Predicts the labels for the given observations.
 
         Args:
-            observations (np.ndarray): The input data to predict.
+            observations (np.ndarray): The input audio data to predict.
 
         Returns:
             np.ndarray: The predicted labels.

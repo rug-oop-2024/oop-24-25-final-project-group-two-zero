@@ -17,6 +17,8 @@ class TreeClassification(Model):
         'min_samples_leaf': 1,
         'max_features': None,
     }
+    _supported_feature_types = ['numerical']
+    _supported_target_types = ['categorical']
 
     def __init__(self, **hyperparameters) -> None:
         """

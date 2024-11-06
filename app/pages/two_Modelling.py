@@ -1,5 +1,4 @@
 import streamlit as st
-import numpy as np
 import base64
 from typing import List, Tuple, Dict
 import pandas as pd
@@ -16,7 +15,11 @@ from autoop.core.ml.model.regression import (
 from autoop.core.ml.model.classification import (
     KNearestNeighbors,
     StochasticGradient,
-    TreeClassification
+    TreeClassification,
+    ImageClassificationModel,
+    TextClassificationModel,
+    AudioClassificationModel,
+    VideoClassificationModel
 )
 from autoop.core.ml.metric import (
     Accuracy,
@@ -42,9 +45,13 @@ class Modelling:
     }
 
     CLASSIFICATION_MODELS = {
-        "StochasticGradient": StochasticGradient,
         "KNearestNeighbors": KNearestNeighbors,
-        "DecisionTreeClassification": TreeClassification
+        "StochasticGradient": StochasticGradient,
+        "DecisionTreeClassification": TreeClassification,
+        "ImageClassificationModel": ImageClassificationModel,
+        "TextClassificationModel": TextClassificationModel,
+        "AudioClassificationModel": AudioClassificationModel,
+        "VideoClassificationModel": VideoClassificationModel,
     }
 
     # Define the metrics for regression and classification
@@ -173,31 +180,60 @@ class Modelling:
         target_feature_selected_name = st.selectbox("Select target feature", remaining_feature_names)
         return input_features_selected_names, target_feature_selected_name
 
-    def model_selection(self, target_feature_selected: Feature) -> Tuple[str, str]:
+    def model_selection(self, target_feature_selected: Feature, input_features_selected: List[Feature]) -> Tuple[str, str]:
         """
-        Select a model based on the task type (classification or regression).
+        Select a model based on the task type (classification or regression) and supported data types.
 
         Args:
             target_feature_selected (Feature): The selected target feature.
+            input_features_selected (List[Feature]): List of selected input features.
 
         Returns:
             Tuple[str, str]: A tuple containing the task type and the selected model name.
         """
         # Determine if the target feature is categorical or numerical
         target_feature_type = target_feature_selected.type
+        input_feature_types = set(feature.type for feature in input_features_selected)
 
         if target_feature_type == "categorical":
             task_type = "classification"
             st.write("Target feature is categorical, so this is a classification task.")
-            available_models = list(self.CLASSIFICATION_MODELS.keys())
+            available_models = self._filter_models_by_feature_types(
+                self.CLASSIFICATION_MODELS, input_feature_types, target_feature_type
+            )
         else:
             task_type = "regression"
             st.write("Target feature is numerical, so this is a regression task.")
-            available_models = list(self.REGRESSION_MODELS.keys())
+            available_models = self._filter_models_by_feature_types(
+                self.REGRESSION_MODELS, input_feature_types, target_feature_type
+            )
 
-        # Step 3: Allow the user to select a model based on the task type
-        selected_model_name = st.selectbox(f"Select a {task_type} model:", available_models)
+        if not available_models:
+            st.error("No models support the selected feature and target types.")
+            st.stop()
+
+        selected_model_name = st.selectbox(f"Select a {task_type} model:", available_models.keys())
         return task_type, selected_model_name
+
+    def _filter_models_by_feature_types(self, models: Dict[str, Model], feature_types: set, target_type: str) -> Dict[str, Model]:
+        """
+        Filters models based on supported feature and target types.
+
+        Args:
+            models (Dict[str, Model]): The models to filter.
+            feature_types (set): The feature types.
+            target_type (str): The target type.
+
+        Returns:
+            Dict[str, Model]: Filtered models.
+        """
+        filtered_models = {}
+        for name, model_class in models.items():
+            model_instance = model_class()
+            if all(ftype in model_instance.supported_feature_types for ftype in feature_types) and \
+               target_type in model_instance.supported_target_types:
+                filtered_models[name] = model_class
+        return filtered_models
 
     def select_metrics(self, task_type: str) -> Tuple[List['Metric'], List[str]]:
         """
@@ -452,7 +488,7 @@ class Modelling:
             )
 
             # Step 4: Select a model based on the task type
-            task_type, selected_model_name = self.model_selection(target_feature_selected)
+            task_type, selected_model_name = self.model_selection(target_feature_selected, input_features_selected)
 
             # Step 5: Select dataset split ratio
             split_ratio = self.select_split_ratio()
@@ -496,7 +532,6 @@ class Modelling:
         It simply calls the run method to start the page.
         """
         self.run()
-
 
 if __name__ == "__main__":
     app = Modelling()

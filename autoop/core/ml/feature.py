@@ -4,7 +4,7 @@ from typing import Literal
 
 class Feature(BaseModel):
     name: str
-    type: Literal['categorical', 'numerical']
+    type: Literal['categorical', 'numerical','image', 'text', 'audio', 'video']
     is_target: bool = False
 
     def __str__(self) -> str:
