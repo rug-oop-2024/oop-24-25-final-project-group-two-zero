@@ -12,8 +12,6 @@ class Model(ABC):
 
     _type = None
     _available_hyperparameters = {}
-    _supported_feature_types: List[str] = []
-    _supported_target_types: List[str] = []
 
     def __init__(self, **hyperparameters) -> None:
         """

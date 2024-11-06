@@ -19,8 +19,6 @@ class TextClassificationModel(Model):
         'solver': ['liblinear', 'saga'],
         'epochs': 10,
     }
-    _supported_feature_types = ['text']
-    _supported_target_types = ['categorical']
 
     def __init__(self, **hyperparameters: Any) -> None:
         """

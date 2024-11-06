@@ -16,10 +16,7 @@ from autoop.core.ml.model.classification import (
     KNearestNeighbors,
     StochasticGradient,
     TreeClassification,
-    ImageClassificationModel,
-    TextClassificationModel,
-    AudioClassificationModel,
-    VideoClassificationModel
+    TextClassificationModel
 )
 from autoop.core.ml.metric import (
     Accuracy,
@@ -48,10 +45,7 @@ class Modelling:
         "KNearestNeighbors": KNearestNeighbors,
         "StochasticGradient": StochasticGradient,
         "DecisionTreeClassification": TreeClassification,
-        "ImageClassificationModel": ImageClassificationModel,
-        "TextClassificationModel": TextClassificationModel,
-        "AudioClassificationModel": AudioClassificationModel,
-        "VideoClassificationModel": VideoClassificationModel,
+        "TextClassificationModel": TextClassificationModel
     }
 
     # Define the metrics for regression and classification
@@ -73,14 +67,15 @@ class Modelling:
         "OneHotEncoder": OneHotEncoder,
     }
 
+    FEATURE_TYPE_TO_EXTRACTOR = {
+        'numerical': StandardScaler,
+        'categorical': OneHotEncoder,
+        # Add more mappings if needed
+    }
+
     def __init__(self) -> None:
         """
         Initialize the Modelling class.
-
-        This method initializes the AutoMLSystem instance, refreshes the artifact registry,
-        and retrieves a list of all datasets in the system.
-
-        The datasets are stored in the `datasets` attribute of the Modelling instance.
         """
         self.automl = AutoMLSystem.get_instance()
         self.automl.registry.refresh()
@@ -90,16 +85,6 @@ class Modelling:
     def get_model(self, model_name: str, task_type: str) -> Model:
         """
         Get a model instance by name.
-
-        Args:
-            model_name (str): The name of the model to retrieve.
-            task_type (str): The task type of the model (either "regression" or "classification").
-
-        Returns:
-            Model: The model instance.
-
-        Raises:
-            ValueError: If the task type is unknown.
         """
         if task_type == "regression":
             return self.REGRESSION_MODELS.get(model_name)()
@@ -112,15 +97,6 @@ class Modelling:
     def get_metrics(self, task_type: str) -> Dict[str, 'Metric']:
         """
         Get a dictionary of available metrics based on task type.
-
-        Args:
-            task_type (str): The task type of the model (either "regression" or "classification").
-
-        Returns:
-            dict: A dictionary of available metrics for the task type.
-
-        Raises:
-            ValueError: If the task type is unknown.
         """
         if task_type == "regression":
             return self.REGRESSION_METRICS
@@ -132,9 +108,6 @@ class Modelling:
     def _mapping_display_name(self) -> Dict[str, 'Artifact']:
         """
         Map display names to Artifact instances.
-
-        Returns:
-            dict: A dictionary mapping display names to Artifact instances.
         """
         dataset_options = {
             f"{artifact.name} (ID: {artifact.id})": artifact
@@ -145,12 +118,6 @@ class Modelling:
     def select_dataset(self, dataset_options: Dict[str, 'Artifact']) -> 'Artifact':
         """
         Select a dataset from the list of available datasets.
-
-        Args:
-            dataset_options (dict): A dictionary of dataset display names and Artifact instances.
-
-        Returns:
-            Artifact: The selected dataset artifact.
         """
         selected_dataset_name = st.selectbox('Choose a dataset:', list(dataset_options.keys()))
         selected_dataset = dataset_options[selected_dataset_name]
@@ -159,12 +126,6 @@ class Modelling:
     def choosing_input_output_features(self, feature_names: List[str]) -> Tuple[List[str], str]:
         """
         Allow user to select input features and target feature.
-
-        Args:
-            feature_names (List[str]): List of all feature names.
-
-        Returns:
-            Tuple[List[str], str]: A tuple containing the list of input feature names and the target feature name.
         """
         # Step 1: Select input features
         input_features_selected_names = st.multiselect("Select input features", feature_names)
@@ -182,70 +143,26 @@ class Modelling:
 
     def model_selection(self, target_feature_selected: Feature, input_features_selected: List[Feature]) -> Tuple[str, str]:
         """
-        Select a model based on the task type (classification or regression) and supported data types.
-
-        Args:
-            target_feature_selected (Feature): The selected target feature.
-            input_features_selected (List[Feature]): List of selected input features.
-
-        Returns:
-            Tuple[str, str]: A tuple containing the task type and the selected model name.
+        Select a model based on the task type (classification or regression).
         """
         # Determine if the target feature is categorical or numerical
         target_feature_type = target_feature_selected.type
-        input_feature_types = set(feature.type for feature in input_features_selected)
 
         if target_feature_type == "categorical":
             task_type = "classification"
             st.write("Target feature is categorical, so this is a classification task.")
-            available_models = self._filter_models_by_feature_types(
-                self.CLASSIFICATION_MODELS, input_feature_types, target_feature_type
-            )
+            available_models = self.CLASSIFICATION_MODELS
         else:
             task_type = "regression"
             st.write("Target feature is numerical, so this is a regression task.")
-            available_models = self._filter_models_by_feature_types(
-                self.REGRESSION_MODELS, input_feature_types, target_feature_type
-            )
+            available_models = self.REGRESSION_MODELS
 
-        if not available_models:
-            st.error("No models support the selected feature and target types.")
-            st.stop()
-
-        selected_model_name = st.selectbox(f"Select a {task_type} model:", available_models.keys())
+        selected_model_name = st.selectbox(f"Select a {task_type} model:", list(available_models.keys()))
         return task_type, selected_model_name
-
-    def _filter_models_by_feature_types(self, models: Dict[str, Model], feature_types: set, target_type: str) -> Dict[str, Model]:
-        """
-        Filters models based on supported feature and target types.
-
-        Args:
-            models (Dict[str, Model]): The models to filter.
-            feature_types (set): The feature types.
-            target_type (str): The target type.
-
-        Returns:
-            Dict[str, Model]: Filtered models.
-        """
-        filtered_models = {}
-        for name, model_class in models.items():
-            model_instance = model_class()
-            if all(ftype in model_instance.supported_feature_types for ftype in feature_types) and \
-               target_type in model_instance.supported_target_types:
-                filtered_models[name] = model_class
-        return filtered_models
 
     def select_metrics(self, task_type: str) -> Tuple[List['Metric'], List[str]]:
         """
         Allow user to select metrics based on task type.
-
-        Args:
-            task_type (str): The task type of the model.
-
-        Returns:
-            Tuple[List[Metric], List[str]]: A tuple containing the list of selected Metric instances and their names.
-        
-        We can do this and some sort of pattern
         """
         available_metrics = self.get_metrics(task_type)
         selected_metric_names = st.multiselect(f"Select metrics for {task_type}", list(available_metrics.keys()))
@@ -257,9 +174,6 @@ class Modelling:
     def select_split_ratio(self) -> float:
         """
         Allow user to select the train-test split ratio.
-
-        Returns:
-            float: The selected split ratio.
         """
         split_ratio = st.slider('Select train-test split ratio', 0.1, 0.9, 0.8)
         return split_ratio
@@ -269,13 +183,6 @@ class Modelling:
                                  target_feature_selected_name: str) -> None:
         """
         Display a summary of the pipeline configuration.
-
-        Args:
-            selected_model_name (str): The name of the selected model.
-            split_ratio (float): The train-test split ratio.
-            selected_metric_names (List[str]): The names of the selected metrics.
-            input_features_selected_names (List[str]): The names of the selected input features.
-            target_feature_selected_name (str): The name of the selected target feature.
         """
         st.write("## 📋 Pipeline Summary")
         st.markdown(f"""
@@ -292,18 +199,6 @@ class Modelling:
                     feature_extractors_selected: Dict[str, str]) -> Pipeline:
         """
         Train the model using the specified configuration.
-
-        Args:
-            model_instance (Model): The model instance to train.
-            dataset_chosen (Dataset): The selected dataset.
-            input_features_selected (List[Feature]): List of selected input features.
-            target_feature_selected (Feature): The selected target feature.
-            split_ratio (float): The train-test split ratio.
-            selected_metrics (List[Metric]): List of selected metrics.
-            feature_extractors_selected (Dict[str, str]): Selected feature extractors for each input feature.
-
-        Returns:
-            Pipeline: The trained pipeline.
         """
         if st.button("Train Model"):
             st.write("Training the model...")
@@ -336,9 +231,6 @@ class Modelling:
     def display_results(self, results: dict) -> None:
         """
         Display the evaluation metrics.
-
-        Args:
-            results (dict): The results dictionary from pipeline execution.
         """
         st.write("## Results")
         for metric, value in results["metrics"]:
@@ -347,9 +239,6 @@ class Modelling:
     def display_model_explanations(self, results: dict) -> None:
         """
         Display the model explanations, such as confusion matrix and SHAP plots.
-
-        Args:
-            results (dict): The results dictionary from pipeline execution.
         """
         report = results.get("report", {})
         if report:
@@ -373,13 +262,9 @@ class Modelling:
                 sensitivity_df = pd.DataFrame(list(sensitivities.items()), columns=['Feature', 'Sensitivity'])
                 st.bar_chart(sensitivity_df.set_index('Feature'))
 
-
     def save_pipeline(self, pipeline: Pipeline) -> None:
         """
         Save the trained pipeline as an artifact.
-
-        Args:
-            pipeline (Pipeline): The trained pipeline.
         """
         if pipeline:
             st.write("## 💾 Save the Pipeline")
@@ -401,35 +286,76 @@ class Modelling:
                         st.warning("Please enter a name for the pipeline.")
                 else:
                     st.warning("Please train a model before saving the pipeline.")
-
     def select_model_hyperparameters(self, model_instance: Model) -> dict:
         """
-        Allow user to select hyperparameters for the selected model.
+        Allow the user to specify one hyperparameter explicitly and specify acceptable ranges for others.
 
         Args:
             model_instance (Model): The model instance.
 
         Returns:
-            dict: The hyperparameters selected by the user.
+            dict: A dictionary containing selected hyperparameters and acceptable ranges.
         """
         st.write("### Model Hyperparameters")
         hyperparameters = model_instance.available_hyperparameters
+
+        # List of hyperparameter names (excluding '_options' keys)
+        hyperparameter_names = [param for param in hyperparameters.keys() if not param.endswith('_options')]
+
+        # Let the user select one hyperparameter to specify explicitly
+        selected_hyperparameter = st.selectbox("Select one hyperparameter to specify explicitly", hyperparameter_names)
+
         selected_hyperparameters = {}
-        for param, default in hyperparameters.items():
-            if isinstance(default, list):
-                value = st.selectbox(f"{param}", options=default, index=default.index(default) if default in default else 0)
-            elif isinstance(default, bool):
-                value = st.checkbox(f"{param}", value=default)
-            elif isinstance(default, int):
-                value = st.number_input(f"{param}", value=default, step=1)
-            elif isinstance(default, float):
-                value = st.number_input(f"{param}", value=default)
-            elif isinstance(default, str):
-                value = st.text_input(f"{param}", value=default)
+        acceptable_ranges = {}
+
+        for param in hyperparameter_names:
+            default = hyperparameters[param]
+
+            if param == selected_hyperparameter:
+                st.write(f"**Specify a specific value for '{param}':**")
+                # Prompt the user to enter a specific value
+                if f"{param}_options" in hyperparameters:
+                    options = hyperparameters[f"{param}_options"]
+                    value = st.selectbox(f"{param}", options=options, index=options.index(default) if default in options else 0)
+                elif isinstance(default, bool):
+                    value = st.checkbox(f"{param}", value=default)
+                elif isinstance(default, int):
+                    value = st.number_input(f"{param}", value=default, step=1)
+                elif isinstance(default, float):
+                    value = st.number_input(f"{param}", value=default)
+                elif isinstance(default, str):
+                    value = st.text_input(f"{param}", value=default)
+                else:
+                    value = st.text_input(f"{param}", value=str(default))
+                selected_hyperparameters[param] = value
             else:
-                value = st.text_input(f"{param}", value=str(default))
-            selected_hyperparameters[param] = value
-        return selected_hyperparameters
+                st.write(f"**Specify acceptable range/options for '{param}':**")
+                # Prompt the user to specify acceptable ranges or options
+                if f"{param}_options" in hyperparameters:
+                    options = hyperparameters[f"{param}_options"]
+                    acceptable_values = st.multiselect(f"Acceptable options for {param}", options=options, default=default)
+                    acceptable_ranges[param] = acceptable_values
+                elif isinstance(default, int) or isinstance(default, float):
+                    min_value = st.number_input(f"Minimum acceptable value for {param}", value=default)
+                    max_value = st.number_input(f"Maximum acceptable value for {param}", value=default)
+                    acceptable_ranges[param] = (min_value, max_value)
+                elif isinstance(default, bool):
+                    value = st.checkbox(f"Acceptable value for {param}", value=default)
+                    acceptable_ranges[param] = value
+                elif isinstance(default, str):
+                    value = st.text_input(f"Acceptable value for {param}", value=default)
+                    acceptable_ranges[param] = value
+                else:
+                    value = st.text_input(f"Acceptable value for {param}", value=str(default))
+                    acceptable_ranges[param] = value
+
+        # Combine selected hyperparameters and acceptable ranges
+        hyperparameters_result = {
+            'selected_hyperparameters': selected_hyperparameters,
+            'acceptable_ranges': acceptable_ranges
+        }
+        return hyperparameters_result
+
 
     def run(self) -> None:
         """
@@ -462,16 +388,6 @@ class Modelling:
         # Step 2: Select input features and target feature
         input_features_selected_names, target_feature_selected_name = self.choosing_input_output_features(feature_names)
 
-        # Step 3: Select feature extractors for each input feature
-        feature_extractors_selected = {}
-        for feature_name in input_features_selected_names:
-            extractor_name = st.selectbox(
-                f"Select feature extractor for {feature_name}",
-                list(self.FEATURE_EXTRACTORS.keys()),
-                key=f"extractor_{feature_name}"
-            )
-            feature_extractors_selected[feature_name] = extractor_name
-
         # Convert selected feature names to Feature instances
         input_features_selected = [feature_dict[name] for name in input_features_selected_names]
         target_feature_selected = feature_dict[target_feature_selected_name]
@@ -480,6 +396,18 @@ class Modelling:
         # Mark input features as not target
         for feature in input_features_selected:
             feature.is_target = False
+
+        # Step 3: Automatically select feature extractors for each input feature
+        feature_extractors_selected = {}
+        for feature in input_features_selected:
+            feature_type = feature.type
+            extractor_class = self.FEATURE_TYPE_TO_EXTRACTOR.get(feature_type)
+            if extractor_class:
+                extractor_instance = extractor_class()
+                feature_extractors_selected[feature.name] = extractor_instance
+                st.write(f"Automatically selected {extractor_class.__name__} for feature '{feature.name}' of type '{feature_type}'.")
+            else:
+                st.warning(f"No extractor found for feature type '{feature_type}' of feature '{feature.name}'")
 
         if input_features_selected and target_feature_selected:
             st.write(
@@ -503,13 +431,16 @@ class Modelling:
             )
 
             # Step 8: Get the model instance
-            model_class = self.get_model_class(selected_model_name, task_type)
-            model_instance = model_class()
+            model_instance = self.get_model(selected_model_name, task_type)
 
             # Step 9: Select hyperparameters
-            hyperparameters = self.select_model_hyperparameters(model_instance)
+            hyperparameters_result = self.select_model_hyperparameters(model_instance)
+            selected_hyperparameters = hyperparameters_result['selected_hyperparameters']
+            acceptable_ranges = hyperparameters_result['acceptable_ranges']
+
             # Re-initialize the model instance with selected hyperparameters
-            model_instance = model_class(**hyperparameters)
+            model_class = type(model_instance)
+            model_instance = model_class(**selected_hyperparameters)
 
             # Step 10: Train the model
             pipeline = self.train_model(
@@ -528,10 +459,9 @@ class Modelling:
     def starter_modelling_page(self) -> None:
         """
         This is a placeholder method to start the Modelling page with a fresh UI.
-
-        It simply calls the run method to start the page.
         """
         self.run()
+
 
 if __name__ == "__main__":
     app = Modelling()

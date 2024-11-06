@@ -18,8 +18,6 @@ class StochasticGradient(Model):
         'learning_rate': ['optimal', 'constant', 'invscaling', 'adaptive'],
         'eta0': 0.0,
     }
-    _supported_feature_types = ['numeric']
-    _supported_target_types = ['categorical']
 
     def __init__(self, **hyperparameters) -> None:
         """

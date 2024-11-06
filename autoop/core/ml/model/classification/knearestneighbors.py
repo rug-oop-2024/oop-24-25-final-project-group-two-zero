@@ -19,8 +19,6 @@ class KNearestNeighbors(Model):
         'metric_params': None,
         'n_jobs': None
     }
-    _supported_feature_types = ['numerical']
-    _supported_target_types = ['categorical']
 
     def __init__(self, **hyperparameters) -> None:
         """

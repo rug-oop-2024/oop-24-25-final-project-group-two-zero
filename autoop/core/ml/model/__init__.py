@@ -7,10 +7,7 @@ from autoop.core.ml.model.regression import SupportVectorRegression
 from autoop.core.ml.model.classification import TreeClassification
 from autoop.core.ml.model.classification import KNearestNeighbors
 from autoop.core.ml.model.classification import StochasticGradient
-from autoop.core.ml.model.classification import ImageClassificationModel
 from autoop.core.ml.model.classification import TextClassificationModel
-from autoop.core.ml.model.classification import AudioClassificationModel
-from autoop.core.ml.model.classification import VideoClassificationModel
 
 
 __all__ = [
@@ -21,8 +18,5 @@ __all__ = [
     "TreeClassification",
     "KNearestNeighbors",
     "StochasticGradient",
-    "ImageClassificationModel",
-    "TextClassificationModel",
-    "AudioClassificationModel",
-    "VideoClassificationModel"
+    "TextClassificationModel"
 ]
