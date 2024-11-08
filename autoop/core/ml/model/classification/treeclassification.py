@@ -18,6 +18,9 @@ class TreeClassification(Model):
         'max_features': None,
     }
 
+    supported_feature_types = ['numerical']
+    supported_target_types = ['categorical']
+
     def __init__(self, **hyperparameters) -> None:
         """
         Initializes the TreeClassification model with hyperparameters.

@@ -14,7 +14,8 @@ from autoop.core.ml.metric import Metric
 from autoop.functional.preprocessing import preprocess_features
 import shap
 from typing import List, Dict, Any
-
+import streamlit as st
+from autoop.core.ml.model.classification import TreeClassification
 
 class Pipeline:
     def __init__(
@@ -48,9 +49,10 @@ class Pipeline:
         self._metrics = metrics
         self._artifacts = {}
         self._split = split
-
-        # Validate feature and target types
-        self._validate_feature_and_target_types()
+        if target_feature.type == "categorical" and model.type != "classification":
+            raise ValueError("Model type must be classification for categorical target feature")
+        if target_feature.type == "continuous" and model.type != "regression":
+            raise ValueError("Model type must be regression for continuous target feature")
 
     def __str__(self) -> str:
         """
@@ -287,9 +289,18 @@ Pipeline(
         The SHAP values are stored in the `_shap_values` attribute.
         """
         X_test = self._compact_vectors(self._test_X)
-        # Use KernelExplainer for models without built-in SHAP explainers
-        explainer = shap.Explainer(self._model.predict, X_test)
-        self._shap_values = explainer(X_test)
+        # Choose the appropriate explainer based on the model type
+        try:
+            if isinstance(self._model._model, (TreeClassification)):
+                explainer = shap.TreeExplainer(self._model._model)
+            else:
+                explainer = shap.KernelExplainer(self._model.predict, X_test[:100])  # Use a subset for performance
+            self._shap_values = explainer(X_test)
+        except Exception as e:
+            st.warning(f"Error computing SHAP values: {e}")
+            self._shap_values = None
+
+
 
     def _generate_report(self):
         """
@@ -299,6 +310,9 @@ Pipeline(
         for both classification and regression models.
         """
         report = {}
+        import matplotlib.pyplot as plt
+
+        # Generate Confusion Matrix for Classification Models
         if self._model.type == "classification":
             from sklearn.metrics import confusion_matrix
             y_true = self._test_y
@@ -315,20 +329,66 @@ Pipeline(
             image_png_cm = buf_cm.getvalue()
             buf_cm.close()
             report['confusion_matrix'] = base64.b64encode(image_png_cm).decode('utf-8')
-    
+            plt.close(fig_cm)
 
+        # Compute SHAP values
         self._compute_shap_values()
-        # Generate SHAP summary plot
-        shap_fig = shap.plots._waterfall.waterfall_legacy(self._shap_values[0])
-        buf_shap = io.BytesIO()
-        plt.savefig(buf_shap, format='png', bbox_inches='tight')
-        buf_shap.seek(0)
-        image_png_shap = buf_shap.getvalue()
-        buf_shap.close()
-        report['shap_summary'] = base64.b64encode(image_png_shap).decode('utf-8')
-        plt.close(shap_fig)
 
+        # Generate SHAP Waterfall Plot
+        shap_values = self._shap_values
+
+        # Check if SHAP values are available
+        if hasattr(shap_values, 'values'):
+            # Get feature names
+            feature_names = [feature.name for feature in self._input_features]
+
+            # Handle different shapes of shap_values
+            if shap_values.values.ndim == 3:
+                # Multiclass classification
+                num_classes = shap_values.values.shape[1]
+                # Ensure class_index is within bounds
+                class_index = 0  # Default to the first class
+                # Optionally, you can let the user select the class index
+                shap_value_to_plot = shap.Explanation(
+                    values=shap_values.values[0, class_index, :],
+                    base_values=shap_values.base_values[0, class_index],
+                    data=shap_values.data[0],
+                    feature_names=feature_names
+                )
+            elif shap_values.values.ndim == 2:
+                # Binary classification or regression
+                shap_value_to_plot = shap.Explanation(
+                    values=shap_values.values[0],
+                    base_values=shap_values.base_values[0],
+                    data=shap_values.data[0],
+                    feature_names=feature_names
+                )
+            else:
+                st.warning("Unexpected SHAP values shape.")
+                return
+
+            # Create a figure to hold the plot
+            plt.figure()
+            # Generate the waterfall plot without displaying it
+            shap.plots.waterfall(shap_value_to_plot, show=False)
+            # Save the plot to a buffer
+            buf_shap = io.BytesIO()
+            plt.savefig(buf_shap, format='png', bbox_inches='tight')
+            buf_shap.seek(0)
+            image_png_shap = buf_shap.getvalue()
+            buf_shap.close()
+            # Store the plot in the report
+            report['shap_summary'] = base64.b64encode(image_png_shap).decode('utf-8')
+            # Close the plot to free memory
+            plt.close()
+        else:
+            report['shap_summary'] = None
+            st.warning("No SHAP values available to generate the summary plot.")
+
+        # Assign the report to the instance variable
         self._report = report
+
+
 
     def _sensitivity_analysis(self):
         """
@@ -350,7 +410,6 @@ Pipeline(
             sensitivity = np.mean(np.abs(y_pred_perturbed - y_pred_original))
             sensitivities[feature.name] = sensitivity
         self._sensitivity_results = sensitivities
-
 
     def execute(self) -> dict:
         """

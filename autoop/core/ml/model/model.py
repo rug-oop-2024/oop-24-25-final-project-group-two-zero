@@ -2,7 +2,7 @@
 from abc import ABC, abstractmethod
 import numpy as np
 import copy
-from typing import List
+from typing import List, Dict
 
 
 class Model(ABC):
@@ -12,6 +12,9 @@ class Model(ABC):
 
     _type = None
     _available_hyperparameters = {}
+    supported_feature_types: List[str] = []
+    supported_target_types: List[str] = []
+
 
     def __init__(self, **hyperparameters) -> None:
         """
@@ -41,26 +44,6 @@ class Model(ABC):
         """
         return self._available_hyperparameters.copy()
 
-    @property
-    def supported_feature_types(self) -> List[str]:
-        """
-        Get the list of supported feature types.
-
-        Returns:
-            List[str]: Supported feature types.
-        """
-        return self._supported_feature_types
-
-    @property
-    def supported_target_types(self) -> List[str]:
-        """
-        Get the list of supported target types.
-
-        Returns:
-            List[str]: Supported target types.
-        """
-        return self._supported_target_types
-
     @abstractmethod
     def fit(self, observations: np.ndarray, ground_truth: np.ndarray) -> None:
         """
@@ -84,3 +67,37 @@ class Model(ABC):
             np.ndarray: Predicted values.
         """
         pass
+
+    def get_estimator(self):
+        """
+        Returns the underlying scikit-learn estimator.
+
+        Returns:
+            estimator: The underlying estimator object.
+        """
+        return self._model
+
+    def get_hyperparameter_space(self, acceptable_ranges: Dict[str, any]) -> Dict[str, any]:
+        """
+        Returns the hyperparameter grid for tuning.
+
+        Args:
+            acceptable_ranges (dict): Acceptable ranges or options for hyperparameters.
+
+        Returns:
+            dict: Hyperparameter grid for tuning.
+        """
+        param_grid = {}
+        for param, value in acceptable_ranges.items():
+            if isinstance(value, list):
+                param_grid[param] = value
+            elif isinstance(value, tuple):
+                # Generate a list of values within the range
+                if isinstance(value[0], int) and isinstance(value[1], int):
+                    param_grid[param] = list(range(int(value[0]), int(value[1]) + 1))
+                else:
+                    # For floats, generate a list with reasonable steps
+                    param_grid[param] = np.linspace(value[0], value[1], num=5).tolist()
+            else:
+                param_grid[param] = [value]
+        return param_grid

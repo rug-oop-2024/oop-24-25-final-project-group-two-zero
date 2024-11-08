@@ -4,7 +4,7 @@ from app.core.system import AutoMLSystem
 from autoop.core.ml.dataset import Dataset
 import os
 
-
+# Remove all the none rows from a dataset if there is any
 class Starting:
     def __init__(self) -> None:
         """
@@ -56,14 +56,12 @@ class Starting:
                 st.write("Uploaded Dataset:")
                 st.dataframe(df)
 
-                # Use os.path.join and os.path.normpath
-                asset_path = os.path.join("datasets", uploaded_file.name)
-                asset_path = os.path.normpath(asset_path)
-
+                # Register the dataset
                 dataset = Dataset.from_dataframe(
                     data=df,
                     name=self.name,
-                    asset_path=asset_path,
+                    # This is the asset path normalized
+                    asset_path=os.path.normpath(os.path.join("datasets", uploaded_file.name)),
                     version="1.0.0"
                 )
                 self.automl.registry.register(dataset)

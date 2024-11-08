@@ -17,6 +17,9 @@ class RidgeRegression(Model):
         'tol': 1e-3,
     }
 
+    _supported_feature_types = ['numerical']
+    _supported_target_types = ['numerical']
+
     def __init__(self, **hyperparameters) -> None:
         """
         Initializes the RidgeRegression model with specified hyperparameters.

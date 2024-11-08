@@ -20,6 +20,9 @@ class TextClassificationModel(Model):
         'epochs': 10,
     }
 
+    supported_feature_types = ['text']
+    supported_target_types = ['categorical']
+
     def __init__(self, **hyperparameters: Any) -> None:
         """
         Initializes the TextClassificationModel with hyperparameters.

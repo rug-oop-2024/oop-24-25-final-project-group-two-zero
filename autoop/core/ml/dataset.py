@@ -1,21 +1,46 @@
-from autoop.core.ml.artifact import Artifact
+
+from typing import Any, Dict, List, Optional
 import pandas as pd
+from .artifact import Artifact
 import io
 
 
+
 class Dataset(Artifact):
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(
+        self,
+        name: str,
+        asset_path: str,
+        data: pd.DataFrame,
+        version: str,
+        tags: Optional[List[str]] = None,
+        metadata: Optional[Dict[str, Any]] = None,
+        id: Optional[str] = None
+    ) -> None:
         """
         Initialize a Dataset instance.
 
-        This method initializes a Dataset instance by calling the Artifact's
-        constructor with the type set to "dataset".
-
         Args:
-            *args: The positional arguments for the Artifact constructor.
-            **kwargs: The keyword arguments for the Artifact constructor.
+            name (str): Name of the dataset.
+            asset_path (str): Path where dataset is stored.
+            data (pd.DataFrame): The dataset as a pandas DataFrame.
+            version (str): Version of the dataset.
+            tags (List[str], optional): Tags for categorizing the dataset.
+            metadata (Dict[str, Any], optional): Additional metadata.
+            id (str, optional): Unique identifier.
         """
-        super().__init__(type="dataset", *args, **kwargs)
+
+        # Convert DataFrame to bytes for storage
+        super().__init__(
+            name=name,
+            asset_path=asset_path,
+            data=data,  # Pass bytes to Artifact
+            version=version,
+            type="dataset",
+            tags=tags,
+            metadata=metadata,
+            id=id,
+        )
 
     @staticmethod
     def from_dataframe(
@@ -26,24 +51,15 @@ class Dataset(Artifact):
     ) -> "Dataset":
         """
         Creates a Dataset artifact from a pandas DataFrame.
-
-        Args:
-            data (pd.DataFrame): DataFrame containing the dataset.
-            name (str): Name of the dataset.
-            asset_path (str): Path where dataset is stored.
-            version (str): Version of the dataset.
-
-        Returns:
-            Dataset: An instance of the Dataset class.
         """
-        if not isinstance(data, pd.DataFrame):
+        if isinstance(data, pd.DataFrame) is False:
             raise ValueError("Data must be a pandas DataFrame.")
-        data_bytes = data.to_csv(index=False).encode('utf-8')
-        return Dataset(
+        return Artifact(
             name=name,
             asset_path=asset_path,
-            data=data_bytes,
+            data= data.to_csv(index=False).encode('utf-8'),  # Pass DataFrame
             version=version,
+            type="dataset"
         )
 
     @classmethod
@@ -59,10 +75,15 @@ class Dataset(Artifact):
         """
         if artifact.type != "dataset":
             raise ValueError("Artifact is not of type 'dataset'")
+
+        # Convert data bytes to DataFrame
+        data_io = io.BytesIO(artifact.data)
+        data_df = pd.read_csv(data_io)
+
         return cls(
             name=artifact.name,
             asset_path=artifact.asset_path,
-            data=artifact.data,
+            data=data_df,  # Pass DataFrame
             version=artifact.version,
             tags=artifact.tags,
             metadata=artifact.metadata,
@@ -76,19 +97,20 @@ class Dataset(Artifact):
         Returns:
             pd.DataFrame: DataFrame representation of the dataset.
         """
-        if not self.data:
+        if self.data is None:
             raise ValueError("No data in dataset.")
-        data_io = io.BytesIO(self.data)
-        df = pd.read_csv(data_io)
-        return df
+        elif isinstance(self.data, pd.DataFrame):
+            # If self.data is already a DataFrame, return it directly
+            return self.data
+        else:
+            # If self.data is bytes, convert it to a DataFrame
+            data_io = io.BytesIO(self.data)
+            df = pd.read_csv(data_io)
+            return df
+
 
     def __str__(self) -> str:
         """
         Returns a string representation of the Dataset instance.
-
-        The representation includes the dataset's data in a byte format.
-
-        Returns:
-            str: A string that contains the data attribute of the Dataset.
         """
-        return f"data: {self.data}"
+        return f"Dataset(name={self.name}, version={self.version})"
