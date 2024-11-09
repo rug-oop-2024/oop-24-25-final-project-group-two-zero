@@ -11,14 +11,15 @@ from autoop.core.ml.dataset import Dataset
 from autoop.core.ml.feature import Feature
 from autoop.core.ml.metric import Metric
 import shap
-from typing import List, Any
+from typing import Any
 import streamlit as st
 from autoop.core.ml.model.classification import TreeClassification
 
 
 class Pipeline:
+    """A class for executing machine learning pipelines."""
     def __init__(
-        self,
+        self: Any,
         metrics: List[Metric],
         dataset: Dataset,
         model: Model,
@@ -73,7 +74,7 @@ class Pipeline:
                 for continuous target feature"
             )
 
-    def __str__(self) -> str:
+    def __str__(self: Any) -> str:
         """
         Return a string representation of the
         Pipeline object.
@@ -180,8 +181,8 @@ Pipeline(
             feature type.
         """
         feature_types: set = set(feature.type
-                                for feature
-                                in self._input_features
+                                    for feature
+                                    in self._input_features
                                 )
         target_type: str = self._target_feature.type
 
@@ -230,7 +231,7 @@ Pipeline(
                 self._target_feature, target_data
         )
 
-    def _preprocess_feature_data(self, feature: Feature, data):
+    def _preprocess_feature_data(self, feature: Feature, data: pd.Series) -> np.ndarray:
         """
         Preprocesses data based on feature type.
 

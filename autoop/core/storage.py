@@ -5,11 +5,13 @@ from glob import glob
 
 
 class NotFoundError(Exception):
+    """Exception raised when a path is not found."""
     def __init__(self, path: str) -> None:
         super().__init__(f"Path not found: {path}")
 
 
 class Storage(ABC):
+    """Abstract base class for storage."""
     @abstractmethod
     def save(self, data: bytes, path: str) -> None:
         """
@@ -59,14 +61,19 @@ class Storage(ABC):
 
 
 class LocalStorage(Storage):
-    def __init__(self, base_path: str = "./assets/objects"):
+    def __init__(
+            self,
+            base_path: str = "./assets/objects"
+        ):
         """
         Initialize the LocalStorage instance.
 
         Args:
-            base_path (str): The base directory path for storage. Defaults to "./assets/objects".
+            base_path (str): The base directory
+                path for storage. Defaults to "./assets/objects".
 
-        This constructor sets the base path for local storage, creating the directory if it does not exist.
+        This constructor sets the base path
+        for local storage, creating the directory if it does not exist.
         """
         self._base_path = os.path.abspath(base_path)
         if not os.path.exists(self._base_path):
@@ -107,7 +114,8 @@ class LocalStorage(Storage):
             bytes: The loaded data.
 
         Raises:
-            NotFoundError: If the specified path does not exist.
+            NotFoundError: If the specified
+                path does not exist.
         """
         path = self._join_path(key)
         self._assert_path_exists(path)
@@ -128,7 +136,8 @@ class LocalStorage(Storage):
         if os.path.exists(path):
             os.remove(path)
         else:
-            print(f"Warning: The path '{path}' was not found. Skipping deletion.")
+            print(f"Warning: The path '{path}\
+                   was not found. Skipping deletion.")
 
     def list(self, path: str) -> List[str]:
         """

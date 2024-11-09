@@ -5,23 +5,38 @@ from autoop.core.storage import Storage
 
 
 class Database:
-    def __init__(self, storage: Storage) -> None:
+    """
+    Database class for persisting and retrieving data.
+    This class is responsible for storing and retrieving data from a
+    storage implementation.
+    """
+    def __init__(
+            self: "Database",
+            storage: Storage
+        ) -> None:
         """
         Initialize a Database instance.
 
         Args:
-            storage (Storage): The storage instance for persisting and retrieving data.
+            storage (Storage): The storage
+            instance for persisting and retrieving data.
         """
         self._storage = storage
         self._data: Dict[str, Dict[str, dict]] = {}
         self._load()
 
-    def set(self, collection: str, id: str, entry: dict) -> dict:
+    def set(
+            self,
+            collection: str,
+            id: str,
+            entry: dict
+        ) -> dict:
         """
         Set a key in the database.
 
         Args:
-            collection (str): The collection to store the data in.
+            collection (str):
+                The collection to store the data in.
             id (str): The id of the data.
             entry (dict): The data to store.
 
@@ -29,8 +44,10 @@ class Database:
             dict: The data that was stored.
         """
         assert isinstance(entry, dict), "Data must be a dictionary"
-        assert isinstance(collection, str), "Collection must be a string"
-        assert isinstance(id, str), "ID must be a string"
+        assert isinstance(collection, str),\
+            "Collection must be a string"
+        assert isinstance(id, str),\
+            "ID must be a string"
         if collection not in self._data:
             self._data[collection] = {}
         self._data[collection][id] = entry
@@ -46,7 +63,8 @@ class Database:
             id (str): The id of the data.
 
         Returns:
-            Union[dict, None]: The data that was stored, or None if it doesn't exist.
+            Union[dict, None]: The data that was stored, or None
+                if it doesn't exist.
         """
         return self._data.get(collection, {}).get(id)
 
@@ -55,7 +73,8 @@ class Database:
         Delete a key from the database.
 
         Args:
-            collection (str): The collection to delete the data from.
+            collection (str): The collection to delete
+                the data from.
             id (str): The id of the data.
         """
         if collection in self._data and id in self._data[collection]:
@@ -70,7 +89,9 @@ class Database:
             collection (str): The collection to list the data from.
 
         Returns:
-            List[Tuple[str, dict]]: A list of tuples containing the id and data for each item in the collection.
+            List[Tuple[str, dict]]: A list of tuples
+                containing the id and data for each item
+                in the collection.
         """
         if collection not in self._data:
             return []
@@ -80,19 +101,25 @@ class Database:
         """
         Refresh the database by reloading data from the storage.
 
-        This method is useful if another process has modified the storage and
-        you want to make sure the database is up to date. It will discard any
+        This method is useful if another process has
+        modified the storage and
+        you want to make sure the database is up to date.
+        It will discard any
         unsaved changes you may have made to the database.
         """
         self._load()
 
     def _persist(self) -> None:
         """
-        Persist the current state of the database to storage.
+        Persist the current state of the database
+        to storage.
 
-        This method iterates over all collections and their corresponding data,
-        saving each item to storage using its collection and id as the path.
-        After saving, it also removes any items from storage that are no longer
+        This method iterates over all collections
+        and their corresponding data,
+        saving each item to storage using its
+        collection and id as the path.
+        After saving, it also removes any items from
+        storage that are no longer
         present in the in-memory database.
 
         Returns:
@@ -118,9 +145,12 @@ class Database:
         """
         Load the current state of the database from storage.
 
-        This method iterates over all the paths in storage, extracting the
-        collection and id from the path and loading the associated data from
-        storage. It then populates the in-memory database with the loaded data.
+        This method iterates over all the paths in
+        storage, extracting the
+        collection and id from the path and loading
+        the associated data from
+        storage. It then populates the in-memory
+        database with the loaded data.
 
         Returns:
             None

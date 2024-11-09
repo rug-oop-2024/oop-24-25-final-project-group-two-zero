@@ -2,7 +2,11 @@ from typing import List, Tuple, Optional
 from autoop.core.ml.feature import Feature
 from autoop.core.ml.dataset import Dataset
 import numpy as np
-from sklearn.preprocessing import OneHotEncoder, StandardScaler, LabelEncoder
+from sklearn.preprocessing import (
+                OneHotEncoder,
+                StandardScaler,
+                LabelEncoder
+                )
 
 
 def preprocess_features(
@@ -16,8 +20,10 @@ def preprocess_features(
         dataset (Dataset): Dataset to preprocess.
 
     Returns:
-        Optional[List[Tuple[str, np.ndarray, dict]]]: A list of tuples containing
-        the feature name, transformed data, and the preprocessing artifact for
+        Optional[List[Tuple[str, np.ndarray, dict]]]:
+            A list of tuples containing
+        the feature name, transformed data,
+        and the preprocessing artifact for
         each feature, or None if a ValueError is raised.
     """
     results = []
