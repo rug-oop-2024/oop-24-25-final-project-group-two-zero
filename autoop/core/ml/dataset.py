@@ -42,7 +42,10 @@ class Dataset(Artifact):
 
     @staticmethod
     def from_dataframe(
-        data: pd.DataFrame, name: str, asset_path: str, version: str = "1.0.0"
+        data: pd.DataFrame,
+        name: str,
+        asset_path: str,
+        version: str = "1.0.0"
     ) -> "Dataset":
         """
         Creates a Dataset artifact from a pandas DataFrame.
@@ -63,13 +66,16 @@ class Dataset(Artifact):
         Reconstructs a Dataset instance from an Artifact instance.
 
         Args:
-            artifact (Artifact): Artifact instance to be converted.
+            artifact (Artifact):
+                Artifact instance to be converted.
 
         Returns:
             Dataset: An instance of the Dataset class.
         """
         if artifact.type != "dataset":
-            raise ValueError("Artifact is not of type 'dataset'")
+            raise ValueError(
+                "Artifact is not of type 'dataset'"
+            )
 
         # Convert data bytes to DataFrame
         data_io: io.BytesIO = io.BytesIO(artifact.data)
@@ -90,7 +96,8 @@ class Dataset(Artifact):
         Converts the dataset data to a pandas DataFrame.
 
         Returns:
-            pd.DataFrame: DataFrame representation of the dataset.
+            pd.DataFrame: DataFrame
+                representation of the dataset.
         """
         if self.data is None:
             raise ValueError("No data in dataset.")
@@ -105,18 +112,33 @@ class Dataset(Artifact):
 
     def read(self) -> pd.DataFrame:
         """
-        Reads the dataset from the artifact and returns it as a pandas DataFrame.
+        Reads the dataset from the artifact
+        and returns it as a pandas DataFrame.
         """
         bytes = super().read()
         csv = bytes.decode()
         return pd.read_csv(io.StringIO(csv))
 
     def save(self, data: pd.DataFrame) -> bytes:
-        bytes: pd.DataFrame = data.to_csv(index=False).encode()
+        """
+        Saves the given DataFrame as bytes using the parent class's save method.
+
+        Args:
+            data (pd.DataFrame): The pandas DataFrame to be saved.
+
+        Returns:
+            bytes: The bytes representation of the saved data.
+        """
+        bytes: pd.DataFrame =\
+            data.to_csv(index=False).encode()
         return super().save(bytes)
 
     def __str__(self) -> str:
         """
-        Returns a string representation of the Dataset instance.
+        Returns a string representation
+        of the Dataset instance.
         """
-        return f"Dataset(name={self.name}, version={self.version})"
+        return f"Dataset(name={self.name},
+        version={self.version})"
+
+

@@ -1,7 +1,6 @@
 import os
 import pickle
 from typing import List, Dict, Any, Optional
-import base64
 
 
 class Artifact:
@@ -56,9 +55,14 @@ class Artifact:
             pickle.dump(self, f)
 
     @classmethod
-    def read(cls, id: str, directory: str = "artifacts") -> "Artifact":
+    def read(
+        cls,
+        id: str,
+        directory: str = "artifacts"
+    ) -> "Artifact":
         """
-        Reads the Artifact from a pickle file and recreates the Artifact instance.
+        Reads the Artifact from a pickle file
+        and recreates the Artifact instance.
 
         Args:
             id (str): The unique identifier of the artifact.
@@ -73,3 +77,4 @@ class Artifact:
         with open(file_path, "rb") as f:
             artifact = pickle.load(f)
         return artifact
+

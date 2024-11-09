@@ -1,13 +1,13 @@
 from sklearn.tree import DecisionTreeClassifier
 from ..model import Model
 import numpy as np
+from typing import Any
 
 
 class TreeClassification(Model):
     """
     Decision Tree Classifier.
     """
-
     _type = "classification"
     _available_hyperparameters = {
         "criterion": ["gini", "entropy", "log_loss"],
@@ -21,17 +21,21 @@ class TreeClassification(Model):
     supported_feature_types = ["numerical"]
     supported_target_types = ["categorical"]
 
-    def __init__(self, **hyperparameters) -> None:
+    def __init__(
+            self, **hyperparameters:Any) -> None:
         """
-        Initializes the TreeClassification model with hyperparameters.
+        Initializes the TreeClassification model
+        with hyperparameters.
 
         Args:
-            **hyperparameters: Hyperparameters for configuring the DecisionTreeClassifier.
+            **hyperparameters: Hyperparameters
+            for configuring the DecisionTreeClassifier.
         """
         super().__init__(**hyperparameters)
         self._parameters = {
             k: self._hyperparameters.get(k, v)
-            for k, v in self._available_hyperparameters.items()
+            for k, v
+            in self._available_hyperparameters.items()
         }
         self._model = DecisionTreeClassifier(**self._parameters)
 

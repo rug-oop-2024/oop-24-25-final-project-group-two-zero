@@ -23,20 +23,26 @@ def get_metric(name: str) -> Any:
         Any: The metric class corresponding to the given name.
 
     Raises:
-        ValueError: If the metric with the specified name does not exist.
+        ValueError: If the metric with
+            the specified name does not exist.
     """
     if name not in METRICS:
-        raise ValueError(f"Metric {name} does not exist")
+        raise ValueError(f"""Metric
+                    {name}does not exist"""
+                    )
     return getattr(__import__("autoop.core.ml.metric", fromlist=[name]), name)
 
 
 class Metric(ABC):
     """Base class for all metrics."""
-
     _name: str = None
 
     @abstractmethod
-    def evaluate(self, y_pred: np.ndarray, y_true: np.ndarray) -> float:
+    def evaluate(
+        self,
+        y_pred: np.ndarray,
+        y_true: np.ndarray
+    ) -> float:
         """Compute the metric."""
         pass
 
@@ -54,9 +60,14 @@ class Metric(ABC):
 class MeanSquaredError(Metric):
     _name: str = "Mean Squared Error"
 
-    def evaluate(self, y_pred: np.ndarray, y_true: np.ndarray) -> float:
+    def evaluate(
+            self,
+            y_pred: np.ndarray,
+            y_true: np.ndarray
+        ) -> float:
         """
-        Compute the mean squared error between the predictions and the true labels.
+        Compute the mean squared error
+        between the predictions and the true labels.
 
         Args:
             y_pred (np.ndarray): The predictions.
@@ -71,9 +82,14 @@ class MeanSquaredError(Metric):
 class MeanAbsoluteError(Metric):
     _name: str = "Mean Absolute Error"
 
-    def evaluate(self, y_pred: np.ndarray, y_true: np.ndarray) -> float:
+    def evaluate(
+            self,
+            y_pred: np.ndarray,
+            y_true: np.ndarray
+        ) -> float:
         """
-        Compute the mean absolute error between the predictions and the true labels.
+        Compute the mean absolute error
+        between the predictions and the true labels.
 
         Args:
             y_pred (np.ndarray): The predictions.
@@ -88,9 +104,14 @@ class MeanAbsoluteError(Metric):
 class R2Score(Metric):
     _name: str = "R-Squared"
 
-    def evaluate(self, y_pred: np.ndarray, y_true: np.ndarray) -> float:
+    def evaluate(
+            self,
+            y_pred: np.ndarray,
+            y_true: np.ndarray
+        ) -> float:
         """
-        Compute the R-squared score between the predictions and the true labels.
+        Compute the R-squared score
+        between the predictions and the true labels.
 
         Args:
             y_pred (np.ndarray): The predictions.
@@ -99,15 +120,21 @@ class R2Score(Metric):
         Returns:
             float: The R-squared score.
         """
-        ss_res: float = np.sum((y_true - y_pred) ** 2)
-        ss_tot: float = np.sum((y_true - np.mean(y_true)) ** 2)
+        ss_res: float =\
+            np.sum((y_true - y_pred) ** 2)
+        ss_tot: float =\
+            np.sum((y_true - np.mean(y_true)) ** 2)
         return 1 - (ss_res / ss_tot)
 
 
 class Accuracy(Metric):
     _name = "Accuracy"
 
-    def evaluate(self, y_pred: np.ndarray, y_true: np.ndarray) -> float:
+    def evaluate(
+            self,
+            y_pred: np.ndarray,
+            y_true: np.ndarray
+        ) -> float:
         """
         Compute the accuracy between the predictions and the true labels.
 
@@ -124,11 +151,17 @@ class Accuracy(Metric):
 class Specificity(Metric):
     _name = "Specificity"
 
-    def evaluate(self, y_pred: np.ndarray, y_true: np.ndarray) -> float:
+    def evaluate(
+            self,
+            y_pred: np.ndarray,
+            y_true: np.ndarray
+        ) -> float:
         """
-        Compute the specificity between the predictions and the true labels.
+        Compute the specificity between
+        the predictions and the true labels.
 
-        The specificity is the number of true negatives divided by the sum of true
+        The specificity is the number of
+        true negatives divided by the sum of true
         negatives and false positives.
 
         Args:
@@ -138,22 +171,32 @@ class Specificity(Metric):
         Returns:
             float: The specificity.
         """
-        true_negative = np.sum((y_true == 0) & (y_pred == 0))
-        false_positive = np.sum((y_true == 0) & (y_pred == 1))
+        true_negative =\
+            np.sum((y_true == 0) & (y_pred == 0))
+        false_positive =\
+            np.sum((y_true == 0) & (y_pred == 1))
         if (true_negative + false_positive) == 0:
             return 0.0
-        return true_negative / (true_negative + false_positive)
+        return (true_negative /
+                (true_negative + false_positive))
 
 
 class F1Score(Metric):
     _name = "F1 Score"
 
-    def evaluate(self, y_pred: np.ndarray, y_true: np.ndarray) -> float:
+    def evaluate(
+            self,
+            y_pred: np.ndarray,
+            y_true: np.ndarray
+        ) -> float:
         """
-        Compute the F1 score between the predictions and the true labels.
+        Compute the F1 score between
+        the predictions and the true labels.
 
-        The F1 score is the harmonic mean of precision and recall and is a measure of
-        the accuracy of a test. It is a single number that balances between precision and
+        The F1 score is the harmonic mean of
+        precision and recall and is a measure of
+        the accuracy of a test. It is a single
+        number that balances between precision and
         recall.
 
         Args:
@@ -163,18 +206,24 @@ class F1Score(Metric):
         Returns:
             float: The F1 score.
         """
-        true_positive: float = np.sum((y_true == 1) & (y_pred == 1))
-        false_positive: float = np.sum((y_true == 0) & (y_pred == 1))
-        false_negative: float = np.sum((y_true == 1) & (y_pred == 0))
+        true_positive: float =\
+            np.sum((y_true == 1) & (y_pred == 1))
+        false_positive: float =\
+            np.sum((y_true == 0) & (y_pred == 1))
+        false_negative: float =\
+            np.sum((y_true == 1) & (y_pred == 0))
 
         if (true_positive + false_positive) == 0 or (
             true_positive + false_negative
         ) == 0:
             return 0.0
 
-        precision: float = true_positive / (true_positive + false_positive)
-        recall: float = true_positive / (true_positive + false_negative)
+        precision: float =\
+            true_positive / (true_positive + false_positive)
+        recall: float =\
+            true_positive / (true_positive + false_negative)
 
         if precision + recall == 0:
             return 0.0
-        return 2 * (precision * recall) / (precision + recall)
+        return (2 * (precision * recall)
+                / (precision + recall))

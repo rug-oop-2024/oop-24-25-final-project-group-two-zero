@@ -5,17 +5,16 @@ import pickle
 from typing import List
 from autoop.functional.feature import Feature
 from app.core.system import AutoMLSystem
-from autoop.core.ml.artifact import Artifact
 import numpy as np
 
 
 class Deployment:
     def __init__(self) -> None:
-        # Initialize the AutoML system
         """
         Initialize the Deployment class.
 
-        This method initializes the AutoML system and loads any available artifacts
+        This method initializes the AutoML
+        system and loads any available artifacts
         from the local storage.
         """
         self.automl = AutoMLSystem.get_instance()
@@ -27,18 +26,24 @@ class Deployment:
         preprocessing_artifacts: dict,
     ) -> np.ndarray:
         """
-        Preprocesses new data based on specified input features and preprocessing artifacts.
+        Preprocesses new data based on specified input features and preprocessing
+        artifacts.
 
         Args:
-            df (pd.DataFrame): The input data as a pandas DataFrame containing the features to be preprocessed.
-            input_features (List[Feature]): A list of Feature objects representing the input features to preprocess.
-            preprocessing_artifacts (dict): A dictionary mapping feature names to their corresponding preprocessing artifacts.
+            df (pd.DataFrame): The input data as a pandas DataFrame containing the
+                features to be preprocessed.
+            input_features (List[Feature]): A list of Feature objects representing
+                the input features to preprocess.
+            preprocessing_artifacts (dict): A dictionary mapping feature names to
+                their corresponding preprocessing artifacts.
 
         Returns:
-            np.ndarray: A numpy array containing the preprocessed feature data, ready for model prediction.
+            np.ndarray: A numpy array containing the preprocessed feature data,
+                ready for model prediction.
 
         Raises:
-            ValueError: If a feature specified in input_features is missing from the DataFrame or if an unknown feature type is encountered.
+            ValueError: If a feature specified in input_features is missing from
+                the DataFrame or if an unknown feature type is encountered.
         """
         preprocessed_vectors = []
         for feature in input_features:
@@ -51,12 +56,12 @@ class Deployment:
             if feature.type == "categorical":
                 # Use the saved OneHotEncoder directly
                 artifact = preprocessing_artifacts[feature_name]
-                encoder = artifact["encoder"]  # Already an encoder instance
+                encoder = artifact["encoder"]
                 transformed_data = encoder.transform(feature_data)
             elif feature.type == "continuous":
                 # Use the saved StandardScaler directly
                 artifact = preprocessing_artifacts[feature_name]
-                scaler = artifact["scaler"]  # Already a scaler instance
+                scaler = artifact["scaler"]
                 transformed_data = scaler.transform(feature_data)
             else:
                 raise ValueError(f"Unknown feature type: {feature.type}")
@@ -68,9 +73,10 @@ class Deployment:
         """
         Deploys a saved pipeline and performs predictions on new data.
 
-        This method renders a Streamlit page that allows users to select a saved pipeline and upload a CSV file for prediction.
-        It then preprocesses the data using the pipeline's preprocessing artifacts and makes predictions using the pipeline's model.
-        The predictions are displayed on the page.
+        This method renders a Streamlit page that allows users to select a saved
+        pipeline and upload a CSV file for prediction. It then preprocesses the
+        data using the pipeline's preprocessing artifacts and makes predictions
+        using the pipeline's model. The predictions are displayed on the page.
 
         :return: None
         """

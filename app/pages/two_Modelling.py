@@ -103,7 +103,8 @@ class Modelling:
 
     def __init__(self) -> None:
         self.automl = AutoMLSystem.get_instance()
-        self.datasets = self.automl.registry.list(type="dataset")
+        self.datasets = self.automl.\
+            registry.list(type="dataset")
 
     def train_pipeline(
         self,
@@ -115,7 +116,12 @@ class Modelling:
         metrics_use: List["Metric"],
     ):
         pipeline = Pipeline(
-            metrics_use, dataset, model, input_features, target_feature, split_ratio
+            metrics_use,
+            dataset,
+            model,
+            input_features,
+            target_feature,
+            split_ratio
         )
         # """
         # return {
@@ -130,7 +136,8 @@ class Modelling:
 
     def select_model_hyperparameters(self, model_instance: Model) -> dict:
         """
-        Allow the user to specify acceptable ranges or options for all hyperparameters.
+        Allow the user to specify acceptable ranges
+        or options for all hyperparameters.
 
         Args:
             model_instance (Model): The model instance.
@@ -153,7 +160,8 @@ class Modelling:
 
             if options:
                 acceptable_values = st.multiselect(
-                    f"Acceptable options for {param}", options=options, default=default
+                    f"Acceptable options for {param}",
+                    options=options, default=default
                 )
                 acceptable_ranges[param] = (
                     acceptable_values if acceptable_values else [default]
@@ -209,7 +217,8 @@ class Modelling:
         return acceptable_ranges
 
     def run(self):
-        dataset_options = {f"{dataset.name}": dataset.id for dataset in self.datasets}
+        dataset_options = {f"{dataset.name}": dataset.id\
+                           for dataset in self.datasets}
 
         selected_dataset_name = st.selectbox(
             "Select a dataset", list(dataset_options.keys())
@@ -234,7 +243,10 @@ class Modelling:
 
         st.header("Select the split ratio")
         split_ratio = st.slider(
-            "Select the split ratio", min_value=0.0, max_value=1.0, value=0.8
+            "Select the split ratio",
+            min_value=0.0,
+            max_value=1.0,
+            value=0.8
         )
 
         st.header("Select the target feature")
@@ -300,7 +312,8 @@ class Modelling:
         else:
             # For multiple metrics, create a dictionary
             scoring = {
-                name: self.scoring_options.get(name) for name in selected_metric_names
+                name: self.scoring_options.get(name)\
+                    for name in selected_metric_names
             }
             scoring = {k: v for k, v in scoring.items() if v is not None}
             if not scoring:
@@ -308,11 +321,13 @@ class Modelling:
                 st.stop()
 
         # # Get the metric instances based on the selected names
-        metrics = [metric_name_to_instance[name] for name in selected_metric_names]
+        metrics = [metric_name_to_instance[name]\
+                   for name in selected_metric_names]
 
         st.header("Select the hyperparameters that can be used for tuning")
         # Use the appropriate method or attribute to get hyperparameters
-        acceptable_ranges = self.select_model_hyperparameters(model)
+        acceptable_ranges = self.\
+            select_model_hyperparameters(model)
         X = df[input_feature_names]
         y = df[target_feature_name]
         X_train, X_test, y_train, y_test = train_test_split(
@@ -359,7 +374,8 @@ class Modelling:
         st.write(f"Metrics: {selected_metric_names}")
         st.write(f"Hyperparameters for tuning: {acceptable_ranges}")
         st.write(f"Dataset split: {split_ratio}")
-        pipeline_name = st.text_input("Pipeline name", key="pipeline_name")
+        pipeline_name = st.text_input("Pipeline name", 
+                                    key="pipeline_name")
 
         if st.button("Train"):
             # Proceed with training using the tuned model
@@ -383,8 +399,12 @@ class Modelling:
 
             st.header("Save pipeline")
 
-            pipeline_artifact = pipeline.to_artifact(name=pipeline_name, version="1.0")
-            self.automl.registry.register(pipeline_artifact)
+            pipeline_artifact = pipeline.to_artifact(
+                name=pipeline_name,
+                version="1.0"
+            )
+            self.automl.registry.\
+                register(pipeline_artifact)
             st.write("Pipeline saved successfully")
 
 

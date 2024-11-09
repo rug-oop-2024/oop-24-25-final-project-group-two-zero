@@ -1,13 +1,13 @@
 from sklearn.neighbors import KNeighborsClassifier
 from ..model import Model
 import numpy as np
+from typing import Any
 
 
 class KNearestNeighbors(Model):
     """
     K-Nearest Neighbors classifier.
     """
-
     _type: str = "classification"
     _available_hyperparameters: dict = {
         "n_neighbors": 5,
@@ -22,9 +22,10 @@ class KNearestNeighbors(Model):
     supported_feature_types: list = ["numerical"]
     supported_target_types: list = ["cataorical"]
 
-    def __init__(self, **hyperparameters) -> None:
+    def __init__(self, **hyperparameters: Any) -> None:
         """
-        Initializes the KNearestNeighbors model with hyperparameters.
+        Initializes the KNearestNeighbors model
+        with hyperparameters.
 
         Args:
             **hyperparameters: Hyperparameters for the model.
@@ -38,7 +39,11 @@ class KNearestNeighbors(Model):
         }
         self._model = KNeighborsClassifier(**self._parameters)
 
-    def fit(self, observations: np.ndarray, ground_truth: np.ndarray) -> None:
+    def fit(
+        self,
+        observations: np.ndarray,
+        ground_truth: np.ndarray
+        ) -> None:
         """
         Fits the model to the data.
 
@@ -55,12 +60,16 @@ class KNearestNeighbors(Model):
         }
         self._model.fit(observations, ground_truth)
 
-    def predict(self, observations: np.ndarray) -> np.ndarray:
+    def predict(
+            self,
+            observations: np.ndarray
+        ) -> np.ndarray:
         """
         Predict using the KNearestNeighbors model.
 
         Args:
-            observations (np.ndarray): Observations to predict.
+            observations (np.ndarray):
+            Observations to predict.
 
         Returns:
             np.ndarray: Predicted labels.

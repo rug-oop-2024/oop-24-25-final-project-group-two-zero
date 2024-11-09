@@ -41,7 +41,8 @@ class TextClassificationModel(Model):
 
     def _build_model(self) -> None:
         """
-        Builds the TextClassificationModel based on the given hyperparameters.
+        Builds the TextClassificationModel based
+        on the given hyperparameters.
         """
         max_features = self._hyperparameters["max_features"]
         ngram_range = self._hyperparameters["ngram_range"]
@@ -56,22 +57,32 @@ class TextClassificationModel(Model):
             C=C, penalty=penalty, solver=solver, max_iter=1000
         )
 
-    def fit(self, observations: List[str], ground_truth: np.ndarray) -> None:
+    def fit(
+            self,
+            observations: List[str],
+            ground_truth: np.ndarray
+        ) -> None:
         """
         Fits the model to the given data.
 
         Args:
-            observations (List[str]): The input text data to fit the model to.
-            ground_truth (np.ndarray): The target values to fit the model to.
+            observations (List[str]):
+                The input text data to fit the model to.
+            ground_truth (np.ndarray):
+                The target values to fit the model to.
         """
         self._parameters: dict = {
             "coef": self._model.coef_,
             "intercept": self._model.intercept_,
         }
-        X: np.ndarray = self._vectorizer.fit_transform(observations)
+        X: np.ndarray = self._vectorizer.\
+            fit_transform(observations)
         self._model.fit(X, ground_truth)
 
-    def predict(self, observations: List[str]) -> np.ndarray:
+    def predict(
+            self,
+            observations: List[str]
+        ) -> np.ndarray:
         """
         Predicts the labels for the given observations.
 
@@ -81,5 +92,6 @@ class TextClassificationModel(Model):
         Returns:
             np.ndarray: The predicted labels.
         """
-        X: np.ndarray = self._vectorizer.transform(observations)
+        X: np.ndarray = self._vectorizer.\
+            transform(observations)
         return self._model.predict(X)

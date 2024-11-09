@@ -20,25 +20,35 @@ class MultipleLinearRegression(Model):
 
     def __init__(self, **hyperparameters) -> None:
         """
-        Initializes the LinearRegressionModel model with hyperparameters.
+        Initializes the LinearRegressionModel
+        model with hyperparameters.
 
         Args:
-            **hyperparameters: Hyperparameters for the model.
+            **hyperparameters:
+            Hyperparameters for the model.
         """
         super().__init__(**hyperparameters)
         self._parameters = {
             k: self._hyperparameters.get(k, v)
-            for k, v in self._available_hyperparameters.items()
+            for k, v
+            in self._available_hyperparameters.items()
         }
         self._model = LinearRegression(**self._parameters)
 
-    def fit(self, observations: np.ndarray, ground_truth: np.ndarray) -> None:
+    def fit(
+            self,
+            observations: np.ndarray,
+            ground_truth: np.ndarray
+        ) -> None:
         """
-        Fits the linear regression model to the provided training data.
+        Fits the linear regression
+        model to the provided training data.
 
         Args:
-            observations (np.ndarray): Training data features.
-            ground_truth (np.ndarray): Training data targets.
+            observations (np.ndarray):
+                Training data features.
+            ground_truth (np.ndarray):
+                Training data targets.
         """
         self._parameters = {
             "coef": self._model.coef_,
@@ -46,7 +56,10 @@ class MultipleLinearRegression(Model):
         }
         self._model.fit(observations, ground_truth)
 
-    def predict(self, observations: np.ndarray) -> np.ndarray:
+    def predict(
+            self,
+            observations: np.ndarray
+        ) -> np.ndarray:
         """
         Predict using the linear regression model.
 

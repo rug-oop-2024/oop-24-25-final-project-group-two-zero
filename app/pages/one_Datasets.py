@@ -77,22 +77,29 @@ class Starting:
     def available_datasets(self) -> None:
         # Refresh the datasets list
         """
-        Display a list of available datasets and allow the user to select one or more datasets to remove.
+        Display a list of available datasets and allow
+        the user to select one or more datasets to remove.
 
-        This method first refreshes the list of available datasets in the AutoML system.
-        Then, it displays the list of available datasets and prompts the user to select one or more
-        datasets to remove. If the user selects one or more datasets and clicks the "Remove Selected
-        Datasets" button, the selected datasets are removed from the AutoML system and the list of
+        This method first refreshes the list of
+        available datasets in the AutoML system.
+        Then, it displays the list of available
+        datasets and prompts the user to select one or more
+        datasets to remove. If the user selects one
+        or more datasets and clicks the "Remove Selected
+        Datasets" button, the selected datasets are
+        removed from the AutoML system and the list of
         available datasets is refreshed.
 
         :return: None
         """
-        self.datasets_list = self.automl.registry.list(type="dataset")
+        self.datasets_list = self.automl.\
+            registry.list(type="dataset")
         if self.datasets_list:
             st.write("Available Datasets:")
             # Create a dictionary mapping display names to artifact IDs
             dataset_options = {
-                f"{artifact.name} (ID: {artifact.id})": artifact.id
+                f"{artifact.name} (ID: {artifact.id})":\
+                    artifact.id
                 for artifact in self.datasets_list
             }
             selected_datasets = st.multiselect(
@@ -101,14 +108,21 @@ class Starting:
             if selected_datasets:
                 if st.button("Remove Selected Datasets"):
                     for dataset_name in selected_datasets:
-                        artifact_id = dataset_options[dataset_name]
+                        artifact_id =\
+                            dataset_options[dataset_name]
                         self.automl.registry.delete(artifact_id)
-                    st.success("Selected datasets have been removed.")
+                    st.success(
+                        "Selected datasets have been removed."
+                    )
                     # Refresh the registry and datasets list after deletion
-                    self.automl.registry.refresh()
-                    self.datasets_list = self.automl.registry.list(type="dataset")
+                    self.automl.\
+                        registry.refresh()
+                    self.datasets_list = self.\
+                        automl.registry.list(type="dataset")
             else:
-                st.write("Select one or more datasets to remove.")
+                st.write(
+                    "Select one or more datasets to remove."
+                )
         else:
             st.write("No datasets available.")
 
@@ -117,15 +131,20 @@ class Starting:
         """
         Remove a dataset from the AutoML system.
 
-        This method first refreshes the list of available datasets in the AutoML system.
-        Then, it looks for the dataset with the given name in the list of available datasets.
-        If the dataset is found, it is removed from the AutoML system and a success message is displayed.
-        If the dataset is not found, a message indicating that the dataset was not found is displayed.
+        This method first refreshes the list of
+        available datasets in the AutoML system.
+        Then, it looks for the dataset with the given
+        name in the list of available datasets.
+        If the dataset is found, it is removed from the AutoML
+        system and a success message is displayed.
+        If the dataset is not found, a message indicating
+        that the dataset was not found is displayed.
 
         :param dataset_name: The name of the dataset to remove.
         :return: None
         """
-        self.datasets_list = self.automl.registry.list(type="dataset")
+        self.datasets_list = self.automl.\
+            registry.list(type="dataset")
         if self.datasets_list:
             for artifact in self.datasets_list:
                 if artifact.name == dataset_name:
@@ -145,7 +164,8 @@ class Starting:
         :return: None
         """
         choice = st.radio(
-            "Choose an option:", ("Upload Dataset", "List/Remove Datasets")
+            "Choose an option:",
+            ("Upload Dataset", "List/Remove Datasets")
         )
         if choice == "Upload Dataset":
             self.upload_dataset()

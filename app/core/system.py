@@ -8,7 +8,8 @@ from typing import List
 
 class ArtifactRegistry:
     """
-    This class is responsible for registering and listing artifacts in the registry.
+    This class is responsible for registering
+    and listing artifacts in the registry.
     """
 
     def __init__(self, database: Database, storage: Storage) -> None:

@@ -7,11 +7,14 @@ from typing import Any
 class SupportVectorRegression(Model):
     """
     Support Vector Regression model.
+    This contains a type and available hyperparameters,
+    support feature types and target types.
     """
-
     _type: str = "regression"
     _available_hyperparameters: dict = {
-        "kernel": ["linear", "poly", "rbf", "sigmoid", "precomputed"],
+        "kernel": ["linear", "poly",
+                "rbf", "sigmoid",
+                "precomputed"],
         "degree": 3,
         "gamma": ["scale", "auto"],
         "coef0": 0.0,
@@ -28,7 +31,8 @@ class SupportVectorRegression(Model):
 
     def __init__(self, **hyperparameters: Any) -> None:
         """
-        Initializes the SupportVectorRegression model with hyperparameters.
+        Initializes the
+        SupportVectorRegression model with hyperparameters.
 
         Args:
             **hyperparameters: Hyperparameters for the model.
@@ -37,17 +41,24 @@ class SupportVectorRegression(Model):
         # Merge default hyperparameters with user-provided ones
         params = {
             k: self._hyperparameters.get(k, v)
-            for k, v in self._available_hyperparameters.items()
+            for k, v
+            in self._available_hyperparameters.items()
         }
         self._model = SVR(**params)
 
-    def fit(self, observations: np.ndarray, ground_truth: np.ndarray) -> None:
+    def fit(
+            self,
+            observations: np.ndarray,
+            ground_truth: np.ndarray
+        ) -> None:
         """
         Fits the model to the given data.
 
         Args:
-            observations (np.ndarray): The input data to fit the model to.
-            ground_truth (np.ndarray): The target values to fit the model to.
+            observations (np.ndarray):
+                The input data to fit the model to.
+            ground_truth (np.ndarray):
+                The target values to fit the model to.
         """
         self._parameters = {
             "coef": self._model.coef_,
@@ -55,12 +66,17 @@ class SupportVectorRegression(Model):
         }
         self._model.fit(observations, ground_truth)
 
-    def predict(self, observations: np.ndarray) -> np.ndarray:
+    def predict(
+            self,
+            observations: np.ndarray
+        ) -> np.ndarray:
         """
-        Predicts the target values for the given observations.
+        Predicts the target values
+        for the given observations.
 
         Args:
-            observations (np.ndarray): The input data to predict.
+            observations (np.ndarray):
+            The input data to predict.
 
         Returns:
             np.ndarray: The predicted target values.

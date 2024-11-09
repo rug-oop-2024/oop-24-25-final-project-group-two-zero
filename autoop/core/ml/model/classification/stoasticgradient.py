@@ -1,6 +1,7 @@
 from sklearn.linear_model import SGDClassifier
 from ..model import Model
 import numpy as np
+from typing import Any
 
 
 class StochasticGradient(Model):
@@ -21,7 +22,10 @@ class StochasticGradient(Model):
     supported_feature_types: list = ["numerical"]
     supported_target_types: list = ["categorical"]
 
-    def __init__(self, **hyperparameters) -> None:
+    def __init__(
+            self,
+            **hyperparameters: Any
+        ) -> None:
         """
         Initializes the StochasticGradient model with hyperparameters.
 
@@ -32,12 +36,18 @@ class StochasticGradient(Model):
         super().__init__(**hyperparameters)
         self._parameters: dict = {
             k: self._hyperparameters.get(k, v)
-            for k, v in self._available_hyperparameters.items()
+            for k, v
+            in self._available_hyperparameters.items()
         }
         # Make only the hyperparameters that are chosen by the user
-        self._model: SGDClassifier = SGDClassifier(**self._parameters)
+        self._model: SGDClassifier =\
+            SGDClassifier(**self._parameters)
 
-    def fit(self, observations: np.ndarray, ground_truth: np.ndarray) -> None:
+    def fit(
+            self,
+            observations: np.ndarray,
+            ground_truth: np.ndarray
+        ) -> None:
         """
         Fits the model to the data.
 
@@ -54,12 +64,16 @@ class StochasticGradient(Model):
 
         self._model.fit(observations, ground_truth)
 
-    def predict(self, observations: np.ndarray) -> np.ndarray:
+    def predict(
+            self,
+            observations: np.ndarray
+        ) -> np.ndarray:
         """
         Predict using the StochasticGradient model.
 
         Args:
-            observations (np.ndarray): Observations to predict.
+            observations (np.ndarray):
+            Observations to predict.
 
         Returns:
             np.ndarray: Predicted labels.

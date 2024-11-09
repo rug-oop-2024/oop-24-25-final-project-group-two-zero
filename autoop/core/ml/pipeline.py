@@ -30,16 +30,28 @@ class Pipeline:
         Initialize the Pipeline object.
 
         Args:
-            metrics (List[Metric]): A list of Metric objects to evaluate the model's performance.
-            dataset (Dataset): The dataset object containing the data for training and evaluation.
-            model (Model): The model object to be trained and evaluated.
-            input_features (List[Feature]): A list of Feature objects representing the input features.
-            target_feature (Feature): The Feature object representing the target feature.
-            split (float, optional): The ratio for splitting the dataset into training and evaluation sets. Defaults to 0.8.
+            metrics (List[Metric]):
+                A list of Metric objects to
+                evaluate the model's performance.
+            dataset (Dataset): The dataset
+                object containing the data for
+                training and evaluation.
+            model (Model): The model object
+                to be trained and evaluated.
+            input_features (List[Feature]):
+                A list of Feature objects representing
+                the input features.
+            target_feature (Feature): The Feature object
+                representing the target feature.
+            split (float, optional): The ratio for splitting
+                the dataset into training and evaluation
+                sets. Defaults to 0.8.
 
         Raises:
-            ValueError: If the target feature type is categorical and the model type is not classification.
-            ValueError: If the target feature type is numerical and the model type is not regression.
+            ValueError: If the target feature type
+                is categorical and the model type is not classification.
+            ValueError: If the target feature type
+                is numerical and the model type is not regression.
         """
         self._dataset: Dataset = dataset
         self._model: Model = model
@@ -48,23 +60,32 @@ class Pipeline:
         self._metrics: List[Metric] = metrics
         self._artifacts: dict = {}
         self._split: float = split
-        if target_feature.type == "categorical" and model.type != "classification":
+        if target_feature.type == "categorical" and\
+                model.type != "classification":
             raise ValueError(
-                "Model type must be classification for categorical target feature"
+                "Model type must be classification\
+                for categorical target feature"
             )
-        if target_feature.type == "continuous" and model.type != "regression":
+        if target_feature.type == "continuous" and\
+                model.type != "regression":
             raise ValueError(
-                "Model type must be regression for continuous target feature"
+                "Model type must be regression\
+                for continuous target feature"
             )
 
     def __str__(self) -> str:
         """
-        Return a string representation of the Pipeline object.
+        Return a string representation of the
+        Pipeline object.
 
-        The string representation contains the model type, input features, target feature, split ratio, and metrics.
+        The string representation contains
+        the model type, input features,
+        target feature, split ratio,
+        and metrics.
 
         Returns:
-            str: A string representation of the Pipeline object.
+            str: A string representation of
+            the Pipeline object.
         """
         return f"""
 Pipeline(
@@ -89,11 +110,16 @@ Pipeline(
     @property
     def artifacts(self) -> List[Artifact]:
         """
-        Return a list of Artifact objects containing the preprocessing artifacts and the model artifact.
+        Return a list of Artifact objects
+        containing the preprocessing artifacts and
+        the model artifact.
 
         The list of artifacts includes the following:
-        - Preprocessing artifacts: Each artifact is a dict containing the type of preprocessing and the corresponding encoder or scaler.
-        - Model artifact: The model artifact is a dict containing the model object and its type.
+        - Preprocessing artifacts: Each artifact
+        is a dict containing the type of preprocessing
+        and the corresponding encoder or scaler.
+        - Model artifact: The model artifact is a dict
+        containing the model object and its type.
 
         Returns:
             List[Artifact]: A list of Artifact objects.
@@ -103,7 +129,8 @@ Pipeline(
             artifact_type: str = artifact.get("type")
             data: bytes = pickle.dumps(
                 artifact["encoder"]
-                if artifact_type in ["OneHotEncoder", "LabelEncoder"]
+                if artifact_type in
+                ["OneHotEncoder", "LabelEncoder"]
                 else artifact["scaler"]
             )
             artifacts.append(Artifact(name=name, data=data))
@@ -113,67 +140,94 @@ Pipeline(
             "split": self._split,
         }
         artifacts.append(
-            Artifact(name="pipeline_config", data=pickle.dumps(pipeline_data))
+            Artifact(
+                name="pipeline_config",
+                data=pickle.dumps(pipeline_data)
+            )
         )
         artifacts.append(
             self._model.to_artifact(name=f"pipeline_model_{self._model.type}")
         )
         return artifacts
 
-    def _register_artifact(self, name: str, artifact: dict) -> None:
+    def _register_artifact(
+            self,name: str,
+            artifact: dict
+        ) -> None:
         """
-        Registers an artifact in the internal dictionary of artifacts.
+        Registers an artifact in the
+        internal dictionary of artifacts.
 
         Args:
             name (str): The name of the artifact.
-            artifact (dict): The artifact to be registered.
+            artifact (dict): The artifact
+            to be registered.
         """
         self._artifacts[name] = artifact
 
     def _validate_feature_and_target_types(self):
         """
-        Validates that the input feature types and target feature type are supported by the model.
+        Validates that the input feature types and
+        target feature type are supported by the model.
 
-        This method checks that the model supports all input feature types and the target feature type.
-        If the model does not support a feature type, a ValueError is raised.
+        This method checks that the model supports
+        all input feature types and the target feature type.
+        If the model does not support a feature type,
+        a ValueError is raised.
         raises:
-            ValueError: If the model does not support any of the input feature types or the target feature type.
+            ValueError: If the model does not support
+            any of the input feature types or the target
+            feature type.
         """
-        feature_types: set = set(feature.type for feature in self._input_features)
+        feature_types: set = set(feature.type
+                                for feature
+                                in self._input_features
+                                )
         target_type: str = self._target_feature.type
 
         # Ensure the model supports all input feature types
         if not all(
-            ftype in self._model.supported_feature_types for ftype in feature_types
+            ftype in self._model.supported_feature_types
+            for ftype in feature_types
         ):
             raise ValueError(
-                f"Model {self._model.__class__.__name__} does not support feature types {feature_types}"
+                f"Model {self._model.__class__.__name__}\
+                does not support feature types {feature_types}"
             )
 
-        if target_type not in self._model.supported_target_types:
+        if (target_type
+            not in self._model.supported_target_types
+            ):
             raise ValueError(
-                f"Model {self._model.__class__.__name__} does not support target type {target_type}"
+                f"Model {self._model.__class__.__name__}\
+                does not support target type {target_type}"
             )
 
     def _preprocess_features(self) -> None:
         """
-        Preprocesses input and target features based on their types.
+        Preprocesses input and target features based
+        on their types.
 
-        Preprocesses each feature using the `_preprocess_feature_data` method and stores the
-        preprocessed data in `_input_vectors` and `_output_vector` respectively.
+        Preprocesses each feature using the
+        `_preprocess_feature_data` method and stores the
+        preprocessed data in `_input_vectors` and
+        `_output_vector` respectively.
 
         :return: None
         """
         self._input_vectors: List[np.ndarray] = []
         for feature in self._input_features:
             data = self._dataset.data[feature.name]
-            preprocessed_data: np.ndarray = self._preprocess_feature_data(feature, data)
+            preprocessed_data: np.ndarray =\
+                self._preprocess_feature_data(feature, data)
             self._input_vectors.append(preprocessed_data)
 
         # Preprocess target feature
-        target_data: np.ndarray = self._dataset.data[self._target_feature.name]
-        self._output_vector: np.ndarray = self._preprocess_feature_data(
-            self._target_feature, target_data
+        target_data: np.ndarray =\
+            self._dataset.data[self._target_feature.name]
+        self._output_vector=\
+            self._preprocess_feature_data(
+                self._target_feature, target_data
         )
 
     def _preprocess_feature_data(self, feature: Feature, data):
@@ -197,50 +251,70 @@ Pipeline(
         elif feature.type == "video":
             preprocessed_data = np.stack(data.values)
         else:
-            # For numerical and categorical data, use existing preprocessing
+            # For numerical and categorical data,
+            # use existing preprocessing
             preprocessed_data = data.values.reshape(-1, 1)
         return preprocessed_data
 
     def _split_data(self) -> None:
         """
-        Splits the preprocessed input and output data into training and testing sets.
+        Splits the preprocessed input and
+        output data into training and testing sets.
 
-        The data is split based on the specified split ratio. The resulting training
-        and testing sets are stored in the respective attributes.
+        The data is split based on the specified
+        split ratio. The resulting training
+        and testing sets are stored in the respective
+        attributes.
 
         Returns:
             None
         """
         split: float = self._split
         self._train_X: List[np.ndarray] = [
-            vector[: int(split * len(vector))] for vector in self._input_vectors
+            vector[: int(split * len(vector))]
+            for vector in self._input_vectors
         ]
         self._test_X: List[np.ndarray] = [
-            vector[int(split * len(vector)) :] for vector in self._input_vectors
+            vector[int(split * len(vector)) :]
+            for vector in self._input_vectors
         ]
-        self._train_y: np.ndarray = self._output_vector[
+        self._train_y = self._output_vector[
             : int(split * len(self._output_vector))
         ]
-        self._test_y: np.ndarray = self._output_vector[
+        self._test_y = self._output_vector[
             int(split * len(self._output_vector)) :
         ]
 
-    def to_artifact(self, name: str, version: str) -> Artifact:
+    def to_artifact(
+            self,
+            name: str,
+            version: str
+        ) -> Artifact:
         """
-        Converts the current pipeline state into an Artifact object.
+        Converts the current pipeline state
+        into an Artifact object.
 
-        This function serializes the pipeline's components, including the model,
-        input features, target feature, data split ratio, evaluation metrics,
-        preprocessing artifacts, and dataset, into a byte stream. It then creates
-        an Artifact object containing this serialized data, which can be stored
+        This function serializes the
+        pipeline's components, including the model,
+        input features, target feature,
+        data split ratio, evaluation metrics,
+        preprocessing artifacts,
+        and dataset, into a byte
+        stream. It then creates
+        an Artifact object containing
+        this serialized data, which can be stored
         for future use.
 
         Args:
-            name (str): The name of the artifact to be created.
-            version (str): The version of the artifact.
+            name (str): The name of
+                the artifact to be created.
+            version (str): The version
+                of the artifact.
 
         Returns:
-            Artifact: An Artifact instance containing the serialized pipeline data.
+            Artifact: An Artifact
+                instance containing the serialized
+                pipeline data.
         """
         pipeline_data: dict = {
             "model": self._model,
@@ -253,10 +327,14 @@ Pipeline(
         }
 
         # Serialize the pipeline data
-        serialized_pipeline_data: bytes = pickle.dumps(pipeline_data)
+        serialized_pipeline_data =\
+            pickle.dumps(pipeline_data)
 
         asset_path: str = os.path.normpath(
-            os.path.join("pipelines", f"{name}_{version}.pkl")
+            os.path.join(
+                "pipelines",
+                f"{name}_{version}.pkl"
+            )
         )
         return Artifact(
             name=name,
@@ -270,7 +348,8 @@ Pipeline(
         """
         Compacts the input vectors into a format suitable for the model.
 
-        For models that accept lists (e.g., text data), we might need to return the list as is.
+        For models that accept lists (e.g., text data),
+        we might need to return the list as is.
         For numerical data, we concatenate the vectors.
 
         Args:
@@ -282,7 +361,8 @@ Pipeline(
         if self._model.supported_feature_types == ["text"]:
             # Return list of strings
             return vectors[0]  # Assuming one text feature
-        elif self._model.supported_feature_types == ["image", "audio", "video"]:
+        elif self._model.supported_feature_types ==\
+            ["image", "audio", "video"]:
             # Stack along the first axis
             return np.concatenate(vectors, axis=0)
         else:
@@ -293,7 +373,8 @@ Pipeline(
         """
         Trains the model using the training data.
 
-        This method takes the preprocessed training data and fits the model to it.
+        This method takes the preprocessed training data
+        and fits the model to it.
 
         Returns:
             None
@@ -309,9 +390,12 @@ Pipeline(
         """
         Evaluates the trained model using the test data and metrics.
 
-        This method computes predictions on the test data and evaluates these predictions
-        against the true labels using the specified metrics. The results of each metric evaluation
-        are stored in the `_metrics_results` attribute, and the predictions are stored in the
+        This method computes predictions on the test data
+        and evaluates these predictions
+        against the true labels using the specified metrics.
+        The results of each metric evaluation
+        are stored in the `_metrics_results` attribute, and the
+        predictions are stored in the
         `_predictions` attribute.
 
         Returns:
@@ -328,16 +412,22 @@ Pipeline(
 
     def _compute_shap_values(self):
         """
-        Computes SHAP values for the model to provide explainability insights.
+        Computes SHAP values for the model to provide
+        explainability insights.
 
-        This method uses SHAP (SHapley Additive exPlanations) to compute feature importance values for
-        the test data. It selects an appropriate SHAP explainer based on the model type, specifically
-        using a TreeExplainer for tree-based models and a KernelExplainer for other model types. In
-        case of an exception during the computation, a warning is issued, and the SHAP values are set
+        This method uses SHAP (SHapley Additive exPlanations)
+        to compute feature importance values for
+        the test data. It selects an appropriate SHAP explainer
+        based on the model type, specifically
+        using a TreeExplainer for tree-based models and a KernelExplainer
+        for other model types. In
+        case of an exception during the computation, a warning is
+        issued, and the SHAP values are set
         to None.
 
         Raises:
-            Exception: If there is an error in computing SHAP values, it displays a warning with the error message.
+            Exception: If there is an error in computing SHAP values,
+            it displays a warning with the error message.
         """
         X_test = self._compact_vectors(self._test_X)
         # Choose the appropriate explainer based on the model type
@@ -357,8 +447,10 @@ Pipeline(
         """
         Generates a report containing the results of the evaluation.
 
-        This method generates a report containing the results of the evaluation, such as the
-        confusion matrix for classification models and the SHAP summary plot. The report is
+        This method generates a report containing the results
+        of the evaluation, such as the
+        confusion matrix for classification models and the SHAP
+        summary plot. The report is
         stored in the `_report` attribute.
 
         Returns:
@@ -384,7 +476,8 @@ Pipeline(
             buf_cm.seek(0)
             image_png_cm = buf_cm.getvalue()
             buf_cm.close()
-            report["confusion_matrix"] = base64.b64encode(image_png_cm).decode("utf-8")
+            report["confusion_matrix"] = base64.\
+                b64encode(image_png_cm).decode("utf-8")
             plt.close(fig_cm)
 
         # Compute SHAP values
@@ -449,7 +542,8 @@ Pipeline(
             buf_shap.close()
 
             # Store the plot in the report
-            report["shap_summary"] = base64.b64encode(image_png_shap).decode("utf-8")
+            report["shap_summary"] = base64.\
+                b64encode(image_png_shap).decode("utf-8")
 
             # Close the plot to free memory
             plt.close(fig)
@@ -463,9 +557,12 @@ Pipeline(
         """
         Performs a sensitivity analysis of the model to each input feature.
 
-        For each feature, it perturbs the feature by adding a small value (e.g., 0.1 times the standard deviation)
-        and computes the mean absolute change in predictions. The results are stored in a dictionary
-        where the keys are the feature names and the values are the sensitivities.
+        For each feature, it perturbs the feature by
+        adding a small value (e.g., 0.1 times the standard deviation)
+        and computes the mean absolute change in
+        predictions. The results are stored in a dictionary
+        where the keys are the feature names and
+        the values are the sensitivities.
 
         Returns:
             None
@@ -488,12 +585,15 @@ Pipeline(
         """
         Executes the pipeline and returns the results.
 
-        The method preprocesses the input data, splits it into training and testing sets,
-        trains the model, evaluates the model, generates a report, and returns the metrics,
+        The method preprocesses the input data,
+        splits it into training and testing sets,
+        trains the model, evaluates the model,
+        generates a report, and returns the metrics,
         predictions, and report.
 
         Returns:
-            dict: A dictionary containing the evaluation metrics, predictions, and report.
+            dict: A dictionary containing the
+            evaluation metrics, predictions, and report.
         """
         self._preprocess_features()
         self._split_data()

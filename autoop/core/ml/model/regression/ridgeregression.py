@@ -1,6 +1,7 @@
 from sklearn.linear_model import Ridge
 from ..model import Model
 import numpy as np
+from typing import Any
 
 
 class RidgeRegression(Model):
@@ -12,7 +13,10 @@ class RidgeRegression(Model):
     _available_hyperparameters: dict = {
         "alpha": 1.0,
         "fit_intercept": True,
-        "solver": ["auto", "svd", "cholesky", "lsqr", "sparse_cg", "sag", "saga"],
+        "solver": ["auto", "svd",
+            "cholesky", "lsqr", "sparse_cg",
+            "sag", "saga"
+        ],
         "max_iter": None,
         "tol": 1e-3,
     }
@@ -20,12 +24,14 @@ class RidgeRegression(Model):
     _supported_feature_types: list = ["numerical"]
     _supported_target_types: list = ["numerical"]
 
-    def __init__(self, **hyperparameters) -> None:
+    def __init__(self, **hyperparameters:Any) -> None:
         """
-        Initializes the RidgeRegression model with specified hyperparameters.
+        Initializes the RidgeRegression model
+        with specified hyperparameters.
 
         Args:
-            **hyperparameters: Arbitrary keyword arguments for model hyperparameters.
+            **hyperparameters: Arbitrary keyword
+                arguments for model hyperparameters.
         """
         super().__init__(**hyperparameters)
         self._parameters = {
@@ -34,7 +40,11 @@ class RidgeRegression(Model):
         }
         self._model = Ridge(**self._parameters)
 
-    def fit(self, observations: np.ndarray, ground_truth: np.ndarray) -> None:
+    def fit(
+            self,
+            observations: np.ndarray,
+            ground_truth: np.ndarray
+        ) -> None:
         """
         Fits the RidgeRegression model to the data.
 
@@ -52,12 +62,16 @@ class RidgeRegression(Model):
         }
         self._model.fit(observations, ground_truth)
 
-    def predict(self, observations: np.ndarray) -> np.ndarray:
+    def predict(
+            self,
+            observations: np.ndarray
+        ) -> np.ndarray:
         """
         Predict using the RidgeRegression model.
 
         Args:
-            observations (np.ndarray): Observations to predict.
+            observations (np.ndarray):
+                Observations to predict.
 
         Returns:
             np.ndarray: Predicted values.
