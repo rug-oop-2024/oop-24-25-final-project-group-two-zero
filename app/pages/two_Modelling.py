@@ -217,7 +217,7 @@ class Modelling:
         st.header("Select the target feature")
         target_feature = st.selectbox(
             "Select the target feature",
-            features
+            [feature for feature in features]
         )
         input_features = st.multiselect(
             "Select the input features",
@@ -234,7 +234,7 @@ class Modelling:
             model_options = self.CLASSIFICATION_MODELS
         else:
             model_options = self.REGRESSION_MODELS
-
+        st.header(f"these are the models {model_options.items()}")
         model_name_to_class = {name: cls for name, cls in model_options.items()}
 
         selected_model_name = st.selectbox("Select the model", list(model_name_to_class.keys()))

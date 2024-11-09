@@ -9,7 +9,7 @@ class Feature(BaseModel):
 
     def __str__(self) -> str:
         """Returns a string representation of the feature in the format 'Feature(name=foo, type=bar, is_target=baz)'. This is used for debugging purposes."""
-        return f"Feature(name={self.name}, type={self.type}, is_target={self.is_target})"
+        return f"{self.name}"
 
     def __repr__(self) -> str:
         return self.__str__()
