@@ -37,6 +37,10 @@ class MultipleLinearRegression(Model):
             observations (np.ndarray): Training data features.
             ground_truth (np.ndarray): Training data targets.
         """
+        self._parameters = {
+            "coef": self._model.coef_,
+            "intercept": self._model.intercept_,
+        }
         self._model.fit(observations, ground_truth)
 
     def predict(self, observations: np.ndarray) -> np.ndarray:

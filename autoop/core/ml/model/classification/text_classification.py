@@ -57,6 +57,10 @@ class TextClassificationModel(Model):
             observations (List[str]): The input text data to fit the model to.
             ground_truth (np.ndarray): The target values to fit the model to.
         """
+        self._parameters = {
+            "coef": self._model.coef_,
+            "intercept": self._model.intercept_
+        }
         X = self._vectorizer.fit_transform(observations)
         self._model.fit(X, ground_truth)
 

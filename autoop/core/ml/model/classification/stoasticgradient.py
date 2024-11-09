@@ -42,6 +42,12 @@ class StochasticGradient(Model):
             observations (np.ndarray): Features.
             ground_truth (np.ndarray): Target values.
         """
+        self._parameters = {
+            "_coef": self._model.coef_,
+            "_intercept": self._model.intercept_,
+            "_n_iter": self._model.n_iter_,
+            "_classes": self._model.classes_
+        }
 
         self._model.fit(observations, ground_truth)
 

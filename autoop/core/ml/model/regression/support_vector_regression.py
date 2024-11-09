@@ -45,6 +45,10 @@ class SupportVectorRegression(Model):
             observations (np.ndarray): The input data to fit the model to.
             ground_truth (np.ndarray): The target values to fit the model to.
         """
+        self._parameters = {
+            "coef": self._model.coef_,
+            "intercept": self._model.intercept_,
+        }
         self._model.fit(observations, ground_truth)
 
     def predict(self, observations: np.ndarray) -> np.ndarray:

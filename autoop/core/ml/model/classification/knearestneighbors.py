@@ -43,6 +43,13 @@ class KNearestNeighbors(Model):
             observations (np.ndarray): Features.
             ground_truth (np.ndarray): Target values.
         """
+        self._parameters = {
+            "_n_neighbors": self._model.n_neighbors_,
+            "_weights": self._model.weights_,
+            "_p": self._model.p_,
+            "coef": self._model.coef_,
+            "_intercept": self._model.intercept_,
+        }
         self._model.fit(observations, ground_truth)
 
     def predict(self, observations: np.ndarray) -> np.ndarray:

@@ -39,7 +39,14 @@ class RidgeRegression(Model):
             observations (np.ndarray): Features.
             ground_truth (np.ndarray): Target values.
         """
-
+        self._parameters = {
+            "alpha": self._model.alpha_,
+            "fit_intercept": self._model.fit_intercept_,
+            "solver": self._model.solver_,
+            "max_iter": self._model.max_iter_,
+            "tol": self._model.tol_,
+            "intercept": self._model.intercept_,
+        }
         self._model.fit(observations, ground_truth)
 
     def predict(self, observations: np.ndarray) -> np.ndarray:
