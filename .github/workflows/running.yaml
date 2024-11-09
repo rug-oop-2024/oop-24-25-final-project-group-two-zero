@@ -27,4 +27,4 @@ jobs:
       - name: Run main.py
         id: run_main
         run: |
-          python3 autoop/tests/main.py
+          python3 main.py
