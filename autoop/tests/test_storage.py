@@ -1,10 +1,10 @@
-
 import unittest
 
 from autoop.core.storage import LocalStorage, NotFoundError
 import random
 import tempfile
 import os
+
 
 class TestStorage(unittest.TestCase):
 

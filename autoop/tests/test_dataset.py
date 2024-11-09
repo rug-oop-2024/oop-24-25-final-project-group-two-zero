@@ -2,23 +2,20 @@ import unittest
 import pandas as pd
 from autoop.core.ml.dataset import Dataset
 
+
 class TestDataset(unittest.TestCase):
 
     def setUp(self) -> None:
         """
         Sets up a test environment for the Dataset class.
 
-        This method initializes a sample dataset using a pandas DataFrame 
+        This method initializes a sample dataset using a pandas DataFrame
         with columns 'A', 'B', and 'C', and assigns it to the `data` attribute.
-        It also sets up the attributes `name`, `asset_path`, and `version` 
-        for the dataset. Finally, it creates a Dataset instance using the 
+        It also sets up the attributes `name`, `asset_path`, and `version`
+        for the dataset. Finally, it creates a Dataset instance using the
         from_dataframe method and assigns it to the `dataset` attribute.
         """
-        self.data = pd.DataFrame({
-            'A': [1, 2, 3],
-            'B': [4, 5, 6],
-            'C': [7, 8, 9]
-        })
+        self.data = pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6], "C": [7, 8, 9]})
         self.name = "test_dataset"
         self.asset_path = "test_dataset.csv"
         self.version = "1.0.0"
@@ -26,7 +23,7 @@ class TestDataset(unittest.TestCase):
             data=self.data,
             name=self.name,
             asset_path=self.asset_path,
-            version=self.version
+            version=self.version,
         )
 
     def test_from_dataframe(self):
@@ -59,18 +56,16 @@ class TestDataset(unittest.TestCase):
                 data="invalid_data",
                 name=self.name,
                 asset_path=self.asset_path,
-                version=self.version
+                version=self.version,
             )
 
     def test_no_data_in_dataset(self):
         empty_dataset = Dataset(
-            name=self.name,
-            asset_path=self.asset_path,
-            data=None,
-            version=self.version
+            name=self.name, asset_path=self.asset_path, data=None, version=self.version
         )
         with self.assertRaises(ValueError):
             empty_dataset.to_dataframe()
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

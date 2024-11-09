@@ -8,5 +8,5 @@ __all__ = [
     "KNearestNeighbors",
     "StochasticGradient",
     "TreeClassification",
-    "TextClassificationModel"
+    "TextClassificationModel",
 ]

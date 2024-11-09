@@ -5,6 +5,7 @@ from autoop.core.ml.model.regression import LinearRegressionModel
 from autoop.core.ml.model.classification import KNearestNeighbors
 from app.pages.two_Modelling import Modelling
 
+
 class TestModelling(unittest.TestCase):
 
     def setUp(self):
@@ -13,9 +14,9 @@ class TestModelling(unittest.TestCase):
         """
         self.modelling = Modelling()
 
-    @patch('streamlit.set_page_config')
-    @patch('streamlit.write')
-    @patch('streamlit.stop')
+    @patch("streamlit.set_page_config")
+    @patch("streamlit.write")
+    @patch("streamlit.stop")
     def test_run_no_datasets(self, mock_stop, mock_write, mock_set_page_config):
         """
         Test that the Modelling page shows a message if no datasets are available.
@@ -25,38 +26,58 @@ class TestModelling(unittest.TestCase):
         """
         self.modelling.datasets = []
         self.modelling.run()
-        mock_write.assert_called_with("No datasets available, please upload a dataset first on the datasets page.")
+        mock_write.assert_called_with(
+            "No datasets available, please upload a dataset first on the datasets page."
+        )
         mock_stop.assert_called_once()
 
-    @patch('streamlit.set_page_config')
-    @patch('streamlit.write')
-    @patch('streamlit.selectbox')
-    @patch('streamlit.multiselect')
-    @patch('streamlit.slider')
-    @patch('streamlit.button')
-    @patch('streamlit.text_input')
-    @patch('app.pages.two_Modelling.Dataset.from_artifact')
-    @patch('app.pages.two_Modelling.detect_feature_types')
-    def test_run_with_datasets(self, mock_detect_feature_types, mock_from_artifact, mock_text_input, mock_button, mock_slider, mock_multiselect, mock_selectbox, mock_write, mock_set_page_config):
+    @patch("streamlit.set_page_config")
+    @patch("streamlit.write")
+    @patch("streamlit.selectbox")
+    @patch("streamlit.multiselect")
+    @patch("streamlit.slider")
+    @patch("streamlit.button")
+    @patch("streamlit.text_input")
+    @patch("app.pages.two_Modelling.Dataset.from_artifact")
+    @patch("app.pages.two_Modelling.detect_feature_types")
+    def test_run_with_datasets(
+        self,
+        mock_detect_feature_types,
+        mock_from_artifact,
+        mock_text_input,
+        mock_button,
+        mock_slider,
+        mock_multiselect,
+        mock_selectbox,
+        mock_write,
+        mock_set_page_config,
+    ):
         """
         Test the Modelling page's functionality when datasets are available.
 
         This test simulates the scenario where datasets are available for selection. It patches
-        the necessary Streamlit components and dependencies to test the interaction flow, 
-        including selecting a dataset, choosing input features, selecting a model, setting 
+        the necessary Streamlit components and dependencies to test the interaction flow,
+        including selecting a dataset, choosing input features, selecting a model, setting
         dataset split ratio, and saving a pipeline.
 
-        The test verifies that the correct messages are displayed during the process of 
+        The test verifies that the correct messages are displayed during the process of
         training a model and saving a pipeline.
         """
-        mock_selectbox.side_effect = ['Test Dataset (ID: 1)', 'Feature1', 'LinearRegression']
-        mock_multiselect.side_effect = [['Feature1', 'Feature2'], ['Mean Squared Error']]
+        mock_selectbox.side_effect = [
+            "Test Dataset (ID: 1)",
+            "Feature1",
+            "LinearRegression",
+        ]
+        mock_multiselect.side_effect = [
+            ["Feature1", "Feature2"],
+            ["Mean Squared Error"],
+        ]
         mock_slider.return_value = 0.8
         mock_button.side_effect = [True, True]
-        mock_text_input.side_effect = ['Pipeline Name', '1.0.0']
+        mock_text_input.side_effect = ["Pipeline Name", "1.0.0"]
 
         artifact_mock = MagicMock()
-        artifact_mock.name = 'Test Dataset'
+        artifact_mock.name = "Test Dataset"
         artifact_mock.id = 1
         self.modelling.datasets = [artifact_mock]
 
@@ -64,8 +85,8 @@ class TestModelling(unittest.TestCase):
         mock_from_artifact.return_value = dataset_mock
 
         feature_mock = MagicMock()
-        feature_mock.name = 'Feature1'
-        feature_mock.type = 'numerical'
+        feature_mock.name = "Feature1"
+        feature_mock.type = "numerical"
         mock_detect_feature_types.return_value = [feature_mock]
 
         self.modelling.run()
@@ -73,7 +94,9 @@ class TestModelling(unittest.TestCase):
         mock_write.assert_any_call("Training the model...")
         mock_write.assert_any_call("## Results")
         mock_write.assert_any_call("## 💾 Save the Pipeline")
-        mock_write.assert_any_call("Pipeline 'Pipeline Name' version '1.0.0' has been saved.")
+        mock_write.assert_any_call(
+            "Pipeline 'Pipeline Name' version '1.0.0' has been saved."
+        )
 
     def test_get_model_regression(self):
         """
@@ -144,5 +167,6 @@ class TestModelling(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.modelling.get_metrics("invalid")
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

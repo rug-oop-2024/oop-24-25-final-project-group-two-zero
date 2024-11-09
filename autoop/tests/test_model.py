@@ -2,6 +2,7 @@ import unittest
 import numpy as np
 from .. import Model
 
+
 class DummyModel(Model):
     def fit(self, observations: np.ndarray, groundtruth: np.ndarray) -> None:
         """
@@ -11,7 +12,7 @@ class DummyModel(Model):
             observations (np.ndarray): The input data to compute the mean from.
             groundtruth (np.ndarray): The target values (not used in this implementation).
         """
-        self.parameters['mean'] = np.mean(observations, axis=0)
+        self.parameters["mean"] = np.mean(observations, axis=0)
 
     def predict(self, observations: np.ndarray) -> np.ndarray:
         """
@@ -23,7 +24,8 @@ class DummyModel(Model):
         Returns:
             np.ndarray: Predicted values.
         """
-        return np.full(observations.shape[0], self.parameters.get('mean', 0))
+        return np.full(observations.shape[0], self.parameters.get("mean", 0))
+
 
 class TestModel(unittest.TestCase):
 
@@ -46,8 +48,8 @@ class TestModel(unittest.TestCase):
         parameters of the model. The mean should be [3, 4] for the test data.
         """
         self.model.fit(self.observations, self.groundtruth)
-        self.assertIn('mean', self.model.parameters)
-        np.testing.assert_array_equal(self.model.parameters['mean'], np.array([3, 4]))
+        self.assertIn("mean", self.model.parameters)
+        np.testing.assert_array_equal(self.model.parameters["mean"], np.array([3, 4]))
 
     def test_predict(self):
         """
@@ -64,5 +66,6 @@ class TestModel(unittest.TestCase):
         self.assertEqual(predictions.shape[0], self.observations.shape[0])
         np.testing.assert_array_equal(predictions, np.array([3, 3, 3]))
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

@@ -1,8 +1,10 @@
 from .model import Model
+
 # Regression
 from autoop.core.ml.model.regression import MultipleLinearRegression
 from autoop.core.ml.model.regression import RidgeRegression
 from autoop.core.ml.model.regression import SupportVectorRegression
+
 # Classification
 from autoop.core.ml.model.classification import TreeClassification
 from autoop.core.ml.model.classification import KNearestNeighbors
@@ -18,5 +20,5 @@ __all__ = [
     "TreeClassification",
     "KNearestNeighbors",
     "StochasticGradient",
-    "TextClassificationModel"
+    "TextClassificationModel",
 ]

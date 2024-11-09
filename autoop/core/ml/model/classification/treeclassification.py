@@ -10,16 +10,16 @@ class TreeClassification(Model):
 
     _type = "classification"
     _available_hyperparameters = {
-        'criterion': ['gini', 'entropy', 'log_loss'],
-        'splitter': ['best', 'random'],
-        'max_depth': None,
-        'min_samples_split': 2,
-        'min_samples_leaf': 1,
-        'max_features': None,
+        "criterion": ["gini", "entropy", "log_loss"],
+        "splitter": ["best", "random"],
+        "max_depth": None,
+        "min_samples_split": 2,
+        "min_samples_leaf": 1,
+        "max_features": None,
     }
 
-    supported_feature_types = ['numerical']
-    supported_target_types = ['categorical']
+    supported_feature_types = ["numerical"]
+    supported_target_types = ["categorical"]
 
     def __init__(self, **hyperparameters) -> None:
         """
@@ -29,7 +29,10 @@ class TreeClassification(Model):
             **hyperparameters: Hyperparameters for configuring the DecisionTreeClassifier.
         """
         super().__init__(**hyperparameters)
-        self._parameters = {k: self._hyperparameters.get(k, v) for k, v in self._available_hyperparameters.items()}
+        self._parameters = {
+            k: self._hyperparameters.get(k, v)
+            for k, v in self._available_hyperparameters.items()
+        }
         self._model = DecisionTreeClassifier(**self._parameters)
 
     def fit(self, observations: np.ndarray, ground_truth: np.ndarray) -> None:
@@ -48,7 +51,7 @@ class TreeClassification(Model):
             "min_samples_leaf": self._model.min_samples_leaf,
             "max_features": self._model.max_features,
             "coef": self._model.coef_,
-            "intercept": self._model.intercept_
+            "intercept": self._model.intercept_,
         }
         self._model.fit(observations, ground_truth)
 

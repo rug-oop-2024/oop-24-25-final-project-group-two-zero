@@ -1,8 +1,14 @@
 import unittest
 import numpy as np
 from autoop.core.ml.metric import (
-    MeanSquaredError, MeanAbsoluteError, R2Score, Accuracy, Specificity, F1Score
+    MeanSquaredError,
+    MeanAbsoluteError,
+    R2Score,
+    Accuracy,
+    Specificity,
+    F1Score,
 )
+
 
 class TestMeanSquaredError(unittest.TestCase):
 
@@ -30,6 +36,7 @@ class TestMeanSquaredError(unittest.TestCase):
         score = self.metric.evaluate(y_pred, y_true)
         self.assertEqual(score, 0.25)
 
+
 class TestMeanAbsoluteError(unittest.TestCase):
 
     def setUp(self) -> None:
@@ -49,13 +56,14 @@ class TestMeanAbsoluteError(unittest.TestCase):
 
     def test_mae_non_perfect(self):
         """
-        Tests that the mean absolute error is 0.25 when the predictions 
+        Tests that the mean absolute error is 0.25 when the predictions
         deviate from the true values.
         """
         y_true = np.array([1, 2, 3, 4])
         y_pred = np.array([2, 2, 3, 4])
         score = self.metric.evaluate(y_pred, y_true)
         self.assertEqual(score, 0.25)
+
 
 class TestR2Score(unittest.TestCase):
 
@@ -83,6 +91,7 @@ class TestR2Score(unittest.TestCase):
         score = self.metric.evaluate(y_pred, y_true)
         self.assertAlmostEqual(score, 0.9285714285714286)
 
+
 class TestAccuracy(unittest.TestCase):
 
     def setUp(self) -> None:
@@ -109,6 +118,7 @@ class TestAccuracy(unittest.TestCase):
         score = self.metric.evaluate(y_pred, y_true)
         self.assertEqual(score, 0.75)
 
+
 class TestSpecificity(unittest.TestCase):
 
     def setUp(self) -> None:
@@ -134,6 +144,7 @@ class TestSpecificity(unittest.TestCase):
         y_pred = np.array([0, 1, 0, 0])
         score = self.metric.evaluate(y_pred, y_true)
         self.assertEqual(score, 0.75)
+
 
 class TestF1Score(unittest.TestCase):
 
@@ -169,7 +180,7 @@ class TestF1Score(unittest.TestCase):
         y_true = np.array([1, 0, 1, 0, 1, 0])
         y_pred = np.array([1, 1, 1, 0, 0, 0])
         score = self.metric.evaluate(y_pred, y_true)
-        expected_score = 2 * (2/3 * 2/3) / (2/3 + 2/3)
+        expected_score = 2 * (2 / 3 * 2 / 3) / (2 / 3 + 2 / 3)
         self.assertAlmostEqual(score, expected_score)
 
     def test_f1_score_no_positives(self):
@@ -180,6 +191,7 @@ class TestF1Score(unittest.TestCase):
         y_pred = np.array([0, 0, 0, 0])
         score = self.metric.evaluate(y_pred, y_true)
         self.assertEqual(score, 0.0)
+
 
 if __name__ == "__main__":
     unittest.main()

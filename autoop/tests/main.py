@@ -1,4 +1,3 @@
-
 import unittest
 from autoop.tests.test_database import TestDatabase
 from autoop.tests.test_storage import TestStorage
@@ -11,5 +10,5 @@ from autoop.tests.test_modelling import TestModelling
 from autoop.tests.test_knearestneighbors import TestKNearestNeighbors
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

@@ -4,6 +4,7 @@ from app.core.system import AutoMLSystem
 from autoop.core.ml.dataset import Dataset
 import os
 
+
 # Remove all the none rows from a dataset if there is any
 class Starting:
     def __init__(self) -> None:
@@ -30,9 +31,9 @@ class Starting:
 
         :return: None
         """
-        name_dataset = st.text_input('Enter the dataset name', '')
+        name_dataset = st.text_input("Enter the dataset name", "")
         if not name_dataset:
-            st.warning('Please enter a dataset name.')
+            st.warning("Please enter a dataset name.")
             st.stop()
         self.name = name_dataset
 
@@ -51,7 +52,7 @@ class Starting:
         self.name_dataset()
         uploaded_file = st.file_uploader("Choose a dataset file", type=["csv", "xlsx"])
         if uploaded_file is not None:
-            if uploaded_file.name.endswith('.csv'):
+            if uploaded_file.name.endswith(".csv"):
                 df = pd.read_csv(uploaded_file)
                 st.write("Uploaded Dataset:")
                 st.dataframe(df)
@@ -61,8 +62,10 @@ class Starting:
                     data=df,
                     name=self.name,
                     # This is the asset path normalized
-                    asset_path=os.path.normpath(os.path.join("datasets", uploaded_file.name)),
-                    version="1.0.0"
+                    asset_path=os.path.normpath(
+                        os.path.join("datasets", uploaded_file.name)
+                    ),
+                    version="1.0.0",
                 )
                 self.automl.registry.register(dataset)
                 st.write("Dataset successfully uploaded and processed.")
@@ -92,7 +95,9 @@ class Starting:
                 f"{artifact.name} (ID: {artifact.id})": artifact.id
                 for artifact in self.datasets_list
             }
-            selected_datasets = st.multiselect("Select datasets to remove:", list(dataset_options.keys()))
+            selected_datasets = st.multiselect(
+                "Select datasets to remove:", list(dataset_options.keys())
+            )
             if selected_datasets:
                 if st.button("Remove Selected Datasets"):
                     for dataset_name in selected_datasets:
@@ -134,12 +139,14 @@ class Starting:
     def choose_to_upload(self) -> None:
         """
         Prompts the user to choose between uploading a dataset and listing or removing existing datasets.
-        
+
         This method displays a radio button to the user with two options: "Upload Dataset" and "List/Remove Datasets".
         Depending on the user's choice, it either calls the upload_dataset method or the available_datasets method.
         :return: None
         """
-        choice = st.radio("Choose an option:", ("Upload Dataset", "List/Remove Datasets"))
+        choice = st.radio(
+            "Choose an option:", ("Upload Dataset", "List/Remove Datasets")
+        )
         if choice == "Upload Dataset":
             self.upload_dataset()
         elif choice == "List/Remove Datasets":

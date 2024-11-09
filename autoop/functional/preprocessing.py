@@ -25,7 +25,7 @@ def preprocess_features(
 
     for feature in features:
         if feature.type == "categorical":
-            if getattr(feature, 'is_target', False):
+            if getattr(feature, "is_target", False):
                 # Use LabelEncoder for the target feature
                 encoder = LabelEncoder()
                 data = encoder.fit_transform(df[feature.name])

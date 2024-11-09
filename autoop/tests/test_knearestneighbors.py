@@ -2,6 +2,7 @@ import unittest
 import numpy as np
 from .knearestneighbors import KNearestNeighbors
 
+
 class TestKNearestNeighbors(unittest.TestCase):
 
     def setUp(self) -> None:
@@ -13,7 +14,7 @@ class TestKNearestNeighbors(unittest.TestCase):
         The ground truth labels are:
             [0, 1, 0, 1, 0]
         """
-        
+
         self.knn = KNearestNeighbors(k=3)
         self.observations = np.array([[1, 2], [2, 3], [3, 4], [4, 5], [5, 6]])
         self.ground_truth = np.array([0, 1, 0, 1, 0])
@@ -23,12 +24,16 @@ class TestKNearestNeighbors(unittest.TestCase):
         Test the fit method of the KNearestNeighbors model.
 
         This test ensures that after fitting the model with the provided observations
-        and ground truth labels, the parameters 'observations' and 'ground_truth' 
+        and ground truth labels, the parameters 'observations' and 'ground_truth'
         stored in the model are equal to the input data.
         """
         self.knn.fit(self.observations, self.ground_truth)
-        np.testing.assert_array_equal(self.knn.parameters["observations"], self.observations)
-        np.testing.assert_array_equal(self.knn.parameters["ground_truth"], self.ground_truth)
+        np.testing.assert_array_equal(
+            self.knn.parameters["observations"], self.observations
+        )
+        np.testing.assert_array_equal(
+            self.knn.parameters["ground_truth"], self.ground_truth
+        )
 
     def test_predict(self):
         """
@@ -72,7 +77,7 @@ class TestKNearestNeighbors(unittest.TestCase):
         it with observations and ground truth labels. It asserts that a ValueError is
         raised when attempting to predict with this configuration.
         """
-        knn = KNearestNeighbors(k=3, distance_metric='unsupported')
+        knn = KNearestNeighbors(k=3, distance_metric="unsupported")
         knn.fit(self.observations, self.ground_truth)
         with self.assertRaises(ValueError):
             knn.predict(np.array([[2, 3]]))
@@ -86,11 +91,12 @@ class TestKNearestNeighbors(unittest.TestCase):
         it with observations and ground truth labels. It asserts that a ValueError is
         raised when attempting to predict with this configuration.
         """
-        
-        knn = KNearestNeighbors(k=3, weights='unsupported')
+
+        knn = KNearestNeighbors(k=3, weights="unsupported")
         knn.fit(self.observations, self.ground_truth)
         with self.assertRaises(ValueError):
             knn.predict(np.array([[2, 3]]))
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

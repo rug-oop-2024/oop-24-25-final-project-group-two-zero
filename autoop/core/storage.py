@@ -93,7 +93,7 @@ class LocalStorage(Storage):
         directory = os.path.dirname(path)
         if not os.path.exists(directory):
             os.makedirs(directory, exist_ok=True)
-        with open(path, 'wb') as f:
+        with open(path, "wb") as f:
             f.write(data)
 
     def load(self, key: str) -> bytes:
@@ -111,7 +111,7 @@ class LocalStorage(Storage):
         """
         path = self._join_path(key)
         self._assert_path_exists(path)
-        with open(path, 'rb') as f:
+        with open(path, "rb") as f:
             return f.read()
 
     def delete(self, key: str) -> None:

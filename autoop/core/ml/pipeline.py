@@ -15,6 +15,7 @@ from typing import List, Any
 import streamlit as st
 from autoop.core.ml.model.classification import TreeClassification
 
+
 class Pipeline:
     def __init__(
         self,
@@ -48,9 +49,13 @@ class Pipeline:
         self._artifacts: dict = {}
         self._split: float = split
         if target_feature.type == "categorical" and model.type != "classification":
-            raise ValueError("Model type must be classification for categorical target feature")
+            raise ValueError(
+                "Model type must be classification for categorical target feature"
+            )
         if target_feature.type == "continuous" and model.type != "regression":
-            raise ValueError("Model type must be regression for continuous target feature")
+            raise ValueError(
+                "Model type must be regression for continuous target feature"
+            )
 
     def __str__(self) -> str:
         """
@@ -96,15 +101,23 @@ Pipeline(
         artifacts: List[Artifact] = []
         for name, artifact in self._artifacts.items():
             artifact_type: str = artifact.get("type")
-            data: bytes = pickle.dumps(artifact["encoder"] if artifact_type in ["OneHotEncoder", "LabelEncoder"] else artifact["scaler"])
+            data: bytes = pickle.dumps(
+                artifact["encoder"]
+                if artifact_type in ["OneHotEncoder", "LabelEncoder"]
+                else artifact["scaler"]
+            )
             artifacts.append(Artifact(name=name, data=data))
         pipeline_data: dict = {
             "input_features": self._input_features,
             "target_feature": self._target_feature,
             "split": self._split,
         }
-        artifacts.append(Artifact(name="pipeline_config", data=pickle.dumps(pipeline_data)))
-        artifacts.append(self._model.to_artifact(name=f"pipeline_model_{self._model.type}"))
+        artifacts.append(
+            Artifact(name="pipeline_config", data=pickle.dumps(pipeline_data))
+        )
+        artifacts.append(
+            self._model.to_artifact(name=f"pipeline_model_{self._model.type}")
+        )
         return artifacts
 
     def _register_artifact(self, name: str, artifact: dict) -> None:
@@ -130,11 +143,17 @@ Pipeline(
         target_type: str = self._target_feature.type
 
         # Ensure the model supports all input feature types
-        if not all(ftype in self._model.supported_feature_types for ftype in feature_types):
-            raise ValueError(f"Model {self._model.__class__.__name__} does not support feature types {feature_types}")
+        if not all(
+            ftype in self._model.supported_feature_types for ftype in feature_types
+        ):
+            raise ValueError(
+                f"Model {self._model.__class__.__name__} does not support feature types {feature_types}"
+            )
 
         if target_type not in self._model.supported_target_types:
-            raise ValueError(f"Model {self._model.__class__.__name__} does not support target type {target_type}")
+            raise ValueError(
+                f"Model {self._model.__class__.__name__} does not support target type {target_type}"
+            )
 
     def _preprocess_features(self) -> None:
         """
@@ -153,7 +172,9 @@ Pipeline(
 
         # Preprocess target feature
         target_data: np.ndarray = self._dataset.data[self._target_feature.name]
-        self._output_vector: np.ndarray = self._preprocess_feature_data(self._target_feature, target_data)
+        self._output_vector: np.ndarray = self._preprocess_feature_data(
+            self._target_feature, target_data
+        )
 
     def _preprocess_feature_data(self, feature: Feature, data):
         """
@@ -166,14 +187,14 @@ Pipeline(
         Returns:
             np.ndarray: Preprocessed data.
         """
-        if feature.type == 'image':
+        if feature.type == "image":
             # Assume images are already loaded as arrays
             preprocessed_data = np.stack(data.values)
-        elif feature.type == 'text':
+        elif feature.type == "text":
             preprocessed_data = data.tolist()
-        elif feature.type == 'audio':
+        elif feature.type == "audio":
             preprocessed_data = np.stack(data.values)
-        elif feature.type == 'video':
+        elif feature.type == "video":
             preprocessed_data = np.stack(data.values)
         else:
             # For numerical and categorical data, use existing preprocessing
@@ -191,20 +212,27 @@ Pipeline(
             None
         """
         split: float = self._split
-        self._train_X: List[np.ndarray] = [vector[: int(split * len(vector))] for vector in self._input_vectors]
-        self._test_X: List[np.ndarray] = [vector[int(split * len(vector)) :] for vector in self._input_vectors]
-        self._train_y: np.ndarray = self._output_vector[: int(split * len(self._output_vector))]
-        self._test_y: np.ndarray = self._output_vector[int(split * len(self._output_vector)) :]
-
+        self._train_X: List[np.ndarray] = [
+            vector[: int(split * len(vector))] for vector in self._input_vectors
+        ]
+        self._test_X: List[np.ndarray] = [
+            vector[int(split * len(vector)) :] for vector in self._input_vectors
+        ]
+        self._train_y: np.ndarray = self._output_vector[
+            : int(split * len(self._output_vector))
+        ]
+        self._test_y: np.ndarray = self._output_vector[
+            int(split * len(self._output_vector)) :
+        ]
 
     def to_artifact(self, name: str, version: str) -> Artifact:
         """
         Converts the current pipeline state into an Artifact object.
 
-        This function serializes the pipeline's components, including the model, 
-        input features, target feature, data split ratio, evaluation metrics, 
-        preprocessing artifacts, and dataset, into a byte stream. It then creates 
-        an Artifact object containing this serialized data, which can be stored 
+        This function serializes the pipeline's components, including the model,
+        input features, target feature, data split ratio, evaluation metrics,
+        preprocessing artifacts, and dataset, into a byte stream. It then creates
+        an Artifact object containing this serialized data, which can be stored
         for future use.
 
         Args:
@@ -215,28 +243,28 @@ Pipeline(
             Artifact: An Artifact instance containing the serialized pipeline data.
         """
         pipeline_data: dict = {
-            'model': self._model,
-            'input_features': self._input_features,
-            'target_feature': self._target_feature,
-            'split': self._split,
-            'metrics': self._metrics,
-            'preprocessing_artifacts': self._artifacts,
-            'dataset': self._dataset,
+            "model": self._model,
+            "input_features": self._input_features,
+            "target_feature": self._target_feature,
+            "split": self._split,
+            "metrics": self._metrics,
+            "preprocessing_artifacts": self._artifacts,
+            "dataset": self._dataset,
         }
 
         # Serialize the pipeline data
         serialized_pipeline_data: bytes = pickle.dumps(pipeline_data)
 
-        asset_path: str = os.path.normpath(os.path.join("pipelines", f"{name}_{version}.pkl"))
+        asset_path: str = os.path.normpath(
+            os.path.join("pipelines", f"{name}_{version}.pkl")
+        )
         return Artifact(
             name=name,
             asset_path=asset_path,
             data=serialized_pipeline_data,  # Serialized bytes
             version=version,
-            type='pipeline',
+            type="pipeline",
         )
-
-
 
     def _compact_vectors(self, vectors: List) -> Any:
         """
@@ -251,16 +279,15 @@ Pipeline(
         Returns:
             Any: Compacted data.
         """
-        if self._model.supported_feature_types == ['text']:
+        if self._model.supported_feature_types == ["text"]:
             # Return list of strings
             return vectors[0]  # Assuming one text feature
-        elif self._model.supported_feature_types == ['image', 'audio', 'video']:
+        elif self._model.supported_feature_types == ["image", "audio", "video"]:
             # Stack along the first axis
             return np.concatenate(vectors, axis=0)
         else:
             # For numerical data
             return np.concatenate(vectors, axis=1)
-
 
     def _train(self) -> None:
         """
@@ -278,7 +305,6 @@ Pipeline(
             raise ValueError("Number of samples in X_train and Y_train do not match.")
         self._model.fit(X_train, Y_train)
 
-
     def _evaluate(self) -> None:
         """
         Evaluates the trained model using the test data and metrics.
@@ -293,7 +319,7 @@ Pipeline(
         """
         X: Any = self._compact_vectors(self._test_X)
         Y: Any = self._test_y
-        self._metrics_results: List|Any = []
+        self._metrics_results: List | Any = []
         predictions: Any = self._model.predict(X)
         for metric in self._metrics:
             result = metric.evaluate(predictions, Y)
@@ -304,10 +330,10 @@ Pipeline(
         """
         Computes SHAP values for the model to provide explainability insights.
 
-        This method uses SHAP (SHapley Additive exPlanations) to compute feature importance values for 
-        the test data. It selects an appropriate SHAP explainer based on the model type, specifically 
-        using a TreeExplainer for tree-based models and a KernelExplainer for other model types. In 
-        case of an exception during the computation, a warning is issued, and the SHAP values are set 
+        This method uses SHAP (SHapley Additive exPlanations) to compute feature importance values for
+        the test data. It selects an appropriate SHAP explainer based on the model type, specifically
+        using a TreeExplainer for tree-based models and a KernelExplainer for other model types. In
+        case of an exception during the computation, a warning is issued, and the SHAP values are set
         to None.
 
         Raises:
@@ -319,7 +345,9 @@ Pipeline(
             if isinstance(self._model._model, (TreeClassification)):
                 explainer = shap.TreeExplainer(self._model._model)
             else:
-                explainer = shap.KernelExplainer(self._model.predict, X_test[:100])  # Use a subset for performance
+                explainer = shap.KernelExplainer(
+                    self._model.predict, X_test[:100]
+                )  # Use a subset for performance
             self._shap_values = explainer(X_test)
         except Exception as e:
             st.warning(f"Error computing SHAP values: {e}")
@@ -342,20 +370,21 @@ Pipeline(
         # Generate Confusion Matrix for Classification Models
         if self._model.type == "classification":
             from sklearn.metrics import confusion_matrix
+
             y_true = self._test_y
             y_pred = self._predictions
             cm = confusion_matrix(y_true, y_pred)
             fig_cm, ax_cm = plt.subplots()
-            sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', ax=ax_cm)
-            ax_cm.set_xlabel('Predicted Labels')
-            ax_cm.set_ylabel('True Labels')
-            plt.title('Confusion Matrix')
+            sns.heatmap(cm, annot=True, fmt="d", cmap="Blues", ax=ax_cm)
+            ax_cm.set_xlabel("Predicted Labels")
+            ax_cm.set_ylabel("True Labels")
+            plt.title("Confusion Matrix")
             buf_cm = io.BytesIO()
-            plt.savefig(buf_cm, format='png')
+            plt.savefig(buf_cm, format="png")
             buf_cm.seek(0)
             image_png_cm = buf_cm.getvalue()
             buf_cm.close()
-            report['confusion_matrix'] = base64.b64encode(image_png_cm).decode('utf-8')
+            report["confusion_matrix"] = base64.b64encode(image_png_cm).decode("utf-8")
             plt.close(fig_cm)
 
         # Compute SHAP values
@@ -365,7 +394,7 @@ Pipeline(
         shap_values = self._shap_values
 
         # Check if SHAP values are available
-        if hasattr(shap_values, 'values'):
+        if hasattr(shap_values, "values"):
             # Get feature names
             feature_names = [feature.name for feature in self._input_features]
 
@@ -378,14 +407,14 @@ Pipeline(
                     values=shap_values.values[0, class_index, :],
                     base_values=shap_values.base_values[0, class_index],
                     data=shap_values.data[0],
-                    feature_names=feature_names
+                    feature_names=feature_names,
                 )
             elif shap_values.values.ndim == 2:
                 shap_values_sample = shap.Explanation(
                     values=shap_values.values[0],
                     base_values=shap_values.base_values[0],
                     data=shap_values.data[0],
-                    feature_names=feature_names
+                    feature_names=feature_names,
                 )
             else:
                 st.warning("Unexpected SHAP values shape.")
@@ -401,7 +430,9 @@ Pipeline(
                 values=shap_values_sample.values[top_indices],
                 base_values=shap_values_sample.base_values,
                 data=shap_values_sample.data[top_indices],
-                feature_names=[shap_values_sample.feature_names[i] for i in top_indices]
+                feature_names=[
+                    shap_values_sample.feature_names[i] for i in top_indices
+                ],
             )
 
             shap.plots.waterfall(shap_value_to_plot, show=False)
@@ -412,23 +443,21 @@ Pipeline(
 
             # Save the plot to a buffer
             buf_shap = io.BytesIO()
-            fig.savefig(buf_shap, format='png', bbox_inches='tight')
+            fig.savefig(buf_shap, format="png", bbox_inches="tight")
             buf_shap.seek(0)
             image_png_shap = buf_shap.getvalue()
             buf_shap.close()
 
             # Store the plot in the report
-            report['shap_summary'] = base64.b64encode(image_png_shap).decode('utf-8')
+            report["shap_summary"] = base64.b64encode(image_png_shap).decode("utf-8")
 
             # Close the plot to free memory
             plt.close(fig)
         else:
-            report['shap_summary'] = None
+            report["shap_summary"] = None
             st.warning("No SHAP values available to generate the summary plot.")
 
         self._report = report
-
-
 
     def _sensitivity_analysis(self):
         """

@@ -10,16 +10,16 @@ class StochasticGradient(Model):
 
     _type: str = "classification"
     _available_hyperparameters: dict = {
-        'loss': ['hinge', 'log_loss', 'modified_huber', 'squared_hinge', 'perceptron'],
-        'penalty': ['l2', 'l1', 'elasticnet'],
-        'alpha': 0.0001,
-        'max_iter': 1000,
-        'tol': 1e-3,
-        'learning_rate': ['optimal', 'constant', 'invscaling', 'adaptive'],
-        'eta0': 0.0,
+        "loss": ["hinge", "log_loss", "modified_huber", "squared_hinge", "perceptron"],
+        "penalty": ["l2", "l1", "elasticnet"],
+        "alpha": 0.0001,
+        "max_iter": 1000,
+        "tol": 1e-3,
+        "learning_rate": ["optimal", "constant", "invscaling", "adaptive"],
+        "eta0": 0.0,
     }
-    supported_feature_types: list = ['numerical']
-    supported_target_types: list = ['categorical']
+    supported_feature_types: list = ["numerical"]
+    supported_target_types: list = ["categorical"]
 
     def __init__(self, **hyperparameters) -> None:
         """
@@ -30,7 +30,10 @@ class StochasticGradient(Model):
         """
 
         super().__init__(**hyperparameters)
-        self._parameters: dict = {k: self._hyperparameters.get(k, v) for k, v in self._available_hyperparameters.items()}
+        self._parameters: dict = {
+            k: self._hyperparameters.get(k, v)
+            for k, v in self._available_hyperparameters.items()
+        }
         # Make only the hyperparameters that are chosen by the user
         self._model: SGDClassifier = SGDClassifier(**self._parameters)
 
@@ -46,7 +49,7 @@ class StochasticGradient(Model):
             "_coef": self._model.coef_,
             "_intercept": self._model.intercept_,
             "_n_iter": self._model.n_iter_,
-            "_classes": self._model.classes_
+            "_classes": self._model.classes_,
         }
 
         self._model.fit(observations, ground_truth)

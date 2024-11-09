@@ -10,11 +10,10 @@ class Model(ABC):
     Abstract base class for all models, containing fit and predict methods.
     """
 
-    _type: str|None = None
+    _type: str | None = None
     _available_hyperparameters: dict = {}
     _supported_feature_types: List[str] = []
     _supported_target_types: List[str] = []
-
 
     def __init__(self, **hyperparameters) -> None:
         """
@@ -89,7 +88,9 @@ class Model(ABC):
         """
         return self._model
 
-    def get_hyperparameter_space(self, acceptable_ranges: Dict[str, any]) -> Dict[str, any]:
+    def get_hyperparameter_space(
+        self, acceptable_ranges: Dict[str, any]
+    ) -> Dict[str, any]:
         """
         Returns the hyperparameter grid for tuning.
 
@@ -113,7 +114,7 @@ class Model(ABC):
             else:
                 param_grid[param] = [value]
         return param_grid
-    
+
     @property
     def supported_feature_types(self) -> List[str]:
         """

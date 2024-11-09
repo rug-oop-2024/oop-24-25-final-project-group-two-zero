@@ -1,9 +1,7 @@
-
 from typing import Any, Dict, List, Optional
 import pandas as pd
 from .artifact import Artifact
 import io
-
 
 
 class Dataset(Artifact):
@@ -15,7 +13,7 @@ class Dataset(Artifact):
         version: str,
         tags: Optional[List[str]] = None,
         metadata: Optional[Dict[str, Any]] = None,
-        id: Optional[str] = None
+        id: Optional[str] = None,
     ) -> None:
         """
         Initialize a Dataset instance.
@@ -44,10 +42,7 @@ class Dataset(Artifact):
 
     @staticmethod
     def from_dataframe(
-        data: pd.DataFrame,
-        name: str,
-        asset_path: str,
-        version: str = "1.0.0"
+        data: pd.DataFrame, name: str, asset_path: str, version: str = "1.0.0"
     ) -> "Dataset":
         """
         Creates a Dataset artifact from a pandas DataFrame.
@@ -57,9 +52,9 @@ class Dataset(Artifact):
         return Artifact(
             name=name,
             asset_path=asset_path,
-            data= data.to_csv(index=False).encode('utf-8'),  # Pass DataFrame
+            data=data.to_csv(index=False).encode("utf-8"),  # Pass DataFrame
             version=version,
-            type="dataset"
+            type="dataset",
         )
 
     @classmethod
@@ -115,11 +110,10 @@ class Dataset(Artifact):
         bytes = super().read()
         csv = bytes.decode()
         return pd.read_csv(io.StringIO(csv))
-    
+
     def save(self, data: pd.DataFrame) -> bytes:
         bytes: pd.DataFrame = data.to_csv(index=False).encode()
         return super().save(bytes)
-
 
     def __str__(self) -> str:
         """

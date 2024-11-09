@@ -10,13 +10,13 @@ class MultipleLinearRegression(Model):
 
     _type: str = "regression"
     _available_hyperparameters: dict = {
-        'fit_intercept': True,
-        'copy_X': True,
-        'n_jobs': None,
-        'positive': False,
+        "fit_intercept": True,
+        "copy_X": True,
+        "n_jobs": None,
+        "positive": False,
     }
-    _supported_feature_types: list = ['numerical']
-    _supported_target_types: list = ['numerical']
+    _supported_feature_types: list = ["numerical"]
+    _supported_target_types: list = ["numerical"]
 
     def __init__(self, **hyperparameters) -> None:
         """
@@ -26,7 +26,10 @@ class MultipleLinearRegression(Model):
             **hyperparameters: Hyperparameters for the model.
         """
         super().__init__(**hyperparameters)
-        self._parameters = {k: self._hyperparameters.get(k, v) for k, v in self._available_hyperparameters.items()}
+        self._parameters = {
+            k: self._hyperparameters.get(k, v)
+            for k, v in self._available_hyperparameters.items()
+        }
         self._model = LinearRegression(**self._parameters)
 
     def fit(self, observations: np.ndarray, ground_truth: np.ndarray) -> None:

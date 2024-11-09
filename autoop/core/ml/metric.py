@@ -4,7 +4,7 @@ from typing import Any
 
 METRICS = [
     "MeanSquaredError",  # Regression tasks
-    "accuracy",          # Classification tasks
+    "accuracy",  # Classification tasks
     "mean_absolute_error",
     "F_one_score",
     "specificity",
@@ -32,6 +32,7 @@ def get_metric(name: str) -> Any:
 
 class Metric(ABC):
     """Base class for all metrics."""
+
     _name: str = None
 
     @abstractmethod
@@ -104,7 +105,7 @@ class R2Score(Metric):
 
 
 class Accuracy(Metric):
-    _name="Accuracy"
+    _name = "Accuracy"
 
     def evaluate(self, y_pred: np.ndarray, y_true: np.ndarray) -> float:
         """
@@ -121,7 +122,7 @@ class Accuracy(Metric):
 
 
 class Specificity(Metric):
-    _name="Specificity"
+    _name = "Specificity"
 
     def evaluate(self, y_pred: np.ndarray, y_true: np.ndarray) -> float:
         """
@@ -145,7 +146,7 @@ class Specificity(Metric):
 
 
 class F1Score(Metric):
-    _name="F1 Score"
+    _name = "F1 Score"
 
     def evaluate(self, y_pred: np.ndarray, y_true: np.ndarray) -> float:
         """
@@ -166,7 +167,9 @@ class F1Score(Metric):
         false_positive: float = np.sum((y_true == 0) & (y_pred == 1))
         false_negative: float = np.sum((y_true == 1) & (y_pred == 0))
 
-        if (true_positive + false_positive) == 0 or (true_positive + false_negative) == 0:
+        if (true_positive + false_positive) == 0 or (
+            true_positive + false_negative
+        ) == 0:
             return 0.0
 
         precision: float = true_positive / (true_positive + false_positive)
