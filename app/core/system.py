@@ -113,7 +113,13 @@ class ArtifactRegistry():
         self._database.delete("artifacts", artifact_id)
     
     def refresh(self) -> None:
-        """Refresh the registry by reloading data from the database."""
+        """
+        Refreshes the artifact registry by reloading the database.
+
+        This method is useful if another process has modified the storage and
+        you want to make sure the artifact registry is up to date. It will discard
+        any unsaved changes you may have made to the artifact registry.
+        """
         self._database.refresh()
 
 
