@@ -32,14 +32,14 @@ class Artifact:
             metadata (Dict[str, Any], optional): Additional metadata.
             id (str, optional): Unique identifier.
         """
-        self.name = name
-        self.asset_path = asset_path
-        self.data = data
-        self.version = version
-        self.type = type
-        self.tags = tags if tags is not None else []
-        self.metadata = metadata if metadata is not None else {}
-        self.id = id or os.urandom(16).hex()
+        self.name: str = name
+        self.asset_path: str = asset_path
+        self.data: Any = data
+        self.version: str = version
+        self.type: str = type
+        self.tags: List[str] = tags if tags is not None else []
+        self.metadata: Dict[str, Any] = metadata if metadata is not None else {}
+        self.id: str = id or os.urandom(16).hex()
 
     def save(self, directory: str = 'artifacts') -> None:
         """
@@ -50,7 +50,7 @@ class Artifact:
         """
         if not os.path.exists(directory):
             os.makedirs(directory)
-        file_path = os.path.join(directory, f'{self.id}.pkl')
+        file_path: str = os.path.join(directory, f'{self.id}.pkl')
         with open(file_path, 'wb') as f:
             pickle.dump(self, f)
 
@@ -66,7 +66,7 @@ class Artifact:
         Returns:
             Artifact: An instance of the Artifact class.
         """
-        file_path = os.path.join(directory, f'{id}.pkl')
+        file_path: str = os.path.join(directory, f'{id}.pkl')
         if not os.path.exists(file_path):
             raise FileNotFoundError(f"No file found for id {id}")
         with open(file_path, 'rb') as f:

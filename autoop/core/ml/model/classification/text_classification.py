@@ -10,8 +10,8 @@ class TextClassificationModel(Model):
     Text classification model using TF-IDF and Logistic Regression.
     """
 
-    _type = "classification"
-    _available_hyperparameters = {
+    _type: str = "classification"
+    _available_hyperparameters: dict = {
         'max_features': 10000,
         'ngram_range': (1, 1),
         'C': 1.0,
@@ -20,8 +20,8 @@ class TextClassificationModel(Model):
         'epochs': 10,
     }
 
-    supported_feature_types = ['text']
-    supported_target_types = ['categorical']
+    supported_feature_types: List[str] = ['text']
+    supported_target_types: List[str] = ['categorical']
 
     def __init__(self, **hyperparameters: Any) -> None:
         """
@@ -36,7 +36,7 @@ class TextClassificationModel(Model):
         self._model = None
         self._build_model()
 
-    def _build_model(self):
+    def _build_model(self) -> None:
         """
         Builds the TextClassificationModel based on the given hyperparameters.
         """
@@ -57,11 +57,11 @@ class TextClassificationModel(Model):
             observations (List[str]): The input text data to fit the model to.
             ground_truth (np.ndarray): The target values to fit the model to.
         """
-        self._parameters = {
+        self._parameters: dict = {
             "coef": self._model.coef_,
             "intercept": self._model.intercept_
         }
-        X = self._vectorizer.fit_transform(observations)
+        X: np.ndarray = self._vectorizer.fit_transform(observations)
         self._model.fit(X, ground_truth)
 
     def predict(self, observations: List[str]) -> np.ndarray:
@@ -74,5 +74,5 @@ class TextClassificationModel(Model):
         Returns:
             np.ndarray: The predicted labels.
         """
-        X = self._vectorizer.transform(observations)
+        X: np.ndarray = self._vectorizer.transform(observations)
         return self._model.predict(X)

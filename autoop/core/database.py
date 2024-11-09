@@ -77,11 +77,27 @@ class Database:
         return list(self._data[collection].items())
 
     def refresh(self) -> None:
-        """Refresh the database by loading the data from storage."""
+        """
+        Refresh the database by reloading data from the storage.
+
+        This method is useful if another process has modified the storage and
+        you want to make sure the database is up to date. It will discard any
+        unsaved changes you may have made to the database.
+        """
         self._load()
 
     def _persist(self) -> None:
-        """Persist the data to storage."""
+        """
+        Persist the current state of the database to storage.
+
+        This method iterates over all collections and their corresponding data,
+        saving each item to storage using its collection and id as the path.
+        After saving, it also removes any items from storage that are no longer
+        present in the in-memory database.
+
+        Returns:
+            None
+        """
         for collection, data in self._data.items():
             if not data:
                 continue
@@ -99,7 +115,16 @@ class Database:
                     self._storage.delete(key)
 
     def _load(self) -> None:
-        """Load the data from storage."""
+        """
+        Load the current state of the database from storage.
+
+        This method iterates over all the paths in storage, extracting the
+        collection and id from the path and loading the associated data from
+        storage. It then populates the in-memory database with the loaded data.
+
+        Returns:
+            None
+        """
         self._data = {}
         for key in self._storage.list(""):
             normalized_key = os.path.normpath(key)

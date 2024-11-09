@@ -8,8 +8,8 @@ class KNearestNeighbors(Model):
     K-Nearest Neighbors classifier.
     """
 
-    _type = "classification"
-    _available_hyperparameters = {
+    _type: str = "classification"
+    _available_hyperparameters: dict = {
         'n_neighbors': 5,
         'weights': ['uniform', 'distance'],
         'algorithm': ['auto', 'ball_tree', 'kd_tree', 'brute'],
@@ -19,8 +19,8 @@ class KNearestNeighbors(Model):
         'metric_params': None,
         'n_jobs': None
     }
-    supported_feature_types = ['numerical']
-    supported_target_types = ['cataorical']
+    supported_feature_types: list = ['numerical']
+    supported_target_types: list = ['cataorical']
 
     def __init__(self, **hyperparameters) -> None:
         """

@@ -77,8 +77,8 @@ class Dataset(Artifact):
             raise ValueError("Artifact is not of type 'dataset'")
 
         # Convert data bytes to DataFrame
-        data_io = io.BytesIO(artifact.data)
-        data_df = pd.read_csv(data_io)
+        data_io: io.BytesIO = io.BytesIO(artifact.data)
+        data_df: pd.DataFrame = pd.read_csv(data_io)
 
         return cls(
             name=artifact.name,
@@ -104,17 +104,20 @@ class Dataset(Artifact):
             return self.data
         else:
             # If self.data is bytes, convert it to a DataFrame
-            data_io = io.BytesIO(self.data)
-            df = pd.read_csv(data_io)
+            data_io: io.BytesIO = io.BytesIO(self.data)
+            df: pd.DataFrame = pd.read_csv(data_io)
             return df
 
     def read(self) -> pd.DataFrame:
+        """
+        Reads the dataset from the artifact and returns it as a pandas DataFrame.
+        """
         bytes = super().read()
         csv = bytes.decode()
         return pd.read_csv(io.StringIO(csv))
     
     def save(self, data: pd.DataFrame) -> bytes:
-        bytes = data.to_csv(index=False).encode()
+        bytes: pd.DataFrame = data.to_csv(index=False).encode()
         return super().save(bytes)
 
 

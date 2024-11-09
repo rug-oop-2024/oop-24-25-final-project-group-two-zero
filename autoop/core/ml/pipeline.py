@@ -40,13 +40,13 @@ class Pipeline:
             ValueError: If the target feature type is categorical and the model type is not classification.
             ValueError: If the target feature type is numerical and the model type is not regression.
         """
-        self._dataset = dataset
-        self._model = model
-        self._input_features = input_features
-        self._target_feature = target_feature
-        self._metrics = metrics
-        self._artifacts = {}
-        self._split = split
+        self._dataset: Dataset = dataset
+        self._model: Model = model
+        self._input_features: List[Feature] = input_features
+        self._target_feature: Feature = target_feature
+        self._metrics: List[Metric] = metrics
+        self._artifacts: dict = {}
+        self._split: float = split
         if target_feature.type == "categorical" and model.type != "classification":
             raise ValueError("Model type must be classification for categorical target feature")
         if target_feature.type == "continuous" and model.type != "regression":
@@ -93,12 +93,12 @@ Pipeline(
         Returns:
             List[Artifact]: A list of Artifact objects.
         """
-        artifacts = []
+        artifacts: List[Artifact] = []
         for name, artifact in self._artifacts.items():
-            artifact_type = artifact.get("type")
-            data = pickle.dumps(artifact["encoder"] if artifact_type in ["OneHotEncoder", "LabelEncoder"] else artifact["scaler"])
+            artifact_type: str = artifact.get("type")
+            data: bytes = pickle.dumps(artifact["encoder"] if artifact_type in ["OneHotEncoder", "LabelEncoder"] else artifact["scaler"])
             artifacts.append(Artifact(name=name, data=data))
-        pipeline_data = {
+        pipeline_data: dict = {
             "input_features": self._input_features,
             "target_feature": self._target_feature,
             "split": self._split,
@@ -119,10 +119,15 @@ Pipeline(
 
     def _validate_feature_and_target_types(self):
         """
-        Validates that the model supports the selected feature and target types.
+        Validates that the input feature types and target feature type are supported by the model.
+
+        This method checks that the model supports all input feature types and the target feature type.
+        If the model does not support a feature type, a ValueError is raised.
+        raises:
+            ValueError: If the model does not support any of the input feature types or the target feature type.
         """
-        feature_types = set(feature.type for feature in self._input_features)
-        target_type = self._target_feature.type
+        feature_types: set = set(feature.type for feature in self._input_features)
+        target_type: str = self._target_feature.type
 
         # Ensure the model supports all input feature types
         if not all(ftype in self._model.supported_feature_types for ftype in feature_types):
@@ -133,18 +138,22 @@ Pipeline(
 
     def _preprocess_features(self) -> None:
         """
-        Preprocesses the input features and target feature.
+        Preprocesses input and target features based on their types.
+
+        Preprocesses each feature using the `_preprocess_feature_data` method and stores the
+        preprocessed data in `_input_vectors` and `_output_vector` respectively.
+
+        :return: None
         """
-        # For each feature, apply preprocessing based on its type
-        self._input_vectors = []
+        self._input_vectors: List[np.ndarray] = []
         for feature in self._input_features:
             data = self._dataset.data[feature.name]
-            preprocessed_data = self._preprocess_feature_data(feature, data)
+            preprocessed_data: np.ndarray = self._preprocess_feature_data(feature, data)
             self._input_vectors.append(preprocessed_data)
 
         # Preprocess target feature
-        target_data = self._dataset.data[self._target_feature.name]
-        self._output_vector = self._preprocess_feature_data(self._target_feature, target_data)
+        target_data: np.ndarray = self._dataset.data[self._target_feature.name]
+        self._output_vector: np.ndarray = self._preprocess_feature_data(self._target_feature, target_data)
 
     def _preprocess_feature_data(self, feature: Feature, data):
         """
@@ -181,18 +190,31 @@ Pipeline(
         Returns:
             None
         """
-        split = self._split
-        self._train_X = [vector[: int(split * len(vector))] for vector in self._input_vectors]
-        self._test_X = [vector[int(split * len(vector)) :] for vector in self._input_vectors]
-        self._train_y = self._output_vector[: int(split * len(self._output_vector))]
-        self._test_y = self._output_vector[int(split * len(self._output_vector)) :]
+        split: float = self._split
+        self._train_X: List[np.ndarray] = [vector[: int(split * len(vector))] for vector in self._input_vectors]
+        self._test_X: List[np.ndarray] = [vector[int(split * len(vector)) :] for vector in self._input_vectors]
+        self._train_y: np.ndarray = self._output_vector[: int(split * len(self._output_vector))]
+        self._test_y: np.ndarray = self._output_vector[int(split * len(self._output_vector)) :]
 
 
     def to_artifact(self, name: str, version: str) -> Artifact:
         """
-        Converts the Pipeline object to an Artifact.
+        Converts the current pipeline state into an Artifact object.
+
+        This function serializes the pipeline's components, including the model, 
+        input features, target feature, data split ratio, evaluation metrics, 
+        preprocessing artifacts, and dataset, into a byte stream. It then creates 
+        an Artifact object containing this serialized data, which can be stored 
+        for future use.
+
+        Args:
+            name (str): The name of the artifact to be created.
+            version (str): The version of the artifact.
+
+        Returns:
+            Artifact: An Artifact instance containing the serialized pipeline data.
         """
-        pipeline_data = {
+        pipeline_data: dict = {
             'model': self._model,
             'input_features': self._input_features,
             'target_feature': self._target_feature,
@@ -203,9 +225,9 @@ Pipeline(
         }
 
         # Serialize the pipeline data
-        serialized_pipeline_data = pickle.dumps(pipeline_data)
+        serialized_pipeline_data: bytes = pickle.dumps(pipeline_data)
 
-        asset_path = os.path.normpath(os.path.join("pipelines", f"{name}_{version}.pkl"))
+        asset_path: str = os.path.normpath(os.path.join("pipelines", f"{name}_{version}.pkl"))
         return Artifact(
             name=name,
             asset_path=asset_path,
@@ -241,8 +263,16 @@ Pipeline(
 
 
     def _train(self) -> None:
-        X_train = self._compact_vectors(self._train_X)
-        Y_train = self._train_y
+        """
+        Trains the model using the training data.
+
+        This method takes the preprocessed training data and fits the model to it.
+
+        Returns:
+            None
+        """
+        X_train: Any = self._compact_vectors(self._train_X)
+        Y_train: Any = self._train_y
         # Ensure shapes are correct
         if X_train.shape[0] != len(Y_train):
             raise ValueError("Number of samples in X_train and Y_train do not match.")
@@ -261,21 +291,27 @@ Pipeline(
         Returns:
             None
         """
-        X = self._compact_vectors(self._test_X)
-        Y = self._test_y
-        self._metrics_results = []
-        predictions = self._model.predict(X)
+        X: Any = self._compact_vectors(self._test_X)
+        Y: Any = self._test_y
+        self._metrics_results: List|Any = []
+        predictions: Any = self._model.predict(X)
         for metric in self._metrics:
             result = metric.evaluate(predictions, Y)
             self._metrics_results.append((metric, result))
-        self._predictions = predictions
+        self._predictions: list = predictions
 
     def _compute_shap_values(self):
         """
-        Computes SHAP values for the test data.
+        Computes SHAP values for the model to provide explainability insights.
 
-        This method uses the trained model to compute SHAP values for the test dataset.
-        The SHAP values are stored in the `_shap_values` attribute.
+        This method uses SHAP (SHapley Additive exPlanations) to compute feature importance values for 
+        the test data. It selects an appropriate SHAP explainer based on the model type, specifically 
+        using a TreeExplainer for tree-based models and a KernelExplainer for other model types. In 
+        case of an exception during the computation, a warning is issued, and the SHAP values are set 
+        to None.
+
+        Raises:
+            Exception: If there is an error in computing SHAP values, it displays a warning with the error message.
         """
         X_test = self._compact_vectors(self._test_X)
         # Choose the appropriate explainer based on the model type
@@ -291,10 +327,14 @@ Pipeline(
 
     def _generate_report(self):
         """
-        Generates a report containing explainability plots.
+        Generates a report containing the results of the evaluation.
 
-        The report includes a confusion matrix for classification models and SHAP plots
-        for both classification and regression models.
+        This method generates a report containing the results of the evaluation, such as the
+        confusion matrix for classification models and the SHAP summary plot. The report is
+        stored in the `_report` attribute.
+
+        Returns:
+            None
         """
         report = {}
         import matplotlib.pyplot as plt
@@ -392,10 +432,14 @@ Pipeline(
 
     def _sensitivity_analysis(self):
         """
-        Performs sensitivity analysis on the test data.
+        Performs a sensitivity analysis of the model to each input feature.
 
-        For each feature, this method perturbs the feature values and observes the change in predictions.
-        The results are stored in the `_sensitivity_results` attribute.
+        For each feature, it perturbs the feature by adding a small value (e.g., 0.1 times the standard deviation)
+        and computes the mean absolute change in predictions. The results are stored in a dictionary
+        where the keys are the feature names and the values are the sensitivities.
+
+        Returns:
+            None
         """
         X_test = self._compact_vectors(self._test_X)
         sensitivities = {}

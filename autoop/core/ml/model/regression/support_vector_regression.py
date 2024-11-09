@@ -8,8 +8,8 @@ class SupportVectorRegression(Model):
     Support Vector Regression model.
     """
 
-    _type = "regression"
-    _available_hyperparameters = {
+    _type: str = "regression"
+    _available_hyperparameters: dict = {
         'kernel': ['linear', 'poly', 'rbf', 'sigmoid', 'precomputed'],
         'degree': 3,
         'gamma': ['scale', 'auto'],
@@ -22,8 +22,8 @@ class SupportVectorRegression(Model):
         'verbose': False,
         'max_iter': -1,
     }
-    _supported_feature_types = ['numerical']
-    _supported_target_types = ['numerical']
+    _supported_feature_types: list = ['numerical']
+    _supported_target_types: list = ['numerical']
 
     def __init__(self, **hyperparameters: Any) -> None:
         """

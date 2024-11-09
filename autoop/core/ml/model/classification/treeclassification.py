@@ -29,8 +29,8 @@ class TreeClassification(Model):
             **hyperparameters: Hyperparameters for configuring the DecisionTreeClassifier.
         """
         super().__init__(**hyperparameters)
-        params = {k: self._hyperparameters.get(k, v) for k, v in self._available_hyperparameters.items()}
-        self._model = DecisionTreeClassifier(**params)
+        self._parameters = {k: self._hyperparameters.get(k, v) for k, v in self._available_hyperparameters.items()}
+        self._model = DecisionTreeClassifier(**self._parameters)
 
     def fit(self, observations: np.ndarray, ground_truth: np.ndarray) -> None:
         """

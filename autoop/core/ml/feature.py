@@ -12,4 +12,5 @@ class Feature(BaseModel):
         return f"{self.name}"
 
     def __repr__(self) -> str:
+        """Returns a string representation of the feature, useful for debugging purposes. This is the same as str(self)."""
         return self.__str__()

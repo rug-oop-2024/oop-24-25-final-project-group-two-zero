@@ -8,8 +8,8 @@ class RidgeRegression(Model):
     Ridge Regression model.
     """
 
-    _type = "regression"
-    _available_hyperparameters = {
+    _type: str = "regression"
+    _available_hyperparameters: dict = {
         'alpha': 1.0,
         'fit_intercept': True,
         'solver': ['auto', 'svd', 'cholesky', 'lsqr', 'sparse_cg', 'sag', 'saga'],
@@ -17,8 +17,8 @@ class RidgeRegression(Model):
         'tol': 1e-3,
     }
 
-    _supported_feature_types = ['numerical']
-    _supported_target_types = ['numerical']
+    _supported_feature_types: list = ['numerical']
+    _supported_target_types: list = ['numerical']
 
     def __init__(self, **hyperparameters) -> None:
         """
@@ -28,8 +28,8 @@ class RidgeRegression(Model):
             **hyperparameters: Arbitrary keyword arguments for model hyperparameters.
         """
         super().__init__(**hyperparameters)
-        params = {k: self._hyperparameters.get(k, v) for k, v in self._available_hyperparameters.items()}
-        self._model = Ridge(**params)
+        self._parameters = {k: self._hyperparameters.get(k, v) for k, v in self._available_hyperparameters.items()}
+        self._model = Ridge(**self._parameters)
 
     def fit(self, observations: np.ndarray, ground_truth: np.ndarray) -> None:
         """

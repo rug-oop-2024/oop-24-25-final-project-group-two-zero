@@ -8,8 +8,8 @@ class StochasticGradient(Model):
     Stochastic Gradient Descent (SGD) classifier.
     """
 
-    _type = "classification"
-    _available_hyperparameters = {
+    _type: str = "classification"
+    _available_hyperparameters: dict = {
         'loss': ['hinge', 'log_loss', 'modified_huber', 'squared_hinge', 'perceptron'],
         'penalty': ['l2', 'l1', 'elasticnet'],
         'alpha': 0.0001,
@@ -18,8 +18,8 @@ class StochasticGradient(Model):
         'learning_rate': ['optimal', 'constant', 'invscaling', 'adaptive'],
         'eta0': 0.0,
     }
-    supported_feature_types = ['numerical']
-    supported_target_types = ['categorical']
+    supported_feature_types: list = ['numerical']
+    supported_target_types: list = ['categorical']
 
     def __init__(self, **hyperparameters) -> None:
         """
@@ -30,9 +30,9 @@ class StochasticGradient(Model):
         """
 
         super().__init__(**hyperparameters)
-        self._parameters = {k: self._hyperparameters.get(k, v) for k, v in self._available_hyperparameters.items()}
+        self._parameters: dict = {k: self._hyperparameters.get(k, v) for k, v in self._available_hyperparameters.items()}
         # Make only the hyperparameters that are chosen by the user
-        self._model = SGDClassifier(**self._parameters)
+        self._model: SGDClassifier = SGDClassifier(**self._parameters)
 
     def fit(self, observations: np.ndarray, ground_truth: np.ndarray) -> None:
         """
@@ -42,7 +42,7 @@ class StochasticGradient(Model):
             observations (np.ndarray): Features.
             ground_truth (np.ndarray): Target values.
         """
-        self._parameters = {
+        self._parameters: dict = {
             "_coef": self._model.coef_,
             "_intercept": self._model.intercept_,
             "_n_iter": self._model.n_iter_,

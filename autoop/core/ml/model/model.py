@@ -1,8 +1,8 @@
 # model.py
 from abc import ABC, abstractmethod
 import numpy as np
-from copy import deepcopy,copy
-from typing import List, Dict
+from copy import deepcopy
+from typing import List, Dict, Any
 
 
 class Model(ABC):
@@ -10,10 +10,10 @@ class Model(ABC):
     Abstract base class for all models, containing fit and predict methods.
     """
 
-    _type = None
-    _available_hyperparameters = {}
-    supported_feature_types: List[str] = []
-    supported_target_types: List[str] = []
+    _type: str|None = None
+    _available_hyperparameters: dict = {}
+    _supported_feature_types: List[str] = []
+    _supported_target_types: List[str] = []
 
 
     def __init__(self, **hyperparameters) -> None:
@@ -23,15 +23,27 @@ class Model(ABC):
         Args:
             **hyperparameters: Hyperparameters for the model.
         """
-        self._parameters = {}
-        self._hyperparameters = hyperparameters
+        self._parameters: dict = {}
+        self._hyperparameters: dict = hyperparameters
 
     @property
     def type(self) -> str:
+        """
+        Get the type of the model.
+
+        Returns:
+            str: The type of the model.
+        """
         return self._type
 
     @property
     def parameters(self) -> dict:
+        """
+        Get the hyperparameters of the model.
+
+        Returns:
+            dict: A dictionary of hyperparameter names and values.
+        """
         return deepcopy(self._parameters)
 
     @property
@@ -87,7 +99,7 @@ class Model(ABC):
         Returns:
             dict: Hyperparameter grid for tuning.
         """
-        param_grid = {}
+        param_grid: Dict[str, any] = {}
         for param, value in acceptable_ranges.items():
             if isinstance(value, list):
                 param_grid[param] = value
@@ -101,6 +113,32 @@ class Model(ABC):
             else:
                 param_grid[param] = [value]
         return param_grid
+    
+    @property
+    def supported_feature_types(self) -> List[str]:
+        """
+        Gets the supported feature types.
 
-    def set_params(self, **params):
+        Returns:
+            List[str]: A list of supported feature types.
+        """
+        return deepcopy(self._supported_feature_types)
+
+    @property
+    def supported_target_types(self) -> List[str]:
+        """
+        Gets the supported target types.
+
+        Returns:
+            List[str]: A list of supported target types.
+        """
+        return deepcopy(self._supported_target_types)
+
+    def set_params(self, **params) -> None:
+        """
+        Sets the parameters of the model.
+
+        Args:
+            **params: The parameters to set. Names must match the parameters in the model.
+        """
         self._model.set_params(**params)
