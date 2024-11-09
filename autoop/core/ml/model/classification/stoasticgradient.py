@@ -30,9 +30,9 @@ class StochasticGradient(Model):
         """
 
         super().__init__(**hyperparameters)
-        params = {k: self._hyperparameters.get(k, v) for k, v in self._available_hyperparameters.items()}
+        self._parameters = {k: self._hyperparameters.get(k, v) for k, v in self._available_hyperparameters.items()}
         # Make only the hyperparameters that are chosen by the user
-        self._model = SGDClassifier(**params)
+        self._model = SGDClassifier(**self._parameters)
 
     def fit(self, observations: np.ndarray, ground_truth: np.ndarray) -> None:
         """
@@ -42,6 +42,7 @@ class StochasticGradient(Model):
             observations (np.ndarray): Features.
             ground_truth (np.ndarray): Target values.
         """
+
         self._model.fit(observations, ground_truth)
 
     def predict(self, observations: np.ndarray) -> np.ndarray:

@@ -108,6 +108,15 @@ class Dataset(Artifact):
             df = pd.read_csv(data_io)
             return df
 
+    def read(self) -> pd.DataFrame:
+        bytes = super().read()
+        csv = bytes.decode()
+        return pd.read_csv(io.StringIO(csv))
+    
+    def save(self, data: pd.DataFrame) -> bytes:
+        bytes = data.to_csv(index=False).encode()
+        return super().save(bytes)
+
 
     def __str__(self) -> str:
         """

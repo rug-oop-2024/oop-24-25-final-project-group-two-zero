@@ -1,7 +1,7 @@
 # model.py
 from abc import ABC, abstractmethod
 import numpy as np
-import copy
+from copy import deepcopy,copy
 from typing import List, Dict
 
 
@@ -32,7 +32,7 @@ class Model(ABC):
 
     @property
     def parameters(self) -> dict:
-        return copy.deepcopy(self._parameters)
+        return deepcopy(self._parameters)
 
     @property
     def available_hyperparameters(self) -> dict:
@@ -42,7 +42,7 @@ class Model(ABC):
         Returns:
             dict: A dictionary of hyperparameter names and default values.
         """
-        return self._available_hyperparameters.copy()
+        return deepcopy(self._available_hyperparameters)
 
     @abstractmethod
     def fit(self, observations: np.ndarray, ground_truth: np.ndarray) -> None:
@@ -101,3 +101,6 @@ class Model(ABC):
             else:
                 param_grid[param] = [value]
         return param_grid
+
+    def set_params(self, **params):
+        self._model.set_params(**params)

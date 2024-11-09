@@ -189,19 +189,10 @@ Pipeline(
         self._train_y = self._output_vector[: int(split * len(self._output_vector))]
         self._test_y = self._output_vector[int(split * len(self._output_vector)) :]
 
+
     def to_artifact(self, name: str, version: str) -> Artifact:
         """
         Converts the Pipeline object to an Artifact.
-
-        The Artifact contains the model, input features, target feature, split ratio, metrics, and
-        preprocessing artifacts.
-
-        Args:
-            name (str): The name of the pipeline.
-            version (str): The version of the pipeline.
-
-        Returns:
-            Artifact: An Artifact object containing the pipeline's data.
         """
         pipeline_data = {
             'model': self._model,
@@ -210,16 +201,22 @@ Pipeline(
             'split': self._split,
             'metrics': self._metrics,
             'preprocessing_artifacts': self._artifacts,
+            'dataset': self._dataset,
         }
-        data_bytes = pickle.dumps(pipeline_data)
+
+        # Serialize the pipeline data
+        serialized_pipeline_data = pickle.dumps(pipeline_data)
+
         asset_path = os.path.normpath(os.path.join("pipelines", f"{name}_{version}.pkl"))
         return Artifact(
             name=name,
             asset_path=asset_path,
-            data=data_bytes,
+            data=serialized_pipeline_data,  # Serialized bytes
             version=version,
             type='pipeline',
         )
+
+
 
     def _compact_vectors(self, vectors: List) -> Any:
         """
@@ -244,21 +241,15 @@ Pipeline(
             # For numerical data
             return np.concatenate(vectors, axis=1)
 
+
     def _train(self) -> None:
-        """
-        Trains the model using the training data.
-
-        This method trains the model using the training data, which is
-        stored in the `_train_X` and `_train_y` attributes. The input
-        vectors are concatenated into a single array using the
-        `_compact_vectors` method, and then the model is fit to the
-        resulting array and the labels.
-
-        The trained model is stored in the `_model` attribute.
-        """
         X_train = self._compact_vectors(self._train_X)
         Y_train = self._train_y
+        # Ensure shapes are correct
+        if X_train.shape[0] != len(Y_train):
+            raise ValueError("Number of samples in X_train and Y_train do not match.")
         self._model.fit(X_train, Y_train)
+
 
     def _evaluate(self) -> None:
         """
@@ -299,8 +290,6 @@ Pipeline(
         except Exception as e:
             st.warning(f"Error computing SHAP values: {e}")
             self._shap_values = None
-
-
 
     def _generate_report(self):
         """
@@ -346,18 +335,15 @@ Pipeline(
             if shap_values.values.ndim == 3:
                 # Multiclass classification
                 num_classes = shap_values.values.shape[1]
-                # Ensure class_index is within bounds
                 class_index = 0  # Default to the first class
-                # Optionally, you can let the user select the class index
-                shap_value_to_plot = shap.Explanation(
+                shap_values_sample = shap.Explanation(
                     values=shap_values.values[0, class_index, :],
                     base_values=shap_values.base_values[0, class_index],
                     data=shap_values.data[0],
                     feature_names=feature_names
                 )
             elif shap_values.values.ndim == 2:
-                # Binary classification or regression
-                shap_value_to_plot = shap.Explanation(
+                shap_values_sample = shap.Explanation(
                     values=shap_values.values[0],
                     base_values=shap_values.base_values[0],
                     data=shap_values.data[0],
@@ -367,25 +353,41 @@ Pipeline(
                 st.warning("Unexpected SHAP values shape.")
                 return
 
-            # Create a figure to hold the plot
-            plt.figure()
-            # Generate the waterfall plot without displaying it
+            max_features = 10
+
+            abs_shap_values = np.abs(shap_values_sample.values)
+            sorted_indices = np.argsort(abs_shap_values)[::-1]
+            top_indices = sorted_indices[:max_features]
+
+            shap_value_to_plot = shap.Explanation(
+                values=shap_values_sample.values[top_indices],
+                base_values=shap_values_sample.base_values,
+                data=shap_values_sample.data[top_indices],
+                feature_names=[shap_values_sample.feature_names[i] for i in top_indices]
+            )
+
             shap.plots.waterfall(shap_value_to_plot, show=False)
+
+            fig = plt.gcf()
+
+            fig.set_size_inches(8, 6)
+
             # Save the plot to a buffer
             buf_shap = io.BytesIO()
-            plt.savefig(buf_shap, format='png', bbox_inches='tight')
+            fig.savefig(buf_shap, format='png', bbox_inches='tight')
             buf_shap.seek(0)
             image_png_shap = buf_shap.getvalue()
             buf_shap.close()
+
             # Store the plot in the report
             report['shap_summary'] = base64.b64encode(image_png_shap).decode('utf-8')
+
             # Close the plot to free memory
-            plt.close()
+            plt.close(fig)
         else:
             report['shap_summary'] = None
             st.warning("No SHAP values available to generate the summary plot.")
 
-        # Assign the report to the instance variable
         self._report = report
 
 

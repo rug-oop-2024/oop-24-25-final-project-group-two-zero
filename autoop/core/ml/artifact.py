@@ -1,21 +1,18 @@
 import os
-import json
-import h5py
+import pickle
 from typing import List, Dict, Any, Optional
-from pydantic import BaseModel, Field
-from typing_extensions import Literal
-
+import base64
 
 class Artifact:
     """
-    Artifact class for handling data storage and retrieval in HDF5 format.
+    Artifact class for handling data storage and retrieval using pickle.
     """
 
     def __init__(
         self,
         name: str,
         asset_path: str,
-        data: bytes,
+        data: Any,
         version: str,
         type: str,
         tags: Optional[List[str]] = None,
@@ -28,7 +25,7 @@ class Artifact:
         Args:
             name (str): Name of the artifact.
             asset_path (str): Path where artifact is stored.
-            data (bytes): Data associated with the artifact.
+            data (Any): Data associated with the artifact.
             version (str): Version of the artifact.
             type (str): Type of artifact.
             tags (List[str], optional): Tags for categorizing the artifact.
@@ -46,30 +43,21 @@ class Artifact:
 
     def save(self, directory: str = 'artifacts') -> None:
         """
-        Saves the Artifact instance to an HDF5 file.
+        Saves the Artifact instance to a pickle file.
 
         Args:
             directory (str): The directory where the file will be saved.
-
-        Not too sure this is correct
         """
         if not os.path.exists(directory):
             os.makedirs(directory)
-        file_path = os.path.join(directory, f'{self.id}.h5')
-        with h5py.File(file_path, 'w') as h5f:
-            h5f.create_dataset('data', data=self.data)
-            h5f.attrs['name'] = self.name
-            h5f.attrs['asset_path'] = self.asset_path
-            h5f.attrs['version'] = self.version
-            h5f.attrs['type'] = self.type
-            h5f.attrs['tags'] = json.dumps(self.tags)
-            h5f.attrs['id'] = self.id
-            h5f.attrs['metadata'] = json.dumps(self.metadata)
+        file_path = os.path.join(directory, f'{self.id}.pkl')
+        with open(file_path, 'wb') as f:
+            pickle.dump(self, f)
 
     @classmethod
     def read(cls, id: str, directory: str = 'artifacts') -> 'Artifact':
         """
-        Reads the Artifact from an HDF5 file and recreates the Artifact instance.
+        Reads the Artifact from a pickle file and recreates the Artifact instance.
 
         Args:
             id (str): The unique identifier of the artifact.
@@ -78,25 +66,9 @@ class Artifact:
         Returns:
             Artifact: An instance of the Artifact class.
         """
-        file_path = os.path.join(directory, f'{id}.h5')
+        file_path = os.path.join(directory, f'{id}.pkl')
         if not os.path.exists(file_path):
             raise FileNotFoundError(f"No file found for id {id}")
-        with h5py.File(file_path, 'r') as h5f:
-            data = h5f['data'][()]
-            name = h5f.attrs['name']
-            asset_path = h5f.attrs['asset_path']
-            version = h5f.attrs['version']
-            type_ = h5f.attrs['type']
-            tags = json.loads(h5f.attrs['tags'])
-            id_ = h5f.attrs['id']
-            metadata = json.loads(h5f.attrs['metadata'])
-            return cls(
-                name=name,
-                asset_path=asset_path,
-                data=data,
-                version=version,
-                type=type_,
-                tags=tags,
-                metadata=metadata,
-                id=id_
-            )
+        with open(file_path, 'rb') as f:
+            artifact = pickle.load(f)
+        return artifact

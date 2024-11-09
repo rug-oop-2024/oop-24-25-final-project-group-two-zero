@@ -32,8 +32,8 @@ class KNearestNeighbors(Model):
 
         super().__init__(**hyperparameters)
         # Merge default hyperparameters with user-specified ones
-        params = {k: self._hyperparameters.get(k, v) for k, v in self._available_hyperparameters.items()}
-        self._model = KNeighborsClassifier(**params)
+        self._parameters = {k: self._hyperparameters.get(k, v) for k, v in self._available_hyperparameters.items()}
+        self._model = KNeighborsClassifier(**self._parameters)
 
     def fit(self, observations: np.ndarray, ground_truth: np.ndarray) -> None:
         """
@@ -55,5 +55,4 @@ class KNearestNeighbors(Model):
         Returns:
             np.ndarray: Predicted labels.
         """
-
         return self._model.predict(observations)
