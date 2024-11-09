@@ -1,7 +1,6 @@
 from typing import List
 import pickle
 import os
-import matplotlib.pyplot as plt
 import seaborn as sns
 import io
 import base64
@@ -11,9 +10,8 @@ from autoop.core.ml.artifact import Artifact
 from autoop.core.ml.dataset import Dataset
 from autoop.core.ml.feature import Feature
 from autoop.core.ml.metric import Metric
-from autoop.functional.preprocessing import preprocess_features
 import shap
-from typing import List, Dict, Any
+from typing import List, Any
 import streamlit as st
 from autoop.core.ml.model.classification import TreeClassification
 
