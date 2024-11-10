@@ -1,6 +1,5 @@
 import streamlit as st
 from typing import List
-import pandas as pd
 import pickle
 import os
 import numpy as np
@@ -439,8 +438,7 @@ class Modelling:
 
         st.write("Performing hyperparameter tuning...")
         param_grid = {
-            k: acceptable_ranges.get(k, [v]) \
-                for k, v in acceptable_ranges.items()
+            k: acceptable_ranges.get(k, [v]) for k, v in acceptable_ranges.items()
         }
 
         refit_metric = (

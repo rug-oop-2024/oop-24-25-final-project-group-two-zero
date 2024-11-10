@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 import numpy as np
 from copy import deepcopy
-from typing import List, Dict, Any
+from typing import Optional, List, Dict
 from autoop.core.ml.artifact import Artifact
 
 
@@ -13,7 +13,7 @@ class Model(ABC):
     _supported_feature_types: List[str] = []
     _supported_target_types: List[str] = []
 
-    def __init__(self: "Model", **hyperparameters: Any) -> None:
+    def __init__(self: "Model", **hyperparameters: Optional[dict]) -> None:
         """
         Initialize the Model with hyperparameters.
 
@@ -86,7 +86,7 @@ class Model(ABC):
         """
         pass
 
-    def get_estimator(self: "Model") -> Any:
+    def get_estimator(self: "Model") -> 'Model':
         """
         Return the underlying scikit-learn estimator.
 
@@ -150,7 +150,10 @@ class Model(ABC):
         """
         return deepcopy(self._supported_target_types)
 
-    def set_params(self: "Model", **params: Any) -> None:
+    def set_params(
+        self: "Model",
+        **params: Optional[dict]
+    ) -> None:
         """
         Set the parameters of the model.
 

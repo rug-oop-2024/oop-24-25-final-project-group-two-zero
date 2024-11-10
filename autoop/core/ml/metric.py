@@ -1,6 +1,5 @@
 from abc import ABC, abstractmethod
 import numpy as np
-from typing import Any
 
 METRICS = [
     "MeanSquaredError",  # Regression tasks
@@ -27,7 +26,7 @@ class Metric(ABC):
         pass
 
     @property
-    def name(self:'Metric') -> str:
+    def name(self: 'Metric') -> str:
         """
         Get the name of the metric.
 
@@ -170,7 +169,11 @@ class F1Score(Metric):
 
     _name = "F1 Score"
 
-    def evaluate(self: "F1Score", y_pred: np.ndarray, y_true: np.ndarray) -> float:
+    def evaluate(
+        self: "F1Score",
+        y_pred: np.ndarray,
+        y_true: np.ndarray
+    ) -> float:
         """
         Compute the F1 score between
         the predictions and the true labels.
