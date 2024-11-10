@@ -4,8 +4,10 @@ from app.core.system import AutoMLSystem
 from autoop.core.ml.dataset import Dataset
 import os
 
+
 class Starting:
     """This is the starting class for the dataset page."""
+
     def __init__(self: "Starting") -> None:
         """
         Initialize the Starting class.
@@ -84,7 +86,7 @@ class Starting:
     def available_datasets(self: "Starting") -> None:
         """
         Display a list of available datasets and allow.
-        
+
         The user to select one or more datasets to remove
         this method first refreshes the list of
         available datasets in the AutoML system.

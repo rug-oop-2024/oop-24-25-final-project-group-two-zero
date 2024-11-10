@@ -1,7 +1,7 @@
 from sklearn.tree import DecisionTreeClassifier
 from ..model import Model
 import numpy as np
-from typing import Any
+from typing import Optional
 
 
 class TreeClassification(Model):
@@ -22,7 +22,7 @@ class TreeClassification(Model):
 
     def __init__(
         self: "TreeClassification",
-        **hyperparameters: Any
+        **hyperparameters: Optional[dict]
     ) -> None:
         """
         Initializes the TreeClassification model

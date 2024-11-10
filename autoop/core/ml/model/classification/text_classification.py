@@ -2,7 +2,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 from ..model import Model
 import numpy as np
-from typing import Any, List
+from typing import Optional, List
 
 
 class TextClassificationModel(Model):
@@ -23,7 +23,7 @@ class TextClassificationModel(Model):
 
     def __init__(
         self: "TextClassificationModel",
-        **hyperparameters: Any
+        **hyperparameters: Optional[dict]
     ) -> None:
         """
         Initialize the TextClassificationModel with hyperparameters.

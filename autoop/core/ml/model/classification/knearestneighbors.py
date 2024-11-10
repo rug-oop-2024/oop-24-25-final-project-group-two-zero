@@ -1,7 +1,7 @@
 from sklearn.neighbors import KNeighborsClassifier
 from ..model import Model
 import numpy as np
-from typing import Any
+from typing import Optional
 
 
 class KNearestNeighbors(Model):
@@ -21,7 +21,10 @@ class KNearestNeighbors(Model):
     supported_feature_types: list = ["numerical"]
     supported_target_types: list = ["cataorical"]
 
-    def __init__(self: "KNearestNeighbors", **hyperparameters: Any) -> None:
+    def __init__(
+        self: "KNearestNeighbors",
+        **hyperparameters: Optional[dict]
+    ) -> None:
         """
         Initialize the KNearestNeighbors model with hyperparameters.
 

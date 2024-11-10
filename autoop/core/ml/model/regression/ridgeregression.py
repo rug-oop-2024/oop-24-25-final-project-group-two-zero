@@ -1,7 +1,7 @@
 from sklearn.linear_model import Ridge
 from ..model import Model
 import numpy as np
-from typing import Any
+from typing import Optional
 
 
 class RidgeRegression(Model):
@@ -28,7 +28,10 @@ class RidgeRegression(Model):
     _supported_feature_types: list = ["numerical"]
     _supported_target_types: list = ["numerical"]
 
-    def __init__(self: "RidgeRegression", **hyperparameters: Any) -> None:
+    def __init__(
+        self: "RidgeRegression",
+        **hyperparameters: Optional[dict]
+    ) -> None:
         """
         Initialize RidgeRegression model with specified hyperparameters.
 

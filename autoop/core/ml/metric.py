@@ -12,28 +12,6 @@ METRICS = [
 ]
 
 
-def get_metric(name: str) -> Any:
-    """
-    Retrieve a metric class by its name.
-
-    Args:
-        name (str): The name of the metric to retrieve.
-
-    Returns:
-        Any: The metric class corresponding to the given name.
-
-    Raises:
-        ValueError: If the metric with
-            the specified name does not exist.
-    """
-    if name not in METRICS:
-        raise ValueError(
-            f"""Metric
-                     {name}does not exist"""
-        )
-    return getattr(__import__("autoop.core.ml.metric", fromlist=[name]), name)
-
-
 class Metric(ABC):
     """Base class for all metrics."""
 
@@ -137,7 +115,11 @@ class Accuracy(Metric):
 
     _name = "Accuracy"
 
-    def evaluate(self: "Accuracy", y_pred: np.ndarray, y_true: np.ndarray) -> float:
+    def evaluate(
+        self: "Accuracy",
+        y_pred: np.ndarray,
+        y_true: np.ndarray
+    ) -> float:
         """
         Compute the accuracy between the predictions and the true labels.
 
@@ -156,7 +138,11 @@ class Specificity(Metric):
 
     _name = "Specificity"
 
-    def evaluate(self: "Specificity", y_pred: np.ndarray, y_true: np.ndarray) -> float:
+    def evaluate(
+        self: "Specificity",
+        y_pred: np.ndarray,
+        y_true: np.ndarray
+    ) -> float:
         """
         Compute the specificity between
         the predictions and the true labels.
@@ -217,3 +203,24 @@ class F1Score(Metric):
         if precision + recall == 0:
             return 0.0
         return 2 * (precision * recall) / (precision + recall)
+
+def get_metric(name: str) -> None|Metric:
+    """
+    Retrieve a metric class by its name.
+
+    Args:
+        name (str): The name of the metric to retrieve.
+
+    Returns:
+        Any: The metric class corresponding to the given name.
+
+    Raises:
+        ValueError: If the metric with
+            the specified name does not exist.
+    """
+    if name not in METRICS:
+        raise ValueError(
+            f"""Metric
+                     {name}does not exist"""
+        )
+    return getattr(__import__("autoop.core.ml.metric", fromlist=[name]), name)

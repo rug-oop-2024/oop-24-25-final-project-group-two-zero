@@ -2,7 +2,6 @@ import os
 import pickle
 from typing import List, Dict, Any, Optional
 
-
 class Artifact:
     """
     Artifact class for handling data storage and retrieval using pickle.
@@ -14,7 +13,7 @@ class Artifact:
         self: "Artifact",
         name: str,
         asset_path: str,
-        data: Any,
+        data: 'Bytes',
         version: str,
         type: str,
         tags: Optional[List[str]] = None,

@@ -1,7 +1,7 @@
 from sklearn.svm import SVR
 from ..model import Model
 import numpy as np
-from typing import Any, Dict, List
+from typing import Optional, Dict, List
 
 
 class SupportVectorRegression(Model):
@@ -13,7 +13,7 @@ class SupportVectorRegression(Model):
     """
 
     _type: str = "regression"
-    _available_hyperparameters: Dict[str, Any] = {
+    _available_hyperparameters: Dict[str] = {
         "kernel": [
             "linear",
             "poly",
@@ -37,7 +37,7 @@ class SupportVectorRegression(Model):
 
     def __init__(
         self: "SupportVectorRegression",
-        **hyperparameters: Any
+        **hyperparameters: Optional[Dict]
     ) -> None:
         """
         Initializes the SupportVectorRegression model with hyperparameters.

@@ -1,7 +1,7 @@
 from sklearn.linear_model import SGDClassifier
 from ..model import Model
 import numpy as np
-from typing import Any
+from typing import Optional
 
 
 class StochasticGradient(Model):
@@ -24,7 +24,10 @@ class StochasticGradient(Model):
     supported_feature_types: list = ["numerical"]
     supported_target_types: list = ["categorical"]
 
-    def __init__(self: "StochasticGradient", **hyperparameters: Any) -> None:
+    def __init__(
+        self: "StochasticGradient",
+        **hyperparameters: Optional[dict]
+    ) -> None:
         """
         Initialize the StochasticGradient model with hyperparameters.
 

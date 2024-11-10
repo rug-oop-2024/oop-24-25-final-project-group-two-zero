@@ -127,7 +127,7 @@ class Dataset(Artifact):
         bytes: pd.DataFrame = data.to_csv(index=False).encode()
         return super().save(bytes)
 
-    def __str__(self:'Dataset') -> str:
+    def __str__(self: 'Dataset') -> str:
         """Return a string representation of the Dataset instance."""
         return f"""Dataset(name={self.name},
         version={self.version})"""

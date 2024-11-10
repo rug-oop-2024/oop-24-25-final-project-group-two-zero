@@ -107,7 +107,7 @@ class Modelling:
             target_feature (Feature): The target feature for the model.
             split_ratio (float): The ratio to split the dataset.
             metrics_use (List[Metric]): The metrics to use for evaluation.
-        
+
         Returns:
             Pipeline: The trained pipeline.
         """
@@ -171,7 +171,8 @@ class Modelling:
                 )
             elif isinstance(default, int):
                 # Integer hyperparameters with a range
-                st.write(f"**Define the range for int hyperparameter '{param}':**")
+                st.write(f"**Define the range for \
+                         int hyperparameter '{param}':**")
                 min_value = st.number_input(
                     f"Minimum acceptable value for '{param}'",
                     value=max(1, default - 10),
@@ -273,8 +274,7 @@ class Modelling:
                     else:
                         processed_values.append(val)
                 acceptable_ranges[param] = (
-                    processed_values if \
-                        processed_values else [None]
+                    processed_values if processed_values else [None]
                 )
             elif isinstance(default, str):
                 # String hyperparameters with predefined options
@@ -290,8 +290,7 @@ class Modelling:
                     default=[default],
                 )
                 acceptable_ranges[param] = (
-                    acceptable_values \
-                        if acceptable_values else [default]
+                    acceptable_values if acceptable_values else [default]
                 )
             else:
                 predefined_options = [
@@ -306,8 +305,7 @@ class Modelling:
                     default=[str(default)],
                 )
                 acceptable_ranges[param] = (
-                    acceptable_values \
-                        if acceptable_values else [str(default)]
+                    acceptable_values if acceptable_values else [str(default)]
                 )
 
             # Check if any hyperparameter has no selected values
@@ -373,8 +371,7 @@ class Modelling:
         )
         input_features = st.multiselect(
             "Select the input features",
-            [feature for feature in features \
-             if feature != target_feature],
+            [feature for feature in features if feature != target_feature],
         )
         if not input_features:
             st.warning("Please select at least one input feature.")
@@ -429,8 +426,7 @@ class Modelling:
         )
 
         metrics = [
-            metric_name_to_instance[name] \
-                for name in selected_metric_names
+            metric_name_to_instance[name] for name in selected_metric_names
         ]
         st.header("Select hyperparameters for tuning")
         acceptable_ranges = self.select_model_hyperparameters(model)
@@ -443,7 +439,8 @@ class Modelling:
 
         st.write("Performing hyperparameter tuning...")
         param_grid = {
-            k: acceptable_ranges.get(k, [v]) for k, v in acceptable_ranges.items()
+            k: acceptable_ranges.get(k, [v]) \
+                for k, v in acceptable_ranges.items()
         }
 
         refit_metric = (
@@ -498,13 +495,17 @@ class Modelling:
                 # Define the directory and file path
                 pipeline_dir = "saved_pipelines"
                 os.makedirs(pipeline_dir, exist_ok=True)
-                pipeline_path = os.path.join(pipeline_dir, f"{pipeline_name}.pkl")
+                pipeline_path = os.path.join(
+                    pipeline_dir, f"{pipeline_name}.pkl"
+                )
 
                 # Save the pipeline using pickle
                 with open(pipeline_path, "wb") as f:
                     pickle.dump(pipeline, f)
 
-                st.success(f"Pipeline saved successfully as '{pipeline_name}.pkl'!")
+                st.success(
+                    f"Pipeline saved successfully: '{pipeline_name}.pkl'!"
+                )
 
 
 if __name__ == "__main__":

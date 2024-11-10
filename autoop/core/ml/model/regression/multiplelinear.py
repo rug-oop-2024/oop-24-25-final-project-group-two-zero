@@ -1,7 +1,7 @@
 from sklearn.linear_model import LinearRegression
 from ..model import Model
 import numpy as np
-from typing import Any
+from typing import Optional
 
 
 class MultipleLinearRegression(Model):
@@ -19,7 +19,7 @@ class MultipleLinearRegression(Model):
 
     def __init__(
         self: "MultipleLinearRegression",
-        **hyperparameters: Any
+        **hyperparameters: Optional[dict]
     ) -> None:
         """
         Initializes the LinearRegressionModel

@@ -64,7 +64,7 @@ class Pipeline:
         self._artifacts: dict = {}
         self._split: float = split
         if target_feature.type == "categorical" and \
-            model.type != "classification":
+                model.type != "classification":
             raise ValueError(
                 "Model type must be classification\
                 for categorical target feature"
@@ -77,13 +77,29 @@ class Pipeline:
 
     @property
     def metadata(self: "Pipeline") -> dict:
+        """
+        Retrieve the metadata of the pipeline.
+
+        Returns:
+            dict: A dictionary containing the following metadata:
+                - "parameters": The parameters of the model.
+                - "model": The class name of the model.
+                - "input_features": A list of names of the input features.
+                - "input_feature_types": A list of types of the input features.
+                - "target_feature": The name of the target feature.
+                - "target_feature_type": The type of the target feature.
+                - "split_ratio": The ratio used to split the dataset.
+                - "metrics": A list of names of the metrics used.
+        """
         return {
             "parameters": self.model.parameters,
             "model": self.model.__class__.__name__,
-            "input_features": [feature.name \
-                               for feature in self.input_features],
-            "input_feature_types": [feature.type \
-                                    for feature in self.input_features],
+            "input_features": [
+                feature.name for feature in self.input_features
+            ],
+            "input_feature_types": [
+                feature.type for feature in self.input_features
+            ],
             "target_feature": self.target_feature.name,
             "target_feature_type": self.target_feature.type,
             "split_ratio": self.split_ratio,
@@ -228,14 +244,14 @@ Pipeline(
             any of the input feature types or the target
             feature type.
         """
-        feature_types: set = set(feature.type \
-                                 for feature in self._input_features)
+        feature_types: set = set(
+            feature.type for feature in self._input_features
+        )
         target_type: str = self._target_feature.type
 
         # Ensure the model supports all input feature types
         if not all(
-            ftype in self._model.supported_feature_types \
-                for ftype in feature_types
+            ftype in self._model.supported_feature_types for ftype in feature_types
         ):
             raise ValueError(
                 f"Model {self._model.__class__.__name__}\
@@ -244,8 +260,7 @@ Pipeline(
 
         if target_type not in self._model.supported_target_types:
             raise ValueError(
-                f"Model {self._model.__class__.__name__}\
-                does not support target type {target_type}"
+                f"Model {self._model.__class__.__name__} does not support target type {target_type}"
             )
 
     def _preprocess_features(self: "Pipeline") -> None:
@@ -304,7 +319,7 @@ Pipeline(
             preprocessed_data = data.values.reshape(-1, 1)
         return preprocessed_data
 
-    def _split_data(self: "Pipeline") -> None:
+    def _split_data(self:"Pipeline") -> None:
         """
         Split the preprocessed input and output training and testing sets.
 
@@ -318,12 +333,10 @@ Pipeline(
         """
         split: float = self._split
         self._train_X: List[np.ndarray] = [
-            vector[: int(split * len(vector))] \
-                for vector in self._input_vectors
+            vector[: int(split * len(vector))] for vector in self._input_vectors
         ]
         self._test_X: List[np.ndarray] = [
-            vector[int(split * len(vector)) :] \
-                for vector in self._input_vectors
+            vector[int(split * len(vector)) :] for vector in self._input_vectors
         ]
         self._train_y = \
             self._output_vector[: int(split * len(self._output_vector))]
@@ -376,7 +389,7 @@ Pipeline(
     def _compact_vectors(
         self: "Pipeline",
         vectors: List
-    ) -> Any:
+    ) -> np.ndarray | List:
         """
         Compact the input vectors format suitable for the model.
 
