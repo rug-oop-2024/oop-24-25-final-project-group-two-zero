@@ -30,11 +30,7 @@ from autoop.core.ml.metric import (
 )
 from sklearn.model_selection import GridSearchCV
 from autoop.functional.feature import Feature, detect_feature_types
-from app.core.system import AutoMLSystem
-from autoop.core.ml.dataset import Dataset
 from autoop.core.ml.metric import Metric
-from autoop.functional.feature import detect_feature_types
-from autoop.core.ml.pipeline import Pipeline
 
 st.set_page_config(page_title="Modelling", page_icon="📈")
 
@@ -101,6 +97,20 @@ class Modelling:
         split_ratio: float,
         metrics_use: List["Metric"],
     ) -> Pipeline:
+        """
+        Train a pipeline.
+
+        Args:
+            dataset (Dataset): The dataset to train the pipeline on.
+            model (Model): The model to use in the pipeline.
+            input_features (List[Feature]): The input features for the model.
+            target_feature (Feature): The target feature for the model.
+            split_ratio (float): The ratio to split the dataset.
+            metrics_use (List[Metric]): The metrics to use for evaluation.
+        
+        Returns:
+            Pipeline: The trained pipeline.
+        """
         pipeline = Pipeline(
             metrics=metrics_use,
             dataset=dataset,
@@ -109,18 +119,14 @@ class Modelling:
             target_feature=target_feature,
             split=split_ratio,
         )
-        # """
-        # return {
-        #     "metrics": self._metrics_results,
-        #     "predictions": self._predictions,
-        #     "report": self._report,
-        # }
-        # """
         values = pipeline.execute()
         print(values["predictions"])
         return pipeline
 
-    def select_model_hyperparameters(self: "Modelling", model_instance: Model) -> dict:
+    def select_model_hyperparameters(
+        self: "Modelling",
+        model_instance: Model
+    ) -> dict:
         """
         Allow the user to specify acceptable ranges
         or options for all hyperparameters.
@@ -134,13 +140,13 @@ class Modelling:
         """
         st.write("### Model Hyperparameters")
         hyperparameters = model_instance.available_hyperparameters
-        print("Available Hyperparameters:", hyperparameters)  # Debugging
+        print("Available Hyperparameters:", hyperparameters)
 
         acceptable_ranges = {}
-        missing_selections = False  # Flag to track missing selections
+        missing_selections = False
 
         for param, default in hyperparameters.items():
-            print("Processing Hyperparameter:", param, default)  # Debugging
+            print("Processing Hyperparameter:", param, default)
 
             if isinstance(default, bool):
                 # Boolean hyperparameters
@@ -158,14 +164,14 @@ class Modelling:
                 acceptable_values = st.multiselect(
                     f"Select acceptable value(s) for '{param}':",
                     options=default,
-                    default=default,  # Default to all options selected
+                    default=default,
                 )
                 acceptable_ranges[param] = (
                     acceptable_values if acceptable_values else default
                 )
             elif isinstance(default, int):
                 # Integer hyperparameters with a range
-                st.write(f"**Define the range for integer hyperparameter '{param}':**")
+                st.write(f"**Define the range for int hyperparameter '{param}':**")
                 min_value = st.number_input(
                     f"Minimum acceptable value for '{param}'",
                     value=max(1, default - 10),
@@ -183,17 +189,27 @@ class Modelling:
                     value=5,
                 )
                 # Generate a list of integer values using linspace
-                linspace_values = np.linspace(min_value, max_value, num=num_samples)
+                linspace_values = np.linspace(
+                    min_value,
+                    max_value,
+                    num=num_samples
+                )
                 int_values = [int(round(val)) for val in linspace_values]
                 # Remove duplicates and sort
                 unique_int_values = sorted(set(int_values))
                 acceptable_ranges[param] = unique_int_values
 
                 # Display the generated options for clarity
-                st.write(f"**Generated options for '{param}':** {unique_int_values}")
+                st.write(
+                    f"""**Generated options
+                      for '{param}':** {unique_int_values}"""
+                )
             elif isinstance(default, float):
                 # Float hyperparameters with a range
-                st.write(f"**Define the range for float hyperparameter '{param}':**")
+                st.write(
+                    f"""**Define the
+                    range for float hyperparameter '{param}':**"""
+                )
                 min_value = st.number_input(
                     f"Minimum acceptable value for '{param}'",
                     value=default,
@@ -211,26 +227,35 @@ class Modelling:
                     value=5,
                 )
                 # Generate a list of float values using linspace
-                linspace_values = np.linspace(min_value, max_value, num=num_samples)
+                linspace_values = np.linspace(
+                    min_value, max_value, num=num_samples
+                )
                 float_values = linspace_values.tolist()
                 acceptable_ranges[param] = float_values
 
                 # Display the generated options for clarity
-                st.write(f"**Generated options for '{param}':** {float_values}")
+                st.write(
+                    f"""**Generated options for '{param}':** {float_values}"""
+                )
             elif default is None:
                 # Hyperparameters that can accept None or specific types
-                st.write(f"**Define acceptable value(s) for '{param}':**")
+                st.write(
+                    f"**Define acceptable value(s) for '{param}':**"
+                )
                 predefined_options = ["None"]
 
                 # Determine the type based on model's hyperparameter definition
                 if hasattr(model_instance, "hyperparameter_type"):
-                    hyperparam_type = model_instance.hyperparameter_type(param)
+                    hyperparam_type = \
+                        model_instance.hyperparameter_type(param)
                     if hyperparam_type == "int":
                         predefined_options += [1, 2, 3, 4, 5]
                     elif hyperparam_type == "float":
-                        predefined_options += [0.1, 0.5, 1.0, 1.5, 2.0]
+                        predefined_options += \
+                            [0.1, 0.5, 1.0, 1.5, 2.0]
                     elif hyperparam_type == "str":
-                        predefined_options += ["option1", "option2", "option3"]
+                        predefined_options += \
+                            ["option1", "option2", "option3"]
                 else:
                     predefined_options += [1, 2, 3, 4, 5]
 
@@ -248,7 +273,8 @@ class Modelling:
                     else:
                         processed_values.append(val)
                 acceptable_ranges[param] = (
-                    processed_values if processed_values else [None]
+                    processed_values if \
+                        processed_values else [None]
                 )
             elif isinstance(default, str):
                 # String hyperparameters with predefined options
@@ -264,7 +290,8 @@ class Modelling:
                     default=[default],
                 )
                 acceptable_ranges[param] = (
-                    acceptable_values if acceptable_values else [default]
+                    acceptable_values \
+                        if acceptable_values else [default]
                 )
             else:
                 predefined_options = [
@@ -279,34 +306,43 @@ class Modelling:
                     default=[str(default)],
                 )
                 acceptable_ranges[param] = (
-                    acceptable_values if acceptable_values else [str(default)]
+                    acceptable_values \
+                        if acceptable_values else [str(default)]
                 )
 
             # Check if any hyperparameter has no selected values
             if not acceptable_ranges[param]:
                 st.warning(
-                    f"""No acceptable values defined for '{param}'. Please make a selection."""
+                    f"""No acceptable values \
+                        defined for '{param}'. Please make a selection."""
                 )
                 missing_selections = True
 
         if missing_selections:
             st.warning(
-                """Please select acceptable values for all hyperparameters before proceeding."""
+                """Please select acceptable \
+                    values for all hyperparameters before proceeding."""
             )
             st.stop()
         else:
-            st.success("All hyperparameters have acceptable values selected.")
+            st.success("All hyperparameters \
+                       have acceptable values selected.")
             return acceptable_ranges
 
     def run(self: "Modelling") -> None:
         """
         This function is the entrypoint for the modeling page.
-        It is responsible for displaying the dataset features, selecting the target feature,
-        selecting the model, selecting the metrics, selecting hyperparameters for tuning,
+
+        It is responsible for displaying the dataset
+        features, selecting the target feature,
+        selecting the model, selecting the metrics,
+        selecting hyperparameters for tuning,
         performing hyperparameter tuning, and saving the pipeline.
         returns: None
         """
-        dataset_options = {f"{dataset.name}": dataset.id for dataset in self.datasets}
+        dataset_options = {
+            f"{dataset.name}": dataset.id for dataset in self.datasets
+        }
 
         selected_dataset_name = st.selectbox(
             "Select a dataset", list(dataset_options.keys())
@@ -324,22 +360,29 @@ class Modelling:
 
         st.header("Select the split ratio")
         split_ratio = st.slider(
-            "Select the split ratio", min_value=0.0, max_value=1.0, value=0.8
+            "Select the split ratio",
+            min_value=0.0,
+            max_value=1.0,
+            value=0.8
         )
 
         st.header("Select the target feature")
         target_feature = st.selectbox(
-            "Select the target feature", [feature for feature in features]
+            "Select the target feature",
+            [feature for feature in features]
         )
         input_features = st.multiselect(
             "Select the input features",
-            [feature for feature in features if feature != target_feature],
+            [feature for feature in features \
+             if feature != target_feature],
         )
         if not input_features:
             st.warning("Please select at least one input feature.")
             st.stop()
 
-        input_feature_names = [feature.name for feature in input_features]
+        input_feature_names = [
+            feature.name for feature in input_features
+        ]
         target_feature_name = target_feature.name
 
         st.header("Select the model")
@@ -348,9 +391,12 @@ class Modelling:
             if target_feature.type == "categorical"
             else self.REGRESSION_MODELS
         )
-        model_name_to_class = {name: cls for name, cls in model_options.items()}
+        model_name_to_class = {
+            name: cls for name, cls in model_options.items()
+        }
         selected_model_name = st.selectbox(
-            "Select the model", list(model_name_to_class.keys())
+            "Select the model",
+            list(model_name_to_class.keys())
         )
         model_class = model_name_to_class[selected_model_name]
         model = model_class()
@@ -365,7 +411,8 @@ class Modelling:
             name: instance for name, instance in metric_options.items()
         }
         selected_metric_names = st.multiselect(
-            "Select the metrics", list(metric_name_to_instance.keys())
+            "Select the metrics",
+            list(metric_name_to_instance.keys())
         )
         if not selected_metric_names:
             st.warning("Please select at least one metric.")
@@ -381,7 +428,10 @@ class Modelling:
             }
         )
 
-        metrics = [metric_name_to_instance[name] for name in selected_metric_names]
+        metrics = [
+            metric_name_to_instance[name] \
+                for name in selected_metric_names
+        ]
         st.header("Select hyperparameters for tuning")
         acceptable_ranges = self.select_model_hyperparameters(model)
 

@@ -9,7 +9,11 @@ class StochasticGradient(Model):
 
     _type: str = "classification"
     _available_hyperparameters: dict = {
-        "loss": ["hinge", "log_loss", "modified_huber", "squared_hinge", "perceptron"],
+        "loss": ["hinge",
+                 "log_loss",
+                 "modified_huber",
+                 "squared_hinge",
+                 "perceptron"],
         "penalty": ["l2", "l1", "elasticnet"],
         "alpha": 0.0001,
         "max_iter": 1000,
@@ -37,7 +41,9 @@ class StochasticGradient(Model):
         self._model: SGDClassifier = SGDClassifier(**self._params)
 
     def fit(
-        self: "StochasticGradient", observations: np.ndarray, ground_truth: np.ndarray
+        self: "StochasticGradient",
+        observations: np.ndarray,
+        ground_truth: np.ndarray
     ) -> None:
         """
         Fit the model to the data.
@@ -54,7 +60,10 @@ class StochasticGradient(Model):
             "classes_": self._model.classes_,
         }
 
-    def predict(self: "StochasticGradient", observations: np.ndarray) -> np.ndarray:
+    def predict(
+        self: "StochasticGradient",
+        observations: np.ndarray
+    ) -> np.ndarray:
         """
         Predict using the StochasticGradient model.
 

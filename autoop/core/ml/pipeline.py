@@ -63,7 +63,8 @@ class Pipeline:
         self._metrics: List[Metric] = metrics
         self._artifacts: dict = {}
         self._split: float = split
-        if target_feature.type == "categorical" and model.type != "classification":
+        if target_feature.type == "categorical" and \
+            model.type != "classification":
             raise ValueError(
                 "Model type must be classification\
                 for categorical target feature"
@@ -77,10 +78,12 @@ class Pipeline:
     @property
     def metadata(self: "Pipeline") -> dict:
         return {
-            "parameters": self.model.parameters,  # Adjust based on your Model class
+            "parameters": self.model.parameters,
             "model": self.model.__class__.__name__,
-            "input_features": [feature.name for feature in self.input_features],
-            "input_feature_types": [feature.type for feature in self.input_features],
+            "input_features": [feature.name \
+                               for feature in self.input_features],
+            "input_feature_types": [feature.type \
+                                    for feature in self.input_features],
             "target_feature": self.target_feature.name,
             "target_feature_type": self.target_feature.type,
             "split_ratio": self.split_ratio,
@@ -90,8 +93,7 @@ class Pipeline:
     @property
     def input_features(self: "Pipeline") -> List[Feature]:
         """
-        Return the list of Feature objects
-        representing the input features.
+        Return the list Feature objects representing input features.
 
         Returns:
             List[Feature]: A list of Feature objects
@@ -100,8 +102,7 @@ class Pipeline:
 
     def __str__(self: Any) -> str:
         """
-        Return a string representation of the
-        Pipeline object.
+        Return a string representation of the Pipeline object.
 
         The string representation contains
         the model type, input features,
@@ -165,9 +166,7 @@ Pipeline(
     @property
     def artifacts(self: "Pipeline") -> List[Artifact]:
         """
-        Return a list of Artifact objects
-        containing the preprocessing artifacts and
-        the model artifact.
+        Return a list of Artifact objects.
 
         The list of artifacts includes the following:
         - Preprocessing artifacts: Each artifact
@@ -201,10 +200,13 @@ Pipeline(
         )
         return artifacts
 
-    def _register_artifact(self: "Pipeline", name: str, artifact: dict) -> None:
+    def _register_artifact(
+        self: "Pipeline",
+        name: str,
+        artifact: dict
+    ) -> None:
         """
-        Register an artifact in the
-        internal dictionary of artifacts.
+        Register an artifact in the internal dictionary of artifacts.
 
         Args:
             name (str): The name of the artifact.
@@ -215,8 +217,7 @@ Pipeline(
 
     def _validate_feature_and_target_types(self: "Pipeline") -> None:
         """
-        Validate that the input feature types and
-        target feature type are supported by the model.
+        Validate that the input feature types.
 
         This method checks that the model supports
         all input feature types and the target feature type.
@@ -227,12 +228,14 @@ Pipeline(
             any of the input feature types or the target
             feature type.
         """
-        feature_types: set = set(feature.type for feature in self._input_features)
+        feature_types: set = set(feature.type \
+                                 for feature in self._input_features)
         target_type: str = self._target_feature.type
 
         # Ensure the model supports all input feature types
         if not all(
-            ftype in self._model.supported_feature_types for ftype in feature_types
+            ftype in self._model.supported_feature_types \
+                for ftype in feature_types
         ):
             raise ValueError(
                 f"Model {self._model.__class__.__name__}\
@@ -260,17 +263,21 @@ Pipeline(
         self._input_vectors: List[np.ndarray] = []
         for feature in self._input_features:
             data = self._dataset.data[feature.name]
-            preprocessed_data: np.ndarray = self._preprocess_feature_data(feature, data)
+            preprocessed_data: np.ndarray = \
+                self._preprocess_feature_data(feature, data)
             self._input_vectors.append(preprocessed_data)
 
         # Preprocess target feature
-        target_data: np.ndarray = self._dataset.data[self._target_feature.name]
+        target_data: np.ndarray = \
+            self._dataset.data[self._target_feature.name]
         self._output_vector = self._preprocess_feature_data(
             self._target_feature, target_data
         )
 
     def _preprocess_feature_data(
-        self: "Pipeline", feature: Feature, data: pd.Series
+        self: "Pipeline",
+        feature: Feature,
+        data: pd.Series
     ) -> np.ndarray:
         """
         Preprocess data based on feature type.
@@ -299,8 +306,7 @@ Pipeline(
 
     def _split_data(self: "Pipeline") -> None:
         """
-        Split the preprocessed input and
-        output data into training and testing sets.
+        Split the preprocessed input and output training and testing sets.
 
         The data is split based on the specified
         split ratio. The resulting training
@@ -312,21 +318,30 @@ Pipeline(
         """
         split: float = self._split
         self._train_X: List[np.ndarray] = [
-            vector[: int(split * len(vector))] for vector in self._input_vectors
+            vector[: int(split * len(vector))] \
+                for vector in self._input_vectors
         ]
         self._test_X: List[np.ndarray] = [
-            vector[int(split * len(vector)) :] for vector in self._input_vectors
+            vector[int(split * len(vector)) :] \
+                for vector in self._input_vectors
         ]
-        self._train_y = self._output_vector[: int(split * len(self._output_vector))]
-        self._test_y = self._output_vector[int(split * len(self._output_vector)) :]
+        self._train_y = \
+            self._output_vector[: int(split * len(self._output_vector))]
+        self._test_y = \
+            self._output_vector[int(split * len(self._output_vector)) :]
 
-    def to_artifact(self: "Pipeline", name: str, version: str) -> Artifact:
+    def to_artifact(
+        self:"Pipeline",
+        name:str,
+        version:str
+    ) -> Artifact:
         """Convert the current pipeline state into an Artifact object."""
 
         # Define the asset path where the pipeline data will be saved
         asset_dir = "pipelines"
         asset_filename = f"{name}_{version}.pkl"
-        asset_path = os.path.normpath(os.path.join(asset_dir, asset_filename))
+        asset_path = \
+            os.path.normpath(os.path.join(asset_dir, asset_filename))
 
         # Ensure the directory exists
         os.makedirs(asset_dir, exist_ok=True)
@@ -339,8 +354,10 @@ Pipeline(
         pipeline_meta = {
             "parameters": self._model.parameters,
             "model": self._model.__class__.__name__,
-            "input_features": [feature.name for feature in self._input_features],
-            "input_feature_types": [feature.type for feature in self._input_features],
+            "input_features": \
+                [feature.name for feature in self._input_features],
+            "input_feature_types": \
+                [feature.type for feature in self._input_features],
             "target_feature": self._target_feature.name,
             "target_feature_type": self._target_feature.type,
             "split": self._split,
@@ -356,9 +373,12 @@ Pipeline(
             type="pipeline",
         )
 
-    def _compact_vectors(self: "Pipeline", vectors: List) -> Any:
+    def _compact_vectors(
+        self: "Pipeline",
+        vectors: List
+    ) -> Any:
         """
-        Compact the input vectors into a format suitable for the model.
+        Compact the input vectors format suitable for the model.
 
         For models that accept lists (e.g., text data),
         we might need to return the list as is.
@@ -373,7 +393,8 @@ Pipeline(
         if self._model.supported_feature_types == ["text"]:
             # Return list of strings
             return vectors[0]  # Assuming one text feature
-        elif self._model.supported_feature_types == ["image", "audio", "video"]:
+        elif self._model.supported_feature_types == \
+            ["image", "audio", "video"]:
             # Stack along the first axis
             return np.concatenate(vectors, axis=0)
         else:
@@ -394,7 +415,8 @@ Pipeline(
         Y_train: Any = self._train_y
         # Ensure shapes are correct
         if X_train.shape[0] != len(Y_train):
-            raise ValueError("Number of samples in X_train and Y_train do not match.")
+            raise ValueError("Number of samples in X_train \
+                             and Y_train do not match.")
         self._model.fit(X_train, Y_train)
 
     def _evaluate(self: "Pipeline") -> None:
@@ -423,21 +445,22 @@ Pipeline(
 
     def _compute_shap_values(self: "Pipeline") -> None:
         """
-        Compute SHAP values for the model to provide
-        explainability insights.
+        Compute SHAP values model to provide explainability insights.
 
         This method uses SHAP (SHapley Additive exPlanations)
         to compute feature importance values for
         the test data. It selects an appropriate SHAP explainer
         based on the model type, specifically
-        using a TreeExplainer for tree-based models and a KernelExplainer
+        using a TreeExplainer for tree-based models
+        and a KernelExplainer
         for other model types. In
         case of an exception during the computation, a warning is
         issued, and the SHAP values are set
         to None.
 
         Raises:
-            Exception: If there is an error in computing SHAP values,
+            Exception: If there is an error in
+            computing SHAP values,
             it displays a warning with the error message.
         """
         X_test = self._compact_vectors(self._test_X)
@@ -487,7 +510,8 @@ Pipeline(
             buf_cm.seek(0)
             image_png_cm = buf_cm.getvalue()
             buf_cm.close()
-            report["confusion_matrix"] = base64.b64encode(image_png_cm).decode("utf-8")
+            report["confusion_matrix"] = \
+                base64.b64encode(image_png_cm).decode("utf-8")
             plt.close(fig_cm)
 
         # Compute SHAP values
@@ -499,7 +523,8 @@ Pipeline(
         # Check if SHAP values are available
         if hasattr(shap_values, "values"):
             # Get feature names
-            feature_names = [feature.name for feature in self._input_features]
+            feature_names = \
+                [feature.name for feature in self._input_features]
 
             # Handle different shapes of shap_values
             if shap_values.values.ndim == 3:
@@ -507,8 +532,10 @@ Pipeline(
                 num_classes = shap_values.values.shape[1]
                 class_index = 0  # Default to the first class
                 shap_values_sample = shap.Explanation(
-                    values=shap_values.values[0, class_index, :],
-                    base_values=shap_values.base_values[0, class_index],
+                    values=\
+                        shap_values.values[0, class_index, :],
+                    base_values=\
+                        shap_values.base_values[0, class_index],
                     data=shap_values.data[0],
                     feature_names=feature_names,
                 )
@@ -531,7 +558,8 @@ Pipeline(
 
             shap_value_to_plot = shap.Explanation(
                 values=shap_values_sample.values[top_indices],
-                base_values=shap_values_sample.base_values,
+                base_values=\
+                    shap_values_sample.base_values,
                 data=shap_values_sample.data[top_indices],
                 feature_names=[
                     shap_values_sample.feature_names[i] for i in top_indices
@@ -552,13 +580,15 @@ Pipeline(
             buf_shap.close()
 
             # Store the plot in the report
-            report["shap_summary"] = base64.b64encode(image_png_shap).decode("utf-8")
+            report["shap_summary"] = \
+                base64.b64encode(image_png_shap).decode("utf-8")
 
             # Close the plot to free memory
             plt.close(fig)
         else:
             report["shap_summary"] = None
-            st.warning("No SHAP values available to generate the summary plot.")
+            st.warning("No SHAP values available\
+                        to generate the summary plot.")
 
         self._report = report
 
@@ -580,13 +610,13 @@ Pipeline(
         sensitivities = {}
         for i, feature in enumerate(self._input_features):
             X_perturbed = X_test.copy()
-            # Perturb the feature by adding a small value (e.g., 0.1 times the standard deviation)
             perturbation = 0.1 * np.std(X_test[:, i])
             X_perturbed[:, i] += perturbation
             y_pred_original = self._model.predict(X_test)
             y_pred_perturbed = self._model.predict(X_perturbed)
             # Compute the mean absolute change in predictions
-            sensitivity = np.mean(np.abs(y_pred_perturbed - y_pred_original))
+            sensitivity = \
+                np.mean(np.abs(y_pred_perturbed - y_pred_original))
             sensitivities[feature.name] = sensitivity
         self._sensitivity_results = sensitivities
 

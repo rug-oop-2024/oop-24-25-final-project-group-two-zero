@@ -40,12 +40,16 @@ class Metric(ABC):
     _name: str = None
 
     @abstractmethod
-    def evaluate(self: "Metric", y_pred: np.ndarray, y_true: np.ndarray) -> float:
+    def evaluate(
+        self: "Metric",
+        y_pred: np.ndarray,
+        y_true: np.ndarray
+    ) -> float:
         """Compute the metric."""
         pass
 
     @property
-    def name(self) -> str:
+    def name(self:'Metric') -> str:
         """
         Get the name of the metric.
 
@@ -61,10 +65,13 @@ class MeanSquaredError(Metric):
     _name: str = "Mean Squared Error"
 
     def evaluate(
-        self: "MeanSquaredError", y_pred: np.ndarray, y_true: np.ndarray
+        self: "MeanSquaredError",
+        y_pred: np.ndarray,
+        y_true: np.ndarray
     ) -> float:
         """
-        Compute the mean squared error
+        Compute the mean squared error.
+
         between the predictions and the true labels.
 
         Args:
@@ -104,7 +111,11 @@ class R2Score(Metric):
 
     _name: str = "R-Squared"
 
-    def evaluate(self: "R2Score", y_pred: np.ndarray, y_true: np.ndarray) -> float:
+    def evaluate(
+        self: "R2Score",
+        y_pred: np.ndarray,
+        y_true: np.ndarray
+    ) -> float:
         """
         Compute the R-squared score
         between the predictions and the true labels.

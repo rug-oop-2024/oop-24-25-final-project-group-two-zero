@@ -36,7 +36,9 @@ class deployment:
         if not os.path.exists(pipeline_dir):
             st.write("No pipelines available.")
         else:
-            pipeline_files = [f for f in os.listdir(pipeline_dir) if f.endswith(".pkl")]
+            pipeline_files = [
+                f for f in os.listdir(pipeline_dir) if f.endswith(".pkl")
+            ]
             if not pipeline_files:
                 st.write("No pipelines available.")
             else:
@@ -44,20 +46,26 @@ class deployment:
                 selected_pipeline_file = st.selectbox(
                     "Select a pipeline", pipeline_files
                 )
-                pipeline_path = os.path.join(pipeline_dir, selected_pipeline_file)
+                pipeline_path = os.path.join(
+                    pipeline_dir, selected_pipeline_file
+                )
 
                 # Load the entire pipeline object
                 try:
                     with open(pipeline_path, "rb") as f:
                         pipeline = pickle.load(f)
                     st.success(
-                        f"Pipeline '{selected_pipeline_file}' loaded successfully!"
+                        f"""Pipeline
+                        '{selected_pipeline_file}'
+                        loaded successfully!"""
                     )
                 except Exception as e:
                     st.error(f"Failed to load pipeline: {e}")
                     st.stop()
 
-                st.write(f"## Selected Pipeline: {selected_pipeline_file}")
+                st.write(
+                    f"## Selected Pipeline: {selected_pipeline_file}"
+                )
 
                 # Display pipeline metadata
                 st.write("### Pipeline Metadata")
@@ -65,7 +73,9 @@ class deployment:
                     st.write(f"- **{key}**: {value}")
 
                 st.write("## Upload a Dataset for Prediction")
-                uploaded_file = st.file_uploader("Choose a CSV file", type=["csv"])
+                uploaded_file = st.file_uploader(
+                    "Choose a CSV file", type=["csv"]
+                )
 
                 if uploaded_file is not None:
                     df = pd.read_csv(uploaded_file)
@@ -99,11 +109,13 @@ class deployment:
                         ground_truth = df[pipeline.target_feature.name].values
                         st.write("## Evaluation Metrics")
                         for metric in pipeline.metrics:
-                            score = metric.evaluate(predictions, ground_truth)
+                            score = metric.evaluate(
+                                predictions, ground_truth
+                            )
                             st.write(f"- **{metric.name}**: {score}")
                     else:
                         st.write(
-                            "Ground truth not found in dataset. Skipping metric evaluation."
+                            "Ground truth not found in dataset."
                         )
 
 

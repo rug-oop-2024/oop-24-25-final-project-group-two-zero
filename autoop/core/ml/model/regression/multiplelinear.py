@@ -17,7 +17,10 @@ class MultipleLinearRegression(Model):
     _supported_feature_types: list = ["numerical"]
     _supported_target_types: list = ["numerical"]
 
-    def __init__(self: "MultipleLinearRegression", **hyperparameters: Any) -> None:
+    def __init__(
+        self: "MultipleLinearRegression",
+        **hyperparameters: Any
+    ) -> None:
         """
         Initializes the LinearRegressionModel
         model with hyperparameters.

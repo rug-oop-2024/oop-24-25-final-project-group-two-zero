@@ -21,7 +21,10 @@ class TextClassificationModel(Model):
     supported_feature_types: List[str] = ["text"]
     supported_target_types: List[str] = ["categorical"]
 
-    def __init__(self: "TextClassificationModel", **hyperparameters: Any) -> None:
+    def __init__(
+        self: "TextClassificationModel",
+        **hyperparameters: Any
+    ) -> None:
         """
         Initialize the TextClassificationModel with hyperparameters.
 
@@ -39,7 +42,8 @@ class TextClassificationModel(Model):
 
     def _build_model(self: "TextClassificationModel") -> None:
         """
-        Build the TextClassificationModel based
+        Build the TextClassificationModel based.
+
         on the given hyperparameters.
         """
         max_features = self._hyperparameters["max_features"]
@@ -77,7 +81,10 @@ class TextClassificationModel(Model):
             "classes_": self._model.classes_,
         }
 
-    def predict(self: "TextClassificationModel", observations: List[str]) -> np.ndarray:
+    def predict(
+        self: "TextClassificationModel",
+        observations: List[str]
+    ) -> np.ndarray:
         """
         Predicts the labels for the given observations.
 

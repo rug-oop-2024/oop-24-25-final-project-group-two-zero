@@ -1,13 +1,13 @@
 import os
 from abc import ABC, abstractmethod
 from typing import List
-from glob import glob
 
 
 class NotFoundError(Exception):
     """Exception raised when a path is not found."""
 
     def __init__(self: "NotFoundError", path: str) -> None:
+        """This is to initialize the NotFoundError class."""
         super().__init__(f"Path not found: {path}")
 
 
@@ -63,7 +63,11 @@ class Storage(ABC):
 
 
 class LocalStorage(Storage):
-    def __init__(self: "LocalStorage", base_path: str = "./assets/objects") -> None:
+    """Local storage implementation."""
+    def __init__(
+        self: "LocalStorage",
+        base_path: str = "./assets/objects"
+    ) -> None:
         """
         Initialize the LocalStorage instance.
 
@@ -79,7 +83,7 @@ class LocalStorage(Storage):
             os.makedirs(self._base_path)
 
     def _join_path(self: "LocalStorage", key: str) -> str:
-        """Joins the base path with a given key and normalizes the path."""
+        """Joins the base path with given key and normalizes path."""
         key = os.path.normpath(key)
         path = os.path.join(self._base_path, key)
         return os.path.normpath(path)

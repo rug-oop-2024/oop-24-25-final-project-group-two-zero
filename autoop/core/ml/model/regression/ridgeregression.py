@@ -30,8 +30,7 @@ class RidgeRegression(Model):
 
     def __init__(self: "RidgeRegression", **hyperparameters: Any) -> None:
         """
-        Initialize the RidgeRegression model
-        with specified hyperparameters.
+        Initialize RidgeRegression model with specified hyperparameters.
 
         Args:
             **hyperparameters: Arbitrary keyword
@@ -45,7 +44,9 @@ class RidgeRegression(Model):
         self._model = Ridge(**self._params)
 
     def fit(
-        self: "RidgeRegression", observations: np.ndarray, ground_truth: np.ndarray
+        self: "RidgeRegression",
+        observations: np.ndarray,
+        ground_truth: np.ndarray
     ) -> None:
         """
         Fit the RidgeRegression model to the data.
@@ -60,7 +61,10 @@ class RidgeRegression(Model):
             "coef_": self._model.coef_,
         }
 
-    def predict(self: "RidgeRegression", observations: np.ndarray) -> np.ndarray:
+    def predict(
+        self: "RidgeRegression",
+        observations: np.ndarray
+    ) -> np.ndarray:
         """
         Predict using the RidgeRegression model.
 

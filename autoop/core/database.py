@@ -7,6 +7,7 @@ from autoop.core.storage import Storage
 class Database:
     """
     Database class for persisting and retrieving data.
+
     This class is responsible for storing and retrieving data from a
     storage implementation.
     """

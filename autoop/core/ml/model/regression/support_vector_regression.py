@@ -35,7 +35,10 @@ class SupportVectorRegression(Model):
     _supported_feature_types: List[str] = ["numerical"]
     _supported_target_types: List[str] = ["numerical"]
 
-    def __init__(self: "SupportVectorRegression", **hyperparameters: Any) -> None:
+    def __init__(
+        self: "SupportVectorRegression",
+        **hyperparameters: Any
+    ) -> None:
         """
         Initializes the SupportVectorRegression model with hyperparameters.
 
@@ -71,7 +74,8 @@ class SupportVectorRegression(Model):
         }
 
     def predict(
-        self: "SupportVectorRegression", observations: np.ndarray
+        self: "SupportVectorRegression",
+        observations: np.ndarray
     ) -> np.ndarray:
         """
         Predicts the target values for the given observations.

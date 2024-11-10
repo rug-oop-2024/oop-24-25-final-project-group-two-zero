@@ -46,8 +46,7 @@ class Model(ABC):
     @property
     def available_hyperparameters(self: "Model") -> dict:
         """
-        Get the available hyperparameters and
-        their default values.
+        Get the available hyperparameters and their default values.
 
         Returns:
             dict: A dictionary of hyperparameter
@@ -56,7 +55,11 @@ class Model(ABC):
         return deepcopy(self._available_hyperparameters)
 
     @abstractmethod
-    def fit(self: "Model", observations: np.ndarray, ground_truth: np.ndarray) -> None:
+    def fit(
+        self: "Model",
+        observations: np.ndarray,
+        ground_truth: np.ndarray
+    ) -> None:
         """
         Fit the model to the data.
 
@@ -67,7 +70,10 @@ class Model(ABC):
         pass
 
     @abstractmethod
-    def predict(self: "Model", observations: np.ndarray) -> np.ndarray:
+    def predict(
+        self: "Model",
+        observations: np.ndarray
+    ) -> np.ndarray:
         """
         Make predictions based on observations.
 
@@ -90,7 +96,8 @@ class Model(ABC):
         return self._model
 
     def get_hyperparameter_space(
-        self: "Model", acceptable_ranges: Dict[str, any]
+        self: "Model",
+        acceptable_ranges: Dict[str, any]
     ) -> Dict[str, any]:
         """
         Return the hyperparameter grid for tuning.
@@ -108,11 +115,16 @@ class Model(ABC):
                 param_grid[param] = value
             elif isinstance(value, tuple):
                 # Generate a list of values within the range
-                if isinstance(value[0], int) and isinstance(value[1], int):
-                    param_grid[param] = list(range(int(value[0]), int(value[1]) + 1))
+                if isinstance(value[0], int) and \
+                    isinstance(value[1], int):
+                    param_grid[param] = list(
+                        range(int(value[0]), int(value[1]) + 1)
+                    )
                 else:
                     # For floats, generate a list with reasonable steps
-                    param_grid[param] = np.linspace(value[0], value[1], num=5).tolist()
+                    param_grid[param] = np.linspace(
+                        value[0], value[1], num=5
+                    ).tolist()
             else:
                 param_grid[param] = [value]
         return param_grid

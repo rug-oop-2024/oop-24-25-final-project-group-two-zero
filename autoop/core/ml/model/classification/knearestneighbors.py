@@ -23,8 +23,7 @@ class KNearestNeighbors(Model):
 
     def __init__(self: "KNearestNeighbors", **hyperparameters: Any) -> None:
         """
-        Initialize the KNearestNeighbors model
-        with hyperparameters.
+        Initialize the KNearestNeighbors model with hyperparameters.
 
         Args:
             **hyperparameters: Hyperparameters for the model.
@@ -39,7 +38,9 @@ class KNearestNeighbors(Model):
         self._model = KNeighborsClassifier(**self._parameters)
 
     def fit(
-        self: "KNearestNeighbors", observations: np.ndarray, ground_truth: np.ndarray
+        self: "KNearestNeighbors",
+        observations: np.ndarray,
+        ground_truth: np.ndarray
     ) -> None:
         """
         Fit the model to the data.
@@ -57,7 +58,10 @@ class KNearestNeighbors(Model):
             "metric": self._model.metric,
         }
 
-    def predict(self: "KNearestNeighbors", observations: np.ndarray) -> np.ndarray:
+    def predict(
+        self: "KNearestNeighbors",
+        observations: np.ndarray
+    ) -> np.ndarray:
         """
         Predict using the KNearestNeighbors model.
 

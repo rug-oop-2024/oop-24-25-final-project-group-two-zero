@@ -4,9 +4,8 @@ from app.core.system import AutoMLSystem
 from autoop.core.ml.dataset import Dataset
 import os
 
-
-# Remove all the none rows from a dataset if there is any
 class Starting:
+    """This is the starting class for the dataset page."""
     def __init__(self: "Starting") -> None:
         """
         Initialize the Starting class.
@@ -56,7 +55,9 @@ class Starting:
         :return: None
         """
         self.name_dataset()
-        uploaded_file = st.file_uploader("Choose a dataset file", type=["csv", "xlsx"])
+        uploaded_file = st.file_uploader(
+            "Choose a dataset file", type=["csv", "xlsx"]
+        )
         if uploaded_file is not None:
             if uploaded_file.name.endswith(".csv"):
                 df = pd.read_csv(uploaded_file)
@@ -81,12 +82,11 @@ class Starting:
             st.write("No file uploaded.")
 
     def available_datasets(self: "Starting") -> None:
-        # Refresh the datasets list
         """
-        Display a list of available datasets and allow
-        the user to select one or more datasets to remove.
-
-        This method first refreshes the list of
+        Display a list of available datasets and allow.
+        
+        The user to select one or more datasets to remove
+        this method first refreshes the list of
         available datasets in the AutoML system.
         Then, it displays the list of available
         datasets and prompts the user to select one or more
@@ -117,7 +117,9 @@ class Starting:
                     st.success("Selected datasets have been removed.")
                     # Refresh the registry and datasets list after deletion
                     self.automl.registry.refresh()
-                    self.datasets_list = self.automl.registry.list(type="dataset")
+                    self.datasets_list = self.automl.registry.list(
+                        type="dataset"
+                    )
             else:
                 st.write("Select one or more datasets to remove.")
         else:
@@ -145,7 +147,7 @@ class Starting:
             for artifact in self.datasets_list:
                 if artifact.name == dataset_name:
                     self.automl.registry.delete(artifact.id)
-                    st.write(f"Dataset '{dataset_name}' removed successfully.")
+                    st.write(f"Dataset '{dataset_name}' removed.")
                     return
             st.write(f"Dataset '{dataset_name}' not found.")
         else:

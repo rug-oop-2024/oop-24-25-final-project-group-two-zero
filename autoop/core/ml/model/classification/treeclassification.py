@@ -20,7 +20,10 @@ class TreeClassification(Model):
     supported_feature_types = ["numerical"]
     supported_target_types = ["categorical"]
 
-    def __init__(self: "TreeClassification", **hyperparameters: Any) -> None:
+    def __init__(
+        self: "TreeClassification",
+        **hyperparameters: Any
+    ) -> None:
         """
         Initializes the TreeClassification model
         with hyperparameters.
@@ -37,7 +40,9 @@ class TreeClassification(Model):
         self._model = DecisionTreeClassifier(**self._params)
 
     def fit(
-        self: "TreeClassification", observations: np.ndarray, ground_truth: np.ndarray
+        self: "TreeClassification",
+        observations: np.ndarray,
+        ground_truth: np.ndarray
     ) -> None:
         """
         Fits the model to the data.
@@ -60,7 +65,10 @@ class TreeClassification(Model):
             "classes_": self._model.classes_,
         }
 
-    def predict(self: "TreeClassification", observations: np.ndarray) -> np.ndarray:
+    def predict(
+        self: "TreeClassification",
+        observations: np.ndarray
+    ) -> np.ndarray:
         """
         Predict using the TreeClassification model.
 

@@ -6,6 +6,7 @@ from typing import List, Dict, Any, Optional
 class Artifact:
     """
     Artifact class for handling data storage and retrieval using pickle.
+
     Here I'm making the Artifacts.
     """
 
@@ -56,7 +57,11 @@ class Artifact:
             pickle.dump(self, f)
 
     @classmethod
-    def read(cls: "Artifact", id: str, directory: str = "artifacts") -> "Artifact":
+    def read(
+        cls: "Artifact",
+        id: str,
+        directory: str = "artifacts"
+    ) -> "Artifact":
         """
         Read the Artifact from a pickle file
         and recreates the Artifact instance.

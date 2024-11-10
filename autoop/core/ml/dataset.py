@@ -29,7 +29,6 @@ class Dataset(Artifact):
             metadata (Dict[str, Any], optional): Additional metadata.
             id (str, optional): Unique identifier.
         """
-
         # Convert DataFrame to bytes for storage
         super().__init__(
             name=name,
@@ -46,7 +45,7 @@ class Dataset(Artifact):
     def from_dataframe(
         data: pd.DataFrame, name: str, asset_path: str, version: str = "1.0.0"
     ) -> "Dataset":
-        """Creates a Dataset artifact from a pandas DataFrame."""
+        """Create a Dataset artifact from a pandas DataFrame."""
         if isinstance(data, pd.DataFrame) is False:
             raise ValueError("Data must be a pandas DataFrame.")
         return Artifact(
@@ -107,8 +106,9 @@ class Dataset(Artifact):
 
     def read(self: "Dataset") -> pd.DataFrame:
         """
-        Read the dataset from the artifact
-        and returns it as a pandas DataFrame.
+        Read the dataset from the artifact.
+
+        Returns it as a pandas DataFrame.
         """
         bytes = super().read()
         csv = bytes.decode()
@@ -127,7 +127,7 @@ class Dataset(Artifact):
         bytes: pd.DataFrame = data.to_csv(index=False).encode()
         return super().save(bytes)
 
-    def __str__(self) -> str:
+    def __str__(self:'Dataset') -> str:
         """Return a string representation of the Dataset instance."""
         return f"""Dataset(name={self.name},
         version={self.version})"""

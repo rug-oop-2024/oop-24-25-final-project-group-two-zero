@@ -1,11 +1,11 @@
 from __future__ import annotations
-from typing import List
+from typing import List,Any
 from autoop.core.ml.feature import Feature
 
 
-def detect_feature_types(dataset: "Dataset") -> List["Feature"]:
+def detect_feature_types(dataset: Any) -> List["Feature"]:
     """
-    Detects the feature types in a dataset.
+    Detect the feature types in a dataset.
 
     Args:
         dataset (Dataset): The dataset to detect feature types in.
@@ -17,9 +17,12 @@ def detect_feature_types(dataset: "Dataset") -> List["Feature"]:
     features = []
     data = dataset.to_dataframe()
     for column in data.columns:
-        if data[column].dtype == "object" or data[column].dtype.name == "category":
+        if data[column].dtype == "object" or \
+            data[column].dtype.name == "category":
             feature_type = "categorical"
         else:
             feature_type = "numerical"
-        features.append(Feature(name=column, type=feature_type))
+        features.append(
+            Feature(name=column, type=feature_type)
+        )
     return features
