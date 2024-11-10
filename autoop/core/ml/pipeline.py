@@ -116,7 +116,7 @@ class Pipeline:
         """
         return self._input_features
 
-    def __str__(self: Any) -> str:
+    def __str__(self: 'Pipeline') -> str:
         """
         Return a string representation of the Pipeline object.
 
@@ -251,7 +251,8 @@ Pipeline(
 
         # Ensure the model supports all input feature types
         if not all(
-            ftype in self._model.supported_feature_types for ftype in feature_types
+            ftype in self._model.supported_feature_types
+            for ftype in feature_types
         ):
             raise ValueError(
                 f"Model {self._model.__class__.__name__}\
@@ -260,7 +261,8 @@ Pipeline(
 
         if target_type not in self._model.supported_target_types:
             raise ValueError(
-                f"Model {self._model.__class__.__name__} does not support target type {target_type}"
+                f"Model {self._model.__class__.__name__} "
+                f"does not support target type {target_type}"
             )
 
     def _preprocess_features(self: "Pipeline") -> None:
@@ -344,9 +346,9 @@ Pipeline(
             self._output_vector[int(split * len(self._output_vector)) :]
 
     def to_artifact(
-        self:"Pipeline",
-        name:str,
-        version:str
+        self: "Pipeline",
+        name: str,
+        version: str
     ) -> Artifact:
         """Convert the current pipeline state into an Artifact object."""
 
@@ -367,9 +369,9 @@ Pipeline(
         pipeline_meta = {
             "parameters": self._model.parameters,
             "model": self._model.__class__.__name__,
-            "input_features": \
+            "input_features":
                 [feature.name for feature in self._input_features],
-            "input_feature_types": \
+            "input_feature_types":
                 [feature.type for feature in self._input_features],
             "target_feature": self._target_feature.name,
             "target_feature_type": self._target_feature.type,
@@ -407,7 +409,7 @@ Pipeline(
             # Return list of strings
             return vectors[0]  # Assuming one text feature
         elif self._model.supported_feature_types == \
-            ["image", "audio", "video"]:
+                ["image", "audio", "video"]:
             # Stack along the first axis
             return np.concatenate(vectors, axis=0)
         else:
@@ -543,12 +545,15 @@ Pipeline(
             if shap_values.values.ndim == 3:
                 # Multiclass classification
                 num_classes = shap_values.values.shape[1]
+                num_classes = num_classes if num_classes > 1 else 2
                 class_index = 0  # Default to the first class
                 shap_values_sample = shap.Explanation(
-                    values=\
-                        shap_values.values[0, class_index, :],
-                    base_values=\
-                        shap_values.base_values[0, class_index],
+                    values=shap_values.values[
+                        0, class_index, :
+                    ],
+                    base_values=shap_values.base_values[
+                        0, class_index
+                    ],
                     data=shap_values.data[0],
                     feature_names=feature_names,
                 )
@@ -571,8 +576,7 @@ Pipeline(
 
             shap_value_to_plot = shap.Explanation(
                 values=shap_values_sample.values[top_indices],
-                base_values=\
-                    shap_values_sample.base_values,
+                base_values=shap_values_sample.base_values,
                 data=shap_values_sample.data[top_indices],
                 feature_names=[
                     shap_values_sample.feature_names[i] for i in top_indices
