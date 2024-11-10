@@ -7,7 +7,7 @@ import os
 
 # Remove all the none rows from a dataset if there is any
 class Starting:
-    def __init__(self) -> None:
+    def __init__(self: "Starting") -> None:
         """
         Initialize the Starting class.
 
@@ -21,13 +21,16 @@ class Starting:
         self.datasets_list = []
         self.name = None
 
-    def name_dataset(self) -> None:
+    def name_dataset(self: "Starting") -> None:
         """
         Prompt the user to enter a dataset name through a Streamlit text input.
 
-        This method displays a text input field for the user to provide a dataset name.
-        If no name is entered, a warning is displayed and the execution is stopped.
-        Once a valid name is entered, it is stored in the `name` attribute of the class.
+        This method displays a text input field for the user to
+        provide a dataset name.
+        If no name is entered, a warning is displayed and the
+        execution is stopped.
+        Once a valid name is entered, it is stored in the `name`
+        attribute of the class.
 
         :return: None
         """
@@ -37,14 +40,17 @@ class Starting:
             st.stop()
         self.name = name_dataset
 
-    def upload_dataset(self) -> None:
+    def upload_dataset(self: "Starting") -> None:
         """
         Upload a dataset file to the AutoML system.
 
-        This method first calls `name_dataset` to prompt the user to enter a dataset name.
+        This method first calls `name_dataset` to prompt the
+        user to enter a dataset name.
         Then, it displays a file uploader to the user to upload a dataset file.
-        If the uploaded file is not a CSV file, a warning is displayed and the execution is stopped.
-        If a valid CSV file is uploaded, it is processed and registered in the AutoML system.
+        If the uploaded file is not a CSV file, a warning is
+        displayed and the execution is stopped.
+        If a valid CSV file is uploaded, it is processed and
+        registered in the AutoML system.
         Finally, a success message is displayed to the user.
 
         :return: None
@@ -74,7 +80,7 @@ class Starting:
         else:
             st.write("No file uploaded.")
 
-    def available_datasets(self) -> None:
+    def available_datasets(self: "Starting") -> None:
         # Refresh the datasets list
         """
         Display a list of available datasets and allow
@@ -92,14 +98,12 @@ class Starting:
 
         :return: None
         """
-        self.datasets_list = self.automl.\
-            registry.list(type="dataset")
+        self.datasets_list = self.automl.registry.list(type="dataset")
         if self.datasets_list:
             st.write("Available Datasets:")
             # Create a dictionary mapping display names to artifact IDs
             dataset_options = {
-                f"{artifact.name} (ID: {artifact.id})":\
-                    artifact.id
+                f"{artifact.name} (ID: {artifact.id})": artifact.id
                 for artifact in self.datasets_list
             }
             selected_datasets = st.multiselect(
@@ -108,25 +112,18 @@ class Starting:
             if selected_datasets:
                 if st.button("Remove Selected Datasets"):
                     for dataset_name in selected_datasets:
-                        artifact_id =\
-                            dataset_options[dataset_name]
+                        artifact_id = dataset_options[dataset_name]
                         self.automl.registry.delete(artifact_id)
-                    st.success(
-                        "Selected datasets have been removed."
-                    )
+                    st.success("Selected datasets have been removed.")
                     # Refresh the registry and datasets list after deletion
-                    self.automl.\
-                        registry.refresh()
-                    self.datasets_list = self.\
-                        automl.registry.list(type="dataset")
+                    self.automl.registry.refresh()
+                    self.datasets_list = self.automl.registry.list(type="dataset")
             else:
-                st.write(
-                    "Select one or more datasets to remove."
-                )
+                st.write("Select one or more datasets to remove.")
         else:
             st.write("No datasets available.")
 
-    def remove_dataset(self, dataset_name: str) -> None:
+    def remove_dataset(self: "Starting", dataset_name: str) -> None:
         # Refresh the datasets list
         """
         Remove a dataset from the AutoML system.
@@ -143,8 +140,7 @@ class Starting:
         :param dataset_name: The name of the dataset to remove.
         :return: None
         """
-        self.datasets_list = self.automl.\
-            registry.list(type="dataset")
+        self.datasets_list = self.automl.registry.list(type="dataset")
         if self.datasets_list:
             for artifact in self.datasets_list:
                 if artifact.name == dataset_name:
@@ -155,17 +151,20 @@ class Starting:
         else:
             st.write("No datasets available.")
 
-    def choose_to_upload(self) -> None:
+    def choose_to_upload(self: "Starting") -> None:
         """
-        Prompts the user to choose between uploading a dataset and listing or removing existing datasets.
+        Prompt the user to choose between uploading a dataset.
+        and listing or removing existing datasets.
 
-        This method displays a radio button to the user with two options: "Upload Dataset" and "List/Remove Datasets".
-        Depending on the user's choice, it either calls the upload_dataset method or the available_datasets method.
+        This method displays a radio button to the user with
+        two options: "Upload Dataset" and "List/Remove Datasets".
+        Depending on the user's choice, it either calls the
+        upload_dataset method or the available_datasets method.
+
         :return: None
         """
         choice = st.radio(
-            "Choose an option:",
-            ("Upload Dataset", "List/Remove Datasets")
+            "Choose an option:", ("Upload Dataset", "List/Remove Datasets")
         )
         if choice == "Upload Dataset":
             self.upload_dataset()

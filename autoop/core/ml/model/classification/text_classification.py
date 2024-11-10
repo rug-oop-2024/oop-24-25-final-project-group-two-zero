@@ -6,9 +6,7 @@ from typing import Any, List
 
 
 class TextClassificationModel(Model):
-    """
-    Text classification model using TF-IDF and Logistic Regression.
-    """
+    """Text classification model using TF-IDF and Logistic Regression."""
 
     _type: str = "classification"
     _available_hyperparameters: dict = {
@@ -23,9 +21,9 @@ class TextClassificationModel(Model):
     supported_feature_types: List[str] = ["text"]
     supported_target_types: List[str] = ["categorical"]
 
-    def __init__(self, **hyperparameters: Any) -> None:
+    def __init__(self: "TextClassificationModel", **hyperparameters: Any) -> None:
         """
-        Initializes the TextClassificationModel with hyperparameters.
+        Initialize the TextClassificationModel with hyperparameters.
 
         Args:
             **hyperparameters: Hyperparameters for the model.
@@ -39,9 +37,9 @@ class TextClassificationModel(Model):
         self._model = None
         self._build_model()
 
-    def _build_model(self) -> None:
+    def _build_model(self: "TextClassificationModel") -> None:
         """
-        Builds the TextClassificationModel based
+        Build the TextClassificationModel based
         on the given hyperparameters.
         """
         max_features = self._hyperparameters["max_features"]
@@ -58,10 +56,10 @@ class TextClassificationModel(Model):
         )
 
     def fit(
-            self,
-            observations: List[str],
-            ground_truth: np.ndarray
-        ) -> None:
+        self: "TextClassificationModel",
+        observations: List[str],
+        ground_truth: np.ndarray,
+    ) -> None:
         """
         Fits the model to the given data.
 
@@ -71,8 +69,7 @@ class TextClassificationModel(Model):
             ground_truth (np.ndarray):
                 The target values to fit the model to.
         """
-        X: np.ndarray = self._vectorizer.\
-            fit_transform(observations)
+        X: np.ndarray = self._vectorizer.fit_transform(observations)
         self._model.fit(X, ground_truth)
         self._parameters: dict = {
             "coef_": self._model.coef_,
@@ -80,10 +77,7 @@ class TextClassificationModel(Model):
             "classes_": self._model.classes_,
         }
 
-    def predict(
-            self,
-            observations: List[str]
-        ) -> np.ndarray:
+    def predict(self: "TextClassificationModel", observations: List[str]) -> np.ndarray:
         """
         Predicts the labels for the given observations.
 
@@ -93,6 +87,5 @@ class TextClassificationModel(Model):
         Returns:
             np.ndarray: The predicted labels.
         """
-        X: np.ndarray = self._vectorizer.\
-            transform(observations)
+        X: np.ndarray = self._vectorizer.transform(observations)
         return self._model.predict(X)

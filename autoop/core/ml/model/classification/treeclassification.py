@@ -5,9 +5,8 @@ from typing import Any
 
 
 class TreeClassification(Model):
-    """
-    Decision Tree Classifier.
-    """
+    """Decision Tree Classifier."""
+
     _type = "classification"
     _available_hyperparameters = {
         "criterion": ["gini", "entropy", "log_loss"],
@@ -21,8 +20,7 @@ class TreeClassification(Model):
     supported_feature_types = ["numerical"]
     supported_target_types = ["categorical"]
 
-    def __init__(
-            self, **hyperparameters:Any) -> None:
+    def __init__(self: "TreeClassification", **hyperparameters: Any) -> None:
         """
         Initializes the TreeClassification model
         with hyperparameters.
@@ -34,12 +32,13 @@ class TreeClassification(Model):
         super().__init__(**hyperparameters)
         self._params = {
             k: self._hyperparameters.get(k, v)
-            for k, v
-            in self._available_hyperparameters.items()
+            for k, v in self._available_hyperparameters.items()
         }
         self._model = DecisionTreeClassifier(**self._params)
 
-    def fit(self, observations: np.ndarray, ground_truth: np.ndarray) -> None:
+    def fit(
+        self: "TreeClassification", observations: np.ndarray, ground_truth: np.ndarray
+    ) -> None:
         """
         Fits the model to the data.
 
@@ -61,7 +60,7 @@ class TreeClassification(Model):
             "classes_": self._model.classes_,
         }
 
-    def predict(self, observations: np.ndarray) -> np.ndarray:
+    def predict(self: "TreeClassification", observations: np.ndarray) -> np.ndarray:
         """
         Predict using the TreeClassification model.
 

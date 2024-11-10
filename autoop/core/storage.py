@@ -6,14 +6,16 @@ from glob import glob
 
 class NotFoundError(Exception):
     """Exception raised when a path is not found."""
-    def __init__(self, path: str) -> None:
+
+    def __init__(self: "NotFoundError", path: str) -> None:
         super().__init__(f"Path not found: {path}")
 
 
 class Storage(ABC):
     """Abstract base class for storage."""
+
     @abstractmethod
-    def save(self, data: bytes, path: str) -> None:
+    def save(self: "Storage", data: bytes, path: str) -> None:
         """
         Save data to a given path.
 
@@ -24,7 +26,7 @@ class Storage(ABC):
         pass
 
     @abstractmethod
-    def load(self, path: str) -> bytes:
+    def load(self: "Storage", path: str) -> bytes:
         """
         Load data from a given path.
 
@@ -37,7 +39,7 @@ class Storage(ABC):
         pass
 
     @abstractmethod
-    def delete(self, path: str) -> None:
+    def delete(self: "Storage", path: str) -> None:
         """
         Delete data at a given path.
 
@@ -47,7 +49,7 @@ class Storage(ABC):
         pass
 
     @abstractmethod
-    def list(self, path: str) -> List[str]:
+    def list(self: "Storage", path: str) -> List[str]:
         """
         List all paths under a given path.
 
@@ -61,10 +63,7 @@ class Storage(ABC):
 
 
 class LocalStorage(Storage):
-    def __init__(
-            self,
-            base_path: str = "./assets/objects"
-        ):
+    def __init__(self: "LocalStorage", base_path: str = "./assets/objects") -> None:
         """
         Initialize the LocalStorage instance.
 
@@ -79,13 +78,13 @@ class LocalStorage(Storage):
         if not os.path.exists(self._base_path):
             os.makedirs(self._base_path)
 
-    def _join_path(self, key: str) -> str:
+    def _join_path(self: "LocalStorage", key: str) -> str:
         """Joins the base path with a given key and normalizes the path."""
         key = os.path.normpath(key)
         path = os.path.join(self._base_path, key)
         return os.path.normpath(path)
 
-    def save(self, data: bytes, key: str) -> None:
+    def save(self: "LocalStorage", data: bytes, key: str) -> None:
         """
         Save data to a given path.
 
@@ -103,7 +102,7 @@ class LocalStorage(Storage):
         with open(path, "wb") as f:
             f.write(data)
 
-    def load(self, key: str) -> bytes:
+    def load(self: "LocalStorage", key: str) -> bytes:
         """
         Load data from a given path.
 
@@ -122,7 +121,7 @@ class LocalStorage(Storage):
         with open(path, "rb") as f:
             return f.read()
 
-    def delete(self, key: str) -> None:
+    def delete(self: "LocalStorage", key: str) -> None:
         """
         Delete data at a given path.
 
@@ -136,10 +135,12 @@ class LocalStorage(Storage):
         if os.path.exists(path):
             os.remove(path)
         else:
-            print(f"Warning: The path '{path}\
-                   was not found. Skipping deletion.")
+            print(
+                f"Warning: The path '{path}\
+                   was not found. Skipping deletion."
+            )
 
-    def list(self, path: str) -> List[str]:
+    def list(self: "LocalStorage", path: str) -> List[str]:
         """
         List all paths under a given path.
 
@@ -158,9 +159,9 @@ class LocalStorage(Storage):
             ]
         return []
 
-    def _assert_path_exists(self, path: str) -> None:
+    def _assert_path_exists(self: "LocalStorage", path: str) -> None:
         """
-        Asserts that a given path exists.
+        Assert that a given path exists.
 
         Args:
             path (str): The path to assert.

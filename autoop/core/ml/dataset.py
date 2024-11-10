@@ -5,8 +5,10 @@ import io
 
 
 class Dataset(Artifact):
+    """This is for the Dataset class."""
+
     def __init__(
-        self,
+        self: "Dataset",
         name: str,
         asset_path: str,
         data: pd.DataFrame,
@@ -42,14 +44,9 @@ class Dataset(Artifact):
 
     @staticmethod
     def from_dataframe(
-        data: pd.DataFrame,
-        name: str,
-        asset_path: str,
-        version: str = "1.0.0"
+        data: pd.DataFrame, name: str, asset_path: str, version: str = "1.0.0"
     ) -> "Dataset":
-        """
-        Creates a Dataset artifact from a pandas DataFrame.
-        """
+        """Creates a Dataset artifact from a pandas DataFrame."""
         if isinstance(data, pd.DataFrame) is False:
             raise ValueError("Data must be a pandas DataFrame.")
         return Artifact(
@@ -61,7 +58,7 @@ class Dataset(Artifact):
         )
 
     @classmethod
-    def from_artifact(cls, artifact: Artifact) -> "Dataset":
+    def from_artifact(cls: "Dataset", artifact: Artifact) -> "Dataset":
         """
         Reconstructs a Dataset instance from an Artifact instance.
 
@@ -73,9 +70,7 @@ class Dataset(Artifact):
             Dataset: An instance of the Dataset class.
         """
         if artifact.type != "dataset":
-            raise ValueError(
-                "Artifact is not of type 'dataset'"
-            )
+            raise ValueError("Artifact is not of type 'dataset'")
 
         # Convert data bytes to DataFrame
         data_io: io.BytesIO = io.BytesIO(artifact.data)
@@ -91,9 +86,9 @@ class Dataset(Artifact):
             id=artifact.id,
         )
 
-    def to_dataframe(self) -> pd.DataFrame:
+    def to_dataframe(self: "Dataset") -> pd.DataFrame:
         """
-        Converts the dataset data to a pandas DataFrame.
+        Convert the dataset data to a pandas DataFrame.
 
         Returns:
             pd.DataFrame: DataFrame
@@ -110,18 +105,18 @@ class Dataset(Artifact):
             df: pd.DataFrame = pd.read_csv(data_io)
             return df
 
-    def read(self) -> pd.DataFrame:
+    def read(self: "Dataset") -> pd.DataFrame:
         """
-        Reads the dataset from the artifact
+        Read the dataset from the artifact
         and returns it as a pandas DataFrame.
         """
         bytes = super().read()
         csv = bytes.decode()
         return pd.read_csv(io.StringIO(csv))
 
-    def save(self, data: pd.DataFrame) -> bytes:
+    def save(self: "Dataset", data: pd.DataFrame) -> bytes:
         """
-        Saves the given DataFrame as bytes using the parent class's save method.
+        Save the DataFrame as bytes using the parent class's save method.
 
         Args:
             data (pd.DataFrame): The pandas DataFrame to be saved.
@@ -129,16 +124,10 @@ class Dataset(Artifact):
         Returns:
             bytes: The bytes representation of the saved data.
         """
-        bytes: pd.DataFrame =\
-            data.to_csv(index=False).encode()
+        bytes: pd.DataFrame = data.to_csv(index=False).encode()
         return super().save(bytes)
 
     def __str__(self) -> str:
-        """
-        Returns a string representation
-        of the Dataset instance.
-        """
+        """Return a string representation of the Dataset instance."""
         return f"""Dataset(name={self.name},
         version={self.version})"""
-
-

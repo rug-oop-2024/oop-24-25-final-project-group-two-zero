@@ -2,15 +2,31 @@ import streamlit as st
 import pandas as pd
 import pickle
 import os
-import numpy as np
 from autoop.core.ml.dataset import Dataset
-from autoop.core.ml.metric import get_metric
+
 
 class deployment:
-    def __init__(self):
+    """This class is responsible for deploying a pipeline."""
+
+    def __init__(self: "deployment") -> None:
+        """
+        Initialize the deployment class.
+
+        which is responsible for deploying a pipeline.
+        """
         pass
-    def run(self):
-        # Define the directory where pipelines are saved
+
+    def run(self: "deployment") -> None:
+        """
+        This function is the entrypoint for the deployment page.
+
+        It is responsible
+        for loading a selected pipeline and making
+        predictions on a user-uploaded
+        dataset. It also evaluates the pipeline's metrics
+        if the dataset contains
+        ground truth values.
+        """
         pipeline_dir = "saved_pipelines"
 
         st.set_page_config(page_title="Deployment", page_icon="🚀")
@@ -25,25 +41,29 @@ class deployment:
                 st.write("No pipelines available.")
             else:
                 st.header("Select a pipeline")
-                selected_pipeline_file = st.selectbox("Select a pipeline", pipeline_files)
+                selected_pipeline_file = st.selectbox(
+                    "Select a pipeline", pipeline_files
+                )
                 pipeline_path = os.path.join(pipeline_dir, selected_pipeline_file)
-                
+
                 # Load the entire pipeline object
                 try:
-                    with open(pipeline_path, 'rb') as f:
+                    with open(pipeline_path, "rb") as f:
                         pipeline = pickle.load(f)
-                    st.success(f"Pipeline '{selected_pipeline_file}' loaded successfully!")
+                    st.success(
+                        f"Pipeline '{selected_pipeline_file}' loaded successfully!"
+                    )
                 except Exception as e:
                     st.error(f"Failed to load pipeline: {e}")
                     st.stop()
-                
+
                 st.write(f"## Selected Pipeline: {selected_pipeline_file}")
-                
+
                 # Display pipeline metadata
                 st.write("### Pipeline Metadata")
                 for key, value in pipeline.metadata.items():
                     st.write(f"- **{key}**: {value}")
-                
+
                 st.write("## Upload a Dataset for Prediction")
                 uploaded_file = st.file_uploader("Choose a CSV file", type=["csv"])
 
@@ -63,7 +83,9 @@ class deployment:
                     pipeline.dataset = dataset
 
                     # Prepare observations
-                    input_feature_names = [feature.name for feature in pipeline.input_features]  # Adjust based on implementation
+                    input_feature_names = [
+                        feature.name for feature in pipeline.input_features
+                    ]  # Adjust based on implementation
                     observations = df[input_feature_names].values
 
                     # Make predictions
@@ -80,7 +102,10 @@ class deployment:
                             score = metric.evaluate(predictions, ground_truth)
                             st.write(f"- **{metric.name}**: {score}")
                     else:
-                        st.write("Ground truth not found in dataset. Skipping metric evaluation.")
+                        st.write(
+                            "Ground truth not found in dataset. Skipping metric evaluation."
+                        )
+
 
 if __name__ == "__main__":
     deploy = deployment()

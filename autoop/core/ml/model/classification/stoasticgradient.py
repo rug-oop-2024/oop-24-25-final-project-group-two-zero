@@ -5,9 +5,7 @@ from typing import Any
 
 
 class StochasticGradient(Model):
-    """
-    Stochastic Gradient Descent (SGD) classifier.
-    """
+    """Stochastic Gradient Descent (SGD) classifier."""
 
     _type: str = "classification"
     _available_hyperparameters: dict = {
@@ -22,12 +20,9 @@ class StochasticGradient(Model):
     supported_feature_types: list = ["numerical"]
     supported_target_types: list = ["categorical"]
 
-    def __init__(
-            self,
-            **hyperparameters: Any
-        ) -> None:
+    def __init__(self: "StochasticGradient", **hyperparameters: Any) -> None:
         """
-        Initializes the StochasticGradient model with hyperparameters.
+        Initialize the StochasticGradient model with hyperparameters.
 
         Args:
             **hyperparameters: Hyperparameters for the model.
@@ -36,20 +31,16 @@ class StochasticGradient(Model):
         super().__init__(**hyperparameters)
         self._params: dict = {
             k: self._hyperparameters.get(k, v)
-            for k, v
-            in self._available_hyperparameters.items()
+            for k, v in self._available_hyperparameters.items()
         }
         # Make only the hyperparameters that are chosen by the user
-        self._model: SGDClassifier =\
-            SGDClassifier(**self._params)
+        self._model: SGDClassifier = SGDClassifier(**self._params)
 
     def fit(
-            self,
-            observations: np.ndarray,
-            ground_truth: np.ndarray
-        ) -> None:
+        self: "StochasticGradient", observations: np.ndarray, ground_truth: np.ndarray
+    ) -> None:
         """
-        Fits the model to the data.
+        Fit the model to the data.
 
         Args:
             observations (np.ndarray): Features.
@@ -63,10 +54,7 @@ class StochasticGradient(Model):
             "classes_": self._model.classes_,
         }
 
-    def predict(
-            self,
-            observations: np.ndarray
-        ) -> np.ndarray:
+    def predict(self: "StochasticGradient", observations: np.ndarray) -> np.ndarray:
         """
         Predict using the StochasticGradient model.
 

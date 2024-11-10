@@ -5,9 +5,8 @@ from typing import Any
 
 
 class KNearestNeighbors(Model):
-    """
-    K-Nearest Neighbors classifier.
-    """
+    """K-Nearest Neighbors classifier."""
+
     _type: str = "classification"
     _available_hyperparameters: dict = {
         "n_neighbors": 5,
@@ -22,9 +21,9 @@ class KNearestNeighbors(Model):
     supported_feature_types: list = ["numerical"]
     supported_target_types: list = ["cataorical"]
 
-    def __init__(self, **hyperparameters: Any) -> None:
+    def __init__(self: "KNearestNeighbors", **hyperparameters: Any) -> None:
         """
-        Initializes the KNearestNeighbors model
+        Initialize the KNearestNeighbors model
         with hyperparameters.
 
         Args:
@@ -40,12 +39,10 @@ class KNearestNeighbors(Model):
         self._model = KNeighborsClassifier(**self._parameters)
 
     def fit(
-        self,
-        observations: np.ndarray,
-        ground_truth: np.ndarray
-        ) -> None:
+        self: "KNearestNeighbors", observations: np.ndarray, ground_truth: np.ndarray
+    ) -> None:
         """
-        Fits the model to the data.
+        Fit the model to the data.
 
         Args:
             observations (np.ndarray): Features.
@@ -60,10 +57,7 @@ class KNearestNeighbors(Model):
             "metric": self._model.metric,
         }
 
-    def predict(
-            self,
-            observations: np.ndarray
-        ) -> np.ndarray:
+    def predict(self: "KNearestNeighbors", observations: np.ndarray) -> np.ndarray:
         """
         Predict using the KNearestNeighbors model.
 

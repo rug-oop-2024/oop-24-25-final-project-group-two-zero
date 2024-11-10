@@ -1,8 +1,8 @@
-from typing import List
+from typing import List, Any
 import pickle
-import os
 import seaborn as sns
 import io
+import os
 import base64
 import numpy as np
 from autoop.core.ml.model import Model
@@ -11,7 +11,6 @@ from autoop.core.ml.dataset import Dataset
 from autoop.core.ml.feature import Feature
 from autoop.core.ml.metric import Metric
 import shap
-from typing import Any
 import streamlit as st
 from autoop.core.ml.model.classification import TreeClassification
 import pandas as pd
@@ -20,8 +19,9 @@ from copy import deepcopy
 
 class Pipeline:
     """A class for executing machine learning pipelines."""
+
     def __init__(
-        self: Any,
+        self: "Pipeline",
         metrics: List[Metric],
         dataset: Dataset,
         model: Model,
@@ -63,21 +63,19 @@ class Pipeline:
         self._metrics: List[Metric] = metrics
         self._artifacts: dict = {}
         self._split: float = split
-        if target_feature.type == "categorical" and\
-                model.type != "classification":
+        if target_feature.type == "categorical" and model.type != "classification":
             raise ValueError(
                 "Model type must be classification\
                 for categorical target feature"
             )
-        if target_feature.type == "continuous" and\
-                model.type != "regression":
+        if target_feature.type == "continuous" and model.type != "regression":
             raise ValueError(
                 "Model type must be regression\
                 for continuous target feature"
             )
 
     @property
-    def metadata(self) -> dict:
+    def metadata(self: "Pipeline") -> dict:
         return {
             "parameters": self.model.parameters,  # Adjust based on your Model class
             "model": self.model.__class__.__name__,
@@ -90,7 +88,14 @@ class Pipeline:
         }
 
     @property
-    def input_features(self) -> List[Feature]:
+    def input_features(self: "Pipeline") -> List[Feature]:
+        """
+        Return the list of Feature objects
+        representing the input features.
+
+        Returns:
+            List[Feature]: A list of Feature objects
+        """
         return self._input_features
 
     def __str__(self: Any) -> str:
@@ -116,8 +121,9 @@ Pipeline(
     metrics={list(map(str, self._metrics))},
 )
 """
+
     @property
-    def target_feature(self: 'Pipeline') -> Feature:
+    def target_feature(self: "Pipeline") -> Feature:
         """
         Return the target feature object.
 
@@ -125,9 +131,9 @@ Pipeline(
             Feature: The target feature object.
         """
         return self._target_feature
-    
+
     @property
-    def split_ratio(self: 'Pipeline') -> float:
+    def split_ratio(self: "Pipeline") -> float:
         """
         Return the split ratio used to split the dataset.
 
@@ -135,9 +141,9 @@ Pipeline(
             float: The split ratio.
         """
         return self._split
-    
+
     @property
-    def metrics(self: 'Pipeline') -> List[Metric]:
+    def metrics(self: "Pipeline") -> List[Metric]:
         """
         Return the metrics used to evaluate the model.
 
@@ -147,7 +153,7 @@ Pipeline(
         return deepcopy(self._metrics)
 
     @property
-    def model(self: 'Pipeline') -> Model:
+    def model(self: "Pipeline") -> Model:
         """
         Return the model object used in the pipeline.
 
@@ -157,7 +163,7 @@ Pipeline(
         return self._model
 
     @property
-    def artifacts(self: 'Pipeline') -> List[Artifact]:
+    def artifacts(self: "Pipeline") -> List[Artifact]:
         """
         Return a list of Artifact objects
         containing the preprocessing artifacts and
@@ -178,8 +184,7 @@ Pipeline(
             artifact_type: str = artifact.get("type")
             data: bytes = pickle.dumps(
                 artifact["encoder"]
-                if artifact_type in
-                ["OneHotEncoder", "LabelEncoder"]
+                if artifact_type in ["OneHotEncoder", "LabelEncoder"]
                 else artifact["scaler"]
             )
             artifacts.append(Artifact(name=name, data=data))
@@ -189,23 +194,16 @@ Pipeline(
             "split": self._split,
         }
         artifacts.append(
-            Artifact(
-                name="pipeline_config",
-                data=pickle.dumps(pipeline_data)
-            )
+            Artifact(name="pipeline_config", data=pickle.dumps(pipeline_data))
         )
         artifacts.append(
             self._model.to_artifact(name=f"pipeline_model_{self._model.type}")
         )
         return artifacts
 
-    def _register_artifact(
-            self: 'Pipeline',
-            name: str,
-            artifact: dict
-        ) -> None:
+    def _register_artifact(self: "Pipeline", name: str, artifact: dict) -> None:
         """
-        Registers an artifact in the
+        Register an artifact in the
         internal dictionary of artifacts.
 
         Args:
@@ -215,9 +213,9 @@ Pipeline(
         """
         self._artifacts[name] = artifact
 
-    def _validate_feature_and_target_types(self):
+    def _validate_feature_and_target_types(self: "Pipeline") -> None:
         """
-        Validates that the input feature types and
+        Validate that the input feature types and
         target feature type are supported by the model.
 
         This method checks that the model supports
@@ -229,33 +227,27 @@ Pipeline(
             any of the input feature types or the target
             feature type.
         """
-        feature_types: set = set(feature.type
-                                    for feature
-                                    in self._input_features
-                                )
+        feature_types: set = set(feature.type for feature in self._input_features)
         target_type: str = self._target_feature.type
 
         # Ensure the model supports all input feature types
         if not all(
-            ftype in self._model.supported_feature_types
-            for ftype in feature_types
+            ftype in self._model.supported_feature_types for ftype in feature_types
         ):
             raise ValueError(
                 f"Model {self._model.__class__.__name__}\
                 does not support feature types {feature_types}"
             )
 
-        if (target_type
-            not in self._model.supported_target_types
-            ):
+        if target_type not in self._model.supported_target_types:
             raise ValueError(
                 f"Model {self._model.__class__.__name__}\
                 does not support target type {target_type}"
             )
 
-    def _preprocess_features(self) -> None:
+    def _preprocess_features(self: "Pipeline") -> None:
         """
-        Preprocesses input and target features based
+        Preprocess input and target features based
         on their types.
 
         Preprocesses each feature using the
@@ -268,21 +260,20 @@ Pipeline(
         self._input_vectors: List[np.ndarray] = []
         for feature in self._input_features:
             data = self._dataset.data[feature.name]
-            preprocessed_data: np.ndarray =\
-                self._preprocess_feature_data(feature, data)
+            preprocessed_data: np.ndarray = self._preprocess_feature_data(feature, data)
             self._input_vectors.append(preprocessed_data)
 
         # Preprocess target feature
-        target_data: np.ndarray =\
-            self._dataset.data[self._target_feature.name]
-        self._output_vector=\
-            self._preprocess_feature_data(
-                self._target_feature, target_data
+        target_data: np.ndarray = self._dataset.data[self._target_feature.name]
+        self._output_vector = self._preprocess_feature_data(
+            self._target_feature, target_data
         )
 
-    def _preprocess_feature_data(self, feature: Feature, data: pd.Series) -> np.ndarray:
+    def _preprocess_feature_data(
+        self: "Pipeline", feature: Feature, data: pd.Series
+    ) -> np.ndarray:
         """
-        Preprocesses data based on feature type.
+        Preprocess data based on feature type.
 
         Args:
             feature (Feature): The feature to preprocess.
@@ -306,9 +297,9 @@ Pipeline(
             preprocessed_data = data.values.reshape(-1, 1)
         return preprocessed_data
 
-    def _split_data(self) -> None:
+    def _split_data(self: "Pipeline") -> None:
         """
-        Splits the preprocessed input and
+        Split the preprocessed input and
         output data into training and testing sets.
 
         The data is split based on the specified
@@ -321,26 +312,16 @@ Pipeline(
         """
         split: float = self._split
         self._train_X: List[np.ndarray] = [
-            vector[: int(split * len(vector))]
-            for vector in self._input_vectors
+            vector[: int(split * len(vector))] for vector in self._input_vectors
         ]
         self._test_X: List[np.ndarray] = [
-            vector[int(split * len(vector)) :]
-            for vector in self._input_vectors
+            vector[int(split * len(vector)) :] for vector in self._input_vectors
         ]
-        self._train_y = self._output_vector[
-            : int(split * len(self._output_vector))
-        ]
-        self._test_y = self._output_vector[
-            int(split * len(self._output_vector)) :
-        ]
+        self._train_y = self._output_vector[: int(split * len(self._output_vector))]
+        self._test_y = self._output_vector[int(split * len(self._output_vector)) :]
 
-    def to_artifact(self, name: str, version: str) -> Artifact:
-        """
-        Converts the current pipeline state into an Artifact object.
-        """
-        import os
-        import pickle
+    def to_artifact(self: "Pipeline", name: str, version: str) -> Artifact:
+        """Convert the current pipeline state into an Artifact object."""
 
         # Define the asset path where the pipeline data will be saved
         asset_dir = "pipelines"
@@ -351,7 +332,7 @@ Pipeline(
         os.makedirs(asset_dir, exist_ok=True)
 
         # Save the pipeline data to the asset path using pickle
-        with open(asset_path, 'wb') as f:
+        with open(asset_path, "wb") as f:
             pickle.dump(self._dataset.data, f)
 
         # Prepare metadata with only JSON-serializable data
@@ -375,9 +356,9 @@ Pipeline(
             type="pipeline",
         )
 
-    def _compact_vectors(self, vectors: List) -> Any:
+    def _compact_vectors(self: "Pipeline", vectors: List) -> Any:
         """
-        Compacts the input vectors into a format suitable for the model.
+        Compact the input vectors into a format suitable for the model.
 
         For models that accept lists (e.g., text data),
         we might need to return the list as is.
@@ -392,15 +373,14 @@ Pipeline(
         if self._model.supported_feature_types == ["text"]:
             # Return list of strings
             return vectors[0]  # Assuming one text feature
-        elif self._model.supported_feature_types ==\
-            ["image", "audio", "video"]:
+        elif self._model.supported_feature_types == ["image", "audio", "video"]:
             # Stack along the first axis
             return np.concatenate(vectors, axis=0)
         else:
             # For numerical data
             return np.concatenate(vectors, axis=1)
 
-    def _train(self) -> None:
+    def _train(self: "Pipeline") -> None:
         """
         Trains the model using the training data.
 
@@ -417,9 +397,9 @@ Pipeline(
             raise ValueError("Number of samples in X_train and Y_train do not match.")
         self._model.fit(X_train, Y_train)
 
-    def _evaluate(self) -> None:
+    def _evaluate(self: "Pipeline") -> None:
         """
-        Evaluates the trained model using the test data and metrics.
+        Evaluate the trained model using the test data and metrics.
 
         This method computes predictions on the test data
         and evaluates these predictions
@@ -441,9 +421,9 @@ Pipeline(
             self._metrics_results.append((metric, result))
         self._predictions: list = predictions
 
-    def _compute_shap_values(self):
+    def _compute_shap_values(self: "Pipeline") -> None:
         """
-        Computes SHAP values for the model to provide
+        Compute SHAP values for the model to provide
         explainability insights.
 
         This method uses SHAP (SHapley Additive exPlanations)
@@ -474,9 +454,9 @@ Pipeline(
             st.warning(f"Error computing SHAP values: {e}")
             self._shap_values = None
 
-    def _generate_report(self):
+    def _generate_report(self: "Pipeline") -> None:
         """
-        Generates a report containing the results of the evaluation.
+        Generate a report containing the results of the evaluation.
 
         This method generates a report containing the results
         of the evaluation, such as the
@@ -507,8 +487,7 @@ Pipeline(
             buf_cm.seek(0)
             image_png_cm = buf_cm.getvalue()
             buf_cm.close()
-            report["confusion_matrix"] = base64.\
-                b64encode(image_png_cm).decode("utf-8")
+            report["confusion_matrix"] = base64.b64encode(image_png_cm).decode("utf-8")
             plt.close(fig_cm)
 
         # Compute SHAP values
@@ -573,8 +552,7 @@ Pipeline(
             buf_shap.close()
 
             # Store the plot in the report
-            report["shap_summary"] = base64.\
-                b64encode(image_png_shap).decode("utf-8")
+            report["shap_summary"] = base64.b64encode(image_png_shap).decode("utf-8")
 
             # Close the plot to free memory
             plt.close(fig)
@@ -584,9 +562,9 @@ Pipeline(
 
         self._report = report
 
-    def _sensitivity_analysis(self):
+    def _sensitivity_analysis(self: "Pipeline") -> None:
         """
-        Performs a sensitivity analysis of the model to each input feature.
+        Perform a sensitivity analysis of the model to each input feature.
 
         For each feature, it perturbs the feature by
         adding a small value (e.g., 0.1 times the standard deviation)
@@ -612,7 +590,7 @@ Pipeline(
             sensitivities[feature.name] = sensitivity
         self._sensitivity_results = sensitivities
 
-    def execute(self) -> dict:
+    def execute(self: "Pipeline") -> dict:
         """
         Executes the pipeline and returns the results.
 

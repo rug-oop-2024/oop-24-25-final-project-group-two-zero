@@ -6,10 +6,11 @@ from typing import List, Dict, Any, Optional
 class Artifact:
     """
     Artifact class for handling data storage and retrieval using pickle.
+    Here I'm making the Artifacts.
     """
 
     def __init__(
-        self,
+        self: "Artifact",
         name: str,
         asset_path: str,
         data: Any,
@@ -38,12 +39,12 @@ class Artifact:
         self.version: str = version
         self.type: str = type
         self.tags: List[str] = tags if tags is not None else []
-        self.metadata: Dict[str, Any] = metadata if metadata is not None else {}
+        self.metadata = metadata if metadata is not None else {}
         self.id: str = id or os.urandom(16).hex()
 
-    def save(self, directory: str = "artifacts") -> None:
+    def save(self: "Artifact", directory: str = "artifacts") -> None:
         """
-        Saves the Artifact instance to a pickle file.
+        Save the Artifact instance to a pickle file.
 
         Args:
             directory (str): The directory where the file will be saved.
@@ -55,13 +56,9 @@ class Artifact:
             pickle.dump(self, f)
 
     @classmethod
-    def read(
-        cls,
-        id: str,
-        directory: str = "artifacts"
-    ) -> "Artifact":
+    def read(cls: "Artifact", id: str, directory: str = "artifacts") -> "Artifact":
         """
-        Reads the Artifact from a pickle file
+        Read the Artifact from a pickle file
         and recreates the Artifact instance.
 
         Args:
@@ -77,4 +74,3 @@ class Artifact:
         with open(file_path, "rb") as f:
             artifact = pickle.load(f)
         return artifact
-

@@ -2,11 +2,7 @@ from typing import List, Tuple, Optional
 from autoop.core.ml.feature import Feature
 from autoop.core.ml.dataset import Dataset
 import numpy as np
-from sklearn.preprocessing import (
-                OneHotEncoder,
-                StandardScaler,
-                LabelEncoder
-                )
+from sklearn.preprocessing import OneHotEncoder, StandardScaler, LabelEncoder
 
 
 def preprocess_features(

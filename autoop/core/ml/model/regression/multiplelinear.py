@@ -1,12 +1,11 @@
 from sklearn.linear_model import LinearRegression
 from ..model import Model
 import numpy as np
+from typing import Any
 
 
 class MultipleLinearRegression(Model):
-    """
-    Linear Regression model.
-    """
+    """Linear Regression model."""
 
     _type: str = "regression"
     _available_hyperparameters: dict = {
@@ -18,7 +17,7 @@ class MultipleLinearRegression(Model):
     _supported_feature_types: list = ["numerical"]
     _supported_target_types: list = ["numerical"]
 
-    def __init__(self, **hyperparameters) -> None:
+    def __init__(self: "MultipleLinearRegression", **hyperparameters: Any) -> None:
         """
         Initializes the LinearRegressionModel
         model with hyperparameters.
@@ -30,19 +29,17 @@ class MultipleLinearRegression(Model):
         super().__init__(**hyperparameters)
         self.user_choices = {
             k: self._hyperparameters.get(k, v)
-            for k, v
-            in self._available_hyperparameters.items()
+            for k, v in self._available_hyperparameters.items()
         }
         self._model = LinearRegression(**self.user_choices)
 
     def fit(
-            self,
-            observations: np.ndarray,
-            ground_truth: np.ndarray
-        ) -> None:
+        self: "MultipleLinearRegression",
+        observations: np.ndarray,
+        ground_truth: np.ndarray,
+    ) -> None:
         """
-        Fits the linear regression
-        model to the provided training data.
+        Fits the linear regression model provided training data.
 
         Args:
             observations (np.ndarray):
@@ -52,14 +49,13 @@ class MultipleLinearRegression(Model):
         """
         self._model.fit(observations, ground_truth)
         self._parameters = {
-            'intercept_': self._model.intercept_,
-            'coef_': self._model.coef_
+            "intercept_": self._model.intercept_,
+            "coef_": self._model.coef_,
         }
 
     def predict(
-            self,
-            observations: np.ndarray
-        ) -> np.ndarray:
+        self: "MultipleLinearRegression", observations: np.ndarray
+    ) -> np.ndarray:
         """
         Predict using the linear regression model.
 

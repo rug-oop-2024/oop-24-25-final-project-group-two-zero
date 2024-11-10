@@ -1,11 +1,9 @@
 import streamlit as st
-import base64
 from typing import List
 import pandas as pd
 import pickle
 import os
 import numpy as np
-from sklearn.preprocessing import StandardScaler, MinMaxScaler, OneHotEncoder
 from app.core.system import AutoMLSystem
 from autoop.core.ml.pipeline import Pipeline
 from autoop.core.ml.model.model import Model
@@ -32,43 +30,22 @@ from autoop.core.ml.metric import (
 )
 from sklearn.model_selection import GridSearchCV
 from autoop.functional.feature import Feature, detect_feature_types
-from autoop.core.ml.artifact import Artifact
-import streamlit as st
-import pandas as pd
-import io
 from app.core.system import AutoMLSystem
 from autoop.core.ml.dataset import Dataset
 from autoop.core.ml.metric import Metric
 from autoop.functional.feature import detect_feature_types
 from autoop.core.ml.pipeline import Pipeline
-from autoop.core.ml.artifact import Artifact
 
 st.set_page_config(page_title="Modelling", page_icon="📈")
 
 """This module provides a Streamlit interface for training a pipeline."""
 
 
-def write_helper_text(text: str) -> None:
-    """
-    Write helper text in a specific style.
-
-    Args:
-        text (str): The text to be displayed.
-    """
-    st.write(f'<p style="color: #888;">{text}</p>', unsafe_allow_html=True)
-
-
 st.write("# ⚙ Modelling")
-write_helper_text(
-    "In this section, you can design a machine learning pipeline"
-    "to train a model on a dataset."
-)
 
 
 class Modelling:
-    """
-    Unlike the other classes, there is no need ot have
-    """
+    """This class is responsible for training a pipeline."""
 
     REGRESSION_MODELS = {
         "MultipleLinearRegression": MultipleLinearRegression,
@@ -103,27 +80,34 @@ class Modelling:
         "R-Squared": "r2",
     }
 
-    def __init__(self) -> None:
+    def __init__(self: "Modelling") -> None:
+        """
+        Initialize the Modelling class.
+
+        This method initializes the AutoML system and an empty list to
+        store the available datasets.
+
+        :return: None
+        """
         self.automl = AutoMLSystem.get_instance()
-        self.datasets = self.automl.\
-            registry.list(type="dataset")
+        self.datasets = self.automl.registry.list(type="dataset")
 
     def train_pipeline(
-        self,
+        self: "Modelling",
         dataset: Dataset,
         model: Model,
         input_features: List[Feature],
         target_feature: Feature,
         split_ratio: float,
         metrics_use: List["Metric"],
-    ):
+    ) -> Pipeline:
         pipeline = Pipeline(
             metrics=metrics_use,
             dataset=dataset,
             model=model,
             input_features=input_features,  # Ensure this is correctly provided
             target_feature=target_feature,
-            split=split_ratio
+            split=split_ratio,
         )
         # """
         # return {
@@ -136,7 +120,7 @@ class Modelling:
         print(values["predictions"])
         return pipeline
 
-    def select_model_hyperparameters(self, model_instance: Model) -> dict:
+    def select_model_hyperparameters(self: "Modelling", model_instance: Model) -> dict:
         """
         Allow the user to specify acceptable ranges
         or options for all hyperparameters.
@@ -145,7 +129,8 @@ class Modelling:
             model_instance (Model): The model instance.
 
         Returns:
-            dict: A dictionary containing acceptable ranges for hyperparameters.
+            dict: A dictionary containing acceptable
+                ranges for hyperparameters.
         """
         st.write("### Model Hyperparameters")
         hyperparameters = model_instance.available_hyperparameters
@@ -162,7 +147,7 @@ class Modelling:
                 acceptable_values = st.multiselect(
                     f"Select acceptable value(s) for '{param}':",
                     options=[True, False],
-                    default=[default]
+                    default=[default],
                 )
                 acceptable_ranges[param] = (
                     acceptable_values if acceptable_values else [default]
@@ -173,7 +158,7 @@ class Modelling:
                 acceptable_values = st.multiselect(
                     f"Select acceptable value(s) for '{param}':",
                     options=default,
-                    default=default  # Default to all options selected
+                    default=default,  # Default to all options selected
                 )
                 acceptable_ranges[param] = (
                     acceptable_values if acceptable_values else default
@@ -182,13 +167,20 @@ class Modelling:
                 # Integer hyperparameters with a range
                 st.write(f"**Define the range for integer hyperparameter '{param}':**")
                 min_value = st.number_input(
-                    f"Minimum acceptable value for '{param}'", value=max(1, default - 10), step=1
+                    f"Minimum acceptable value for '{param}'",
+                    value=max(1, default - 10),
+                    step=1,
                 )
                 max_value = st.number_input(
-                    f"Maximum acceptable value for '{param}'", value=default + 10, step=1
+                    f"Maximum acceptable value for '{param}'",
+                    value=default + 10,
+                    step=1,
                 )
                 num_samples = st.slider(
-                    f"Number of samples for '{param}'", min_value=2, max_value=20, value=5
+                    f"Number of samples for '{param}'",
+                    min_value=2,
+                    max_value=20,
+                    value=5,
                 )
                 # Generate a list of integer values using linspace
                 linspace_values = np.linspace(min_value, max_value, num=num_samples)
@@ -203,13 +195,20 @@ class Modelling:
                 # Float hyperparameters with a range
                 st.write(f"**Define the range for float hyperparameter '{param}':**")
                 min_value = st.number_input(
-                    f"Minimum acceptable value for '{param}'", value=default - 1.0, format="%.4f"
+                    f"Minimum acceptable value for '{param}'",
+                    value=default,
+                    format="%.4f",
                 )
                 max_value = st.number_input(
-                    f"Maximum acceptable value for '{param}'", value=default + 1.0, format="%.4f"
+                    f"Maximum acceptable value for '{param}'",
+                    value=default + 1.0,
+                    format="%.4f",
                 )
                 num_samples = st.slider(
-                    f"Number of samples for '{param}'", min_value=2, max_value=20, value=5
+                    f"Number of samples for '{param}'",
+                    min_value=2,
+                    max_value=20,
+                    value=5,
                 )
                 # Generate a list of float values using linspace
                 linspace_values = np.linspace(min_value, max_value, num=num_samples)
@@ -224,24 +223,21 @@ class Modelling:
                 predefined_options = ["None"]
 
                 # Determine the type based on model's hyperparameter definition
-                # Here, assuming that if default is None, it's likely expecting specific types
-                # You may need to adjust this based on your specific model's requirements
-                if hasattr(model_instance, 'hyperparameter_type'):
+                if hasattr(model_instance, "hyperparameter_type"):
                     hyperparam_type = model_instance.hyperparameter_type(param)
-                    if hyperparam_type == 'int':
+                    if hyperparam_type == "int":
                         predefined_options += [1, 2, 3, 4, 5]
-                    elif hyperparam_type == 'float':
+                    elif hyperparam_type == "float":
                         predefined_options += [0.1, 0.5, 1.0, 1.5, 2.0]
-                    elif hyperparam_type == 'str':
+                    elif hyperparam_type == "str":
                         predefined_options += ["option1", "option2", "option3"]
                 else:
-                    # Default options if type is unknown
                     predefined_options += [1, 2, 3, 4, 5]
 
                 acceptable_values = st.multiselect(
                     f"Select acceptable options for '{param}':",
                     options=predefined_options,
-                    default=["None"]
+                    default=["None"],
                 )
 
                 # Convert 'None' string to actual None type
@@ -256,22 +252,31 @@ class Modelling:
                 )
             elif isinstance(default, str):
                 # String hyperparameters with predefined options
-                predefined_options = [default, "option1", "option2", "option3"]  # Example options
+                predefined_options = [
+                    default,
+                    "option1",
+                    "option2",
+                    "option3",
+                ]  # Example options
                 acceptable_values = st.multiselect(
                     f"Select acceptable value(s) for '{param}':",
                     options=predefined_options,
-                    default=[default]
+                    default=[default],
                 )
                 acceptable_ranges[param] = (
                     acceptable_values if acceptable_values else [default]
                 )
             else:
-                # For other types, define a list of possible options or handle accordingly
-                predefined_options = [str(default), "option1", "option2", "option3"]  # Example options
+                predefined_options = [
+                    str(default),
+                    "option1",
+                    "option2",
+                    "option3",
+                ]  # Example options
                 acceptable_values = st.multiselect(
                     f"Select acceptable value(s) for '{param}':",
                     options=predefined_options,
-                    default=[str(default)]
+                    default=[str(default)],
                 )
                 acceptable_ranges[param] = (
                     acceptable_values if acceptable_values else [str(default)]
@@ -279,20 +284,28 @@ class Modelling:
 
             # Check if any hyperparameter has no selected values
             if not acceptable_ranges[param]:
-                st.warning(f"No acceptable values defined for '{param}'. Please make a selection.")
+                st.warning(
+                    f"""No acceptable values defined for '{param}'. Please make a selection."""
+                )
                 missing_selections = True
 
-        # After all hyperparameters are processed, inform the user if any selections are missing
         if missing_selections:
-            st.warning("Please select acceptable values for all hyperparameters before proceeding.")
+            st.warning(
+                """Please select acceptable values for all hyperparameters before proceeding."""
+            )
             st.stop()
         else:
             st.success("All hyperparameters have acceptable values selected.")
             return acceptable_ranges
 
-
-
-    def run(self):
+    def run(self: "Modelling") -> None:
+        """
+        This function is the entrypoint for the modeling page.
+        It is responsible for displaying the dataset features, selecting the target feature,
+        selecting the model, selecting the metrics, selecting hyperparameters for tuning,
+        performing hyperparameter tuning, and saving the pipeline.
+        returns: None
+        """
         dataset_options = {f"{dataset.name}": dataset.id for dataset in self.datasets}
 
         selected_dataset_name = st.selectbox(
@@ -305,15 +318,19 @@ class Modelling:
         st.write(f"Selected dataset: {dataset.name}")
         df = dataset.to_dataframe()
         features = detect_feature_types(dataset)
-        
+
         for feature in features:
             st.write(f"- {feature.name}: {feature.type}")
 
         st.header("Select the split ratio")
-        split_ratio = st.slider("Select the split ratio", min_value=0.0, max_value=1.0, value=0.8)
+        split_ratio = st.slider(
+            "Select the split ratio", min_value=0.0, max_value=1.0, value=0.8
+        )
 
         st.header("Select the target feature")
-        target_feature = st.selectbox("Select the target feature", [feature for feature in features])
+        target_feature = st.selectbox(
+            "Select the target feature", [feature for feature in features]
+        )
         input_features = st.multiselect(
             "Select the input features",
             [feature for feature in features if feature != target_feature],
@@ -326,26 +343,43 @@ class Modelling:
         target_feature_name = target_feature.name
 
         st.header("Select the model")
-        model_options = self.CLASSIFICATION_MODELS if target_feature.type == "categorical" else self.REGRESSION_MODELS
+        model_options = (
+            self.CLASSIFICATION_MODELS
+            if target_feature.type == "categorical"
+            else self.REGRESSION_MODELS
+        )
         model_name_to_class = {name: cls for name, cls in model_options.items()}
-        selected_model_name = st.selectbox("Select the model", list(model_name_to_class.keys()))
+        selected_model_name = st.selectbox(
+            "Select the model", list(model_name_to_class.keys())
+        )
         model_class = model_name_to_class[selected_model_name]
         model = model_class()
 
         st.header("Select the metrics")
-        metric_options = self.CLASSIFICATION_METRICS if target_feature.type == "categorical" else self.REGRESSION_METRICS
-        metric_name_to_instance = {name: instance for name, instance in metric_options.items()}
-        selected_metric_names = st.multiselect("Select the metrics", list(metric_name_to_instance.keys()))
+        metric_options = (
+            self.CLASSIFICATION_METRICS
+            if target_feature.type == "categorical"
+            else self.REGRESSION_METRICS
+        )
+        metric_name_to_instance = {
+            name: instance for name, instance in metric_options.items()
+        }
+        selected_metric_names = st.multiselect(
+            "Select the metrics", list(metric_name_to_instance.keys())
+        )
         if not selected_metric_names:
             st.warning("Please select at least one metric.")
             st.stop()
-        
 
         scoring = (
-                self.scoring_options[selected_metric_names[0]]
-                if len(selected_metric_names) == 1
-                else {name: self.scoring_options[name] for name in selected_metric_names if name in self.scoring_options}
-            )
+            self.scoring_options[selected_metric_names[0]]
+            if len(selected_metric_names) == 1
+            else {
+                name: self.scoring_options[name]
+                for name in selected_metric_names
+                if name in self.scoring_options
+            }
+        )
 
         metrics = [metric_name_to_instance[name] for name in selected_metric_names]
         st.header("Select hyperparameters for tuning")
@@ -353,19 +387,29 @@ class Modelling:
 
         X = df[input_feature_names]
         y = df[target_feature_name]
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=1 - split_ratio, random_state=42)
+        X_train, X_test, y_train, y_test = train_test_split(
+            X, y, test_size=1 - split_ratio, random_state=42
+        )
 
         st.write("Performing hyperparameter tuning...")
-        param_grid = {k: acceptable_ranges.get(k, [v]) for k, v in acceptable_ranges.items()}
-            
-        refit_metric = selected_metric_names[0] if isinstance(scoring, dict) else scoring
+        param_grid = {
+            k: acceptable_ranges.get(k, [v]) for k, v in acceptable_ranges.items()
+        }
+
+        refit_metric = (
+            selected_metric_names[0] if isinstance(scoring, dict) else scoring
+        )
         grid_search = GridSearchCV(
-                estimator=model._model,
-                param_grid=param_grid,
-                scoring=scoring,
-                refit=self.scoring_options[refit_metric] if isinstance(scoring, dict) else refit_metric,
-                cv=5,
-            )
+            estimator=model._model,
+            param_grid=param_grid,
+            scoring=scoring,
+            refit=(
+                self.scoring_options[refit_metric]
+                if isinstance(scoring, dict)
+                else refit_metric
+            ),
+            cv=5,
+        )
         # Add a spinner to indicate progress
         with st.spinner("Running Grid Search..."):
             try:
@@ -400,19 +444,17 @@ class Modelling:
 
             st.success("Pipeline trained successfully!")
 
-            
             if pipeline_name:
                 # Define the directory and file path
                 pipeline_dir = "saved_pipelines"
                 os.makedirs(pipeline_dir, exist_ok=True)
                 pipeline_path = os.path.join(pipeline_dir, f"{pipeline_name}.pkl")
-                
-                # Save the pipeline using pickle
-                with open(pipeline_path, 'wb') as f:
-                    pickle.dump(pipeline, f)
-                
-                st.success(f"Pipeline saved successfully as '{pipeline_name}.pkl'!")
 
+                # Save the pipeline using pickle
+                with open(pipeline_path, "wb") as f:
+                    pickle.dump(pipeline, f)
+
+                st.success(f"Pipeline saved successfully as '{pipeline_name}.pkl'!")
 
 
 if __name__ == "__main__":

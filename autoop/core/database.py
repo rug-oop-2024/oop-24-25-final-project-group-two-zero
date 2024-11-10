@@ -10,10 +10,8 @@ class Database:
     This class is responsible for storing and retrieving data from a
     storage implementation.
     """
-    def __init__(
-            self: "Database",
-            storage: Storage
-        ) -> None:
+
+    def __init__(self: "Database", storage: Storage) -> None:
         """
         Initialize a Database instance.
 
@@ -25,12 +23,7 @@ class Database:
         self._data: Dict[str, Dict[str, dict]] = {}
         self._load()
 
-    def set(
-            self,
-            collection: str,
-            id: str,
-            entry: dict
-        ) -> dict:
+    def set(self: "Database", collection: str, id: str, entry: dict) -> dict:
         """
         Set a key in the database.
 
@@ -44,17 +37,15 @@ class Database:
             dict: The data that was stored.
         """
         assert isinstance(entry, dict), "Data must be a dictionary"
-        assert isinstance(collection, str),\
-            "Collection must be a string"
-        assert isinstance(id, str),\
-            "ID must be a string"
+        assert isinstance(collection, str), "Collection must be a string"
+        assert isinstance(id, str), "ID must be a string"
         if collection not in self._data:
             self._data[collection] = {}
         self._data[collection][id] = entry
         self._persist()
         return entry
 
-    def get(self, collection: str, id: str) -> Union[dict, None]:
+    def get(self: "Database", collection: str, id: str) -> Union[dict, None]:
         """
         Get a key from the database.
 
@@ -68,7 +59,7 @@ class Database:
         """
         return self._data.get(collection, {}).get(id)
 
-    def delete(self, collection: str, id: str) -> None:
+    def delete(self: "Database", collection: str, id: str) -> None:
         """
         Delete a key from the database.
 
@@ -81,7 +72,7 @@ class Database:
             del self._data[collection][id]
             self._persist()
 
-    def list(self, collection: str) -> List[Tuple[str, dict]]:
+    def list(self: "Database", collection: str) -> List[Tuple[str, dict]]:
         """
         List all data in a collection.
 
@@ -97,7 +88,7 @@ class Database:
             return []
         return list(self._data[collection].items())
 
-    def refresh(self) -> None:
+    def refresh(self: "Database") -> None:
         """
         Refresh the database by reloading data from the storage.
 
@@ -109,10 +100,9 @@ class Database:
         """
         self._load()
 
-    def _persist(self) -> None:
+    def _persist(self: "Database") -> None:
         """
-        Persist the current state of the database
-        to storage.
+        Persist the current state of the database to storage.
 
         This method iterates over all collections
         and their corresponding data,
@@ -141,7 +131,7 @@ class Database:
                 if not self._data.get(collection, {}).get(id):
                     self._storage.delete(key)
 
-    def _load(self) -> None:
+    def _load(self: "Database") -> None:
         """
         Load the current state of the database from storage.
 

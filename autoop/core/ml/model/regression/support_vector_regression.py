@@ -1,20 +1,26 @@
 from sklearn.svm import SVR
 from ..model import Model
 import numpy as np
-from typing import Any
+from typing import Any, Dict, List
 
 
 class SupportVectorRegression(Model):
     """
     Support Vector Regression model.
-    This contains a type and available hyperparameters,
-    support feature types and target types.
+
+    Contains a type, available hyperparameters,
+    supported feature types, and target types.
     """
+
     _type: str = "regression"
-    _available_hyperparameters: dict = {
-        "kernel": ["linear", "poly",
-                "rbf", "sigmoid",
-                "precomputed"],
+    _available_hyperparameters: Dict[str, Any] = {
+        "kernel": [
+            "linear",
+            "poly",
+            "rbf",
+            "sigmoid",
+            "precomputed",
+        ],
         "degree": 3,
         "gamma": ["scale", "auto"],
         "coef0": 0.0,
@@ -24,15 +30,14 @@ class SupportVectorRegression(Model):
         "shrinking": True,
         "cache_size": 200,
         "verbose": False,
-        "max_iter": -1,
+        "max_iter": 1000,
     }
-    _supported_feature_types: list = ["numerical"]
-    _supported_target_types: list = ["numerical"]
+    _supported_feature_types: List[str] = ["numerical"]
+    _supported_target_types: List[str] = ["numerical"]
 
-    def __init__(self, **hyperparameters: Any) -> None:
+    def __init__(self: "SupportVectorRegression", **hyperparameters: Any) -> None:
         """
-        Initializes the
-        SupportVectorRegression model with hyperparameters.
+        Initializes the SupportVectorRegression model with hyperparameters.
 
         Args:
             **hyperparameters: Hyperparameters for the model.
@@ -41,44 +46,38 @@ class SupportVectorRegression(Model):
         # Merge default hyperparameters with user-provided ones
         params = {
             k: self._hyperparameters.get(k, v)
-            for k, v
-            in self._available_hyperparameters.items()
+            for k, v in self._available_hyperparameters.items()
         }
         self._model = SVR(**params)
 
     def fit(
-            self,
-            observations: np.ndarray,
-            ground_truth: np.ndarray
-        ) -> None:
+        self: "SupportVectorRegression",
+        observations: np.ndarray,
+        ground_truth: np.ndarray,
+    ) -> None:
         """
         Fits the model to the given data.
 
         Args:
-            observations (np.ndarray):
-                The input data to fit the model to.
-            ground_truth (np.ndarray):
-                The target values to fit the model to.
+            observations (np.ndarray): The input data to fit the model to.
+            ground_truth (np.ndarray): The target values to fit the model to.
         """
         self._model.fit(observations, ground_truth)
         self._parameters = {
             "support_": self._model.support_,
             "support_vectors_": self._model.support_vectors_,
             "dual_coef_": self._model.dual_coef_,
-            "intercept_": self._model.intercept_
+            "intercept_": self._model.intercept_,
         }
 
     def predict(
-            self,
-            observations: np.ndarray
-        ) -> np.ndarray:
+        self: "SupportVectorRegression", observations: np.ndarray
+    ) -> np.ndarray:
         """
-        Predicts the target values
-        for the given observations.
+        Predicts the target values for the given observations.
 
         Args:
-            observations (np.ndarray):
-            The input data to predict.
+            observations (np.ndarray): The input data to predict.
 
         Returns:
             np.ndarray: The predicted target values.

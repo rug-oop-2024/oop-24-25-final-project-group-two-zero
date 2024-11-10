@@ -1,42 +1,42 @@
 from __future__ import annotations
 import os
-from autoop.core.storage import LocalStorage
+from typing import List
+
 from autoop.core.database import Database
 from autoop.core.ml.artifact import Artifact
-from autoop.core.storage import Storage
-from typing import List
+from autoop.core.storage import LocalStorage, Storage
 
 
 class ArtifactRegistry:
-    """
-    This class is responsible for registering.
-    Listing artifacts in the registry.
-    """
+    """Responsible for registering and listing artifacts in the registry."""
 
-    def __init__(self: "ArtifactRegistry", database: Database, storage: Storage) -> None:
+    def __init__(
+        self: "ArtifactRegistry", database: Database, storage: Storage
+    ) -> None:
         """
         Initialize an ArtifactRegistry instance.
 
         Args:
-            database (Database): The database instance for storing
-            artifact metadata.
-            storage (Storage): The storage instance for saving
-            artifact data.
+            database (Database): The database instance
+                for storing artifact metadata.
+            storage (Storage): The storage instance for saving artifact data.
         """
         self._database = database
         self._storage = storage
 
     def register(self: "ArtifactRegistry", artifact: Artifact) -> None:
-        # Normalize the asset_path
         """
-        Registers an artifact in the registry.
+        Register an artifact in the registry.
 
         Args:
             artifact (Artifact): Artifact instance to be registered.
         """
+        # Normalize the asset_path
         artifact.asset_path = os.path.normpath(artifact.asset_path)
+
         # Save the artifact in the storage
         self._storage.save(artifact.data, artifact.asset_path)
+
         # Save the metadata in the database
         entry = {
             "name": artifact.name,
@@ -46,11 +46,11 @@ class ArtifactRegistry:
             "metadata": artifact.metadata,
             "type": artifact.type,
         }
-        self._database.set(f"artifacts", artifact.id, entry)
+        self._database.set("artifacts", artifact.id, entry)
 
     def list(self: "ArtifactRegistry", type: str = None) -> List[Artifact]:
         """
-        Lists all artifacts in the registry.
+        List all artifacts in the registry.
 
         Args:
             type (str, optional): Filter artifacts by type.
@@ -60,7 +60,7 @@ class ArtifactRegistry:
         """
         entries = self._database.list("artifacts")
         artifacts = []
-        for id, data in entries:
+        for artifact_id, data in entries:
             if type is not None and data["type"] != type:
                 continue
             asset_path = os.path.normpath(data["asset_path"])
@@ -72,15 +72,14 @@ class ArtifactRegistry:
                 metadata=data["metadata"],
                 data=self._storage.load(asset_path),
                 type=data["type"],
-                id=id,
+                id=artifact_id,
             )
             artifacts.append(artifact)
         return artifacts
 
     def get(self: "ArtifactRegistry", artifact_id: str) -> Artifact:
         """
-        Retrieves an artifact from the registry by its
-        unique identifier.
+        Retrieve an artifact from the registry by its unique identifier.
 
         Args:
             artifact_id (str): Unique identifier of the artifact.
@@ -102,9 +101,9 @@ class ArtifactRegistry:
             type=data["type"],
         )
 
-    def delete(self: "ArtifactRegistry", artifact_id: str):
+    def delete(self: "ArtifactRegistry", artifact_id: str) -> None:
         """
-        Deletes an artifact from the registry by its unique identifier.
+        Delete an artifact from the registry by its unique identifier.
 
         Args:
             artifact_id (str): Unique identifier of the artifact.
@@ -119,12 +118,10 @@ class ArtifactRegistry:
 
     def refresh(self: "ArtifactRegistry") -> None:
         """
-        Refreshes the artifact registry by reloading the database.
+        Refresh the artifact registry by reloading the database.
 
-        This method is useful if another process has modified the
-        storage and you want to make sure the artifact registry is
-        up to date.
-        It will discard
+        This method is useful if another process has modified the storage and
+        you want to ensure the artifact registry is up to date. It will discard
         any unsaved changes you may have made to the artifact registry.
         """
         self._database.refresh()
@@ -132,46 +129,46 @@ class ArtifactRegistry:
 
 class AutoMLSystem:
     """
-    This class is responsible for managing the AutoML system.
-    It is a singleton, meaning there can only be one instance of it.
+    Manage the AutoML system.
 
+    Implemented as a singleton to ensure only one instance exists.
     """
+
     _instance = None
 
     def __init__(
-            self: "AutoMLSystem",
-            storage: LocalStorage,
-            database: Database
-        ) -> None:
+        self: "AutoMLSystem",
+        storage: LocalStorage,
+        database: Database,
+    ) -> None:
         """
         Initialize an AutoMLSystem instance.
 
         Args:
-            storage (LocalStorage): The storage instance for
-            saving artifact data.
-            database (Database): The database instance for storing
-            artifact metadata.
+            storage (LocalStorage): The storage instance
+                for saving artifact data.
+            database (Database): The database instance
+                for storing artifact metadata.
         """
         self._storage = storage
         self._database = database
         self._registry = ArtifactRegistry(database, storage)
 
     @staticmethod
-    def get_instance() -> "AutoMLSystem":
+    def get_instance() -> AutoMLSystem:
         """
-        Returns a singleton instance of the AutoMLSystem.
+        Return a singleton instance of the AutoMLSystem.
 
         This method ensures that only one instance of
         AutoMLSystem exists by using
-        the singleton pattern. If an instance does not
-        already exist, it initializes
+        the singleton pattern. If an instance does not already exist,
+        it initializes
         one with default storage and database paths,
         refreshes the database, and then
         returns the instance.
 
         Returns:
-            AutoMLSystem: The singleton instance
-            of the AutoMLSystem.
+            AutoMLSystem: The singleton instance of the AutoMLSystem.
         """
         if AutoMLSystem._instance is None:
             # Normalize base paths
@@ -186,15 +183,11 @@ class AutoMLSystem:
         return AutoMLSystem._instance
 
     @property
-    def registry(self) -> ArtifactRegistry:
+    def registry(self: "AutoMLSystem") -> ArtifactRegistry:
         """
-        args:
-            None
+        Provide access to the artifact registry.
 
-        returns:
-            ArtifactRegistry: The artifact
-            registry instance.
-
-
+        Returns:
+            ArtifactRegistry: The artifact registry instance.
         """
         return self._registry
