@@ -1,10 +1,11 @@
 import streamlit as st
 
-def render_documentation():
+def render_documentation() -> None:
+    """Render the system documentation page."""
     st.set_page_config(page_title="Documentation", page_icon="📚")
-    
+
     st.title("📚 System Documentation")
-    
+
     st.markdown("""
     This documentation provides an overview of the key
     components and classes in the AutoML system.
@@ -12,12 +13,11 @@ def render_documentation():
 
     # Core System Components
     st.header("🔧 Core System Components")
-    
+
     with st.expander("AutoMLSystem"):
         st.markdown("""
         The `AutoMLSystem` is the main system class implementing
         a singleton pattern to ensure only one instance exists.
-        
         **Key Features:**
         - Manages the artifact registry
         - Handles storage and database operations
@@ -28,7 +28,7 @@ def render_documentation():
         st.markdown("""
         The `ArtifactRegistry` manages registration
         and listing of artifacts in the system.
-        
+
         **Key Operations:**
         - Register new artifacts
         - List existing artifacts
@@ -38,11 +38,11 @@ def render_documentation():
 
     # Machine Learning Components
     st.header("🤖 Machine Learning Components")
-    
+
     with st.expander("Pipeline"):
         st.markdown("""
         The `Pipeline` class executes machine learning workflows.
-        
+
         **Key Features:**
         - Model training and evaluation
         - Data preprocessing
@@ -58,7 +58,7 @@ def render_documentation():
            - K-Nearest Neighbors
            - Stochastic Gradient
            - Text Classification
-        
+
         2. Regression Models:
            - Multiple Linear Regression
            - Ridge Regression
@@ -68,12 +68,12 @@ def render_documentation():
     with st.expander("Metrics"):
         st.markdown("""
         **Available Metrics:**
-        
+
         Classification Metrics:
         - Accuracy
         - F1 Score
         - Specificity
-        
+
         Regression Metrics:
         - Mean Squared Error
         - Mean Absolute Error
@@ -82,21 +82,20 @@ def render_documentation():
 
     # Data Components
     st.header("📊 Data Components")
-    
+
     with st.expander("Dataset"):
         st.markdown("""
         The `Dataset` class handles data storage and manipulation.
-        
+
         **Features:**
         - Data loading and saving
         - Conversion to/from pandas DataFrames
         - Metadata management
         """)
-
     with st.expander("Feature"):
         st.markdown("""
         The `Feature` class represents individual data features.
-        
+
         **Supported Types:**
         - Categorical
         - Numerical
@@ -108,11 +107,11 @@ def render_documentation():
 
     # Storage Components
     st.header("💾 Storage Components")
-    
+
     with st.expander("Storage"):
         st.markdown("""
         The storage system handles data persistence.
-        
+
         **Components:**
         - LocalStorage: File-based storage implementation
         - Database: JSON-based metadata storage
@@ -120,19 +119,19 @@ def render_documentation():
 
     # User Interface Components
     st.header("🖥️ User Interface Components")
-    
+
     with st.expander("Available Pages"):
         st.markdown("""
         1. **Datasets Page:**
            - Upload new datasets
            - View existing datasets
            - Remove datasets
-        
+
         2. **Modelling Page:**
            - Select models and features
            - Configure hyperparameters
            - Train and evaluate models
-        
+
         3. **Deployment Page:**
            - Load trained pipelines
            - Make predictions

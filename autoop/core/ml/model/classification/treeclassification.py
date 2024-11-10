@@ -7,8 +7,8 @@ from typing import Optional
 class TreeClassification(Model):
     """Decision Tree Classifier."""
 
-    _type = "classification"
-    _available_hyperparameters = {
+    _type: str = "classification"
+    _available_hyperparameters: dict = {
         "criterion": ["gini", "entropy", "log_loss"],
         "splitter": ["best", "random"],
         "max_depth": None,

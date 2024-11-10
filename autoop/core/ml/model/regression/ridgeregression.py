@@ -58,6 +58,14 @@ class RidgeRegression(Model):
             observations (np.ndarray): Features.
             ground_truth (np.ndarray): Target values.
         """
+        if observations.ndim != 2:
+            raise ValueError("Observations != 2-dimensional array")
+        if ground_truth.ndim != 1:
+            raise ValueError("Ground truth != 1-dimensional array")
+        if observations.shape[0] != ground_truth.shape[0]:
+            raise ValueError("ground != observations")
+        if observations.shape[0] == 0:
+            raise ValueError("Cannot fit model with empty dataset")
         self._model.fit(observations, ground_truth)
         self._parameters = {
             "intercept_": self._model.intercept_,
