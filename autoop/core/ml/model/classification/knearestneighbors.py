@@ -14,7 +14,7 @@ class KNearestNeighbors(Model):
         "weights": ["uniform", "distance"],
         "algorithm": ["auto", "ball_tree", "kd_tree", "brute"],
         "leaf_size": 30,
-        "p": 2,  # Power parameter for the Minkowski metric
+        "p": 2.0,
         "metric": ["minkowski", "euclidean", "manhattan"],
         "metric_params": None,
         "n_jobs": None,
@@ -51,6 +51,7 @@ class KNearestNeighbors(Model):
             observations (np.ndarray): Features.
             ground_truth (np.ndarray): Target values.
         """
+        ground_truth = ground_truth.ravel()
         self._model.fit(observations, ground_truth)
         self._parameters = {
             "n_neighbors": self._model.n_neighbors,

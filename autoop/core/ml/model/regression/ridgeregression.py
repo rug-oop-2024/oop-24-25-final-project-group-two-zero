@@ -10,17 +10,16 @@ class RidgeRegression(Model):
     """
 
     _type: str = "regression"
+    _type: str = "regression"
     _available_hyperparameters: dict = {
-        "alpha": 1.0,
-        "fit_intercept": True,
-        "solver": ["auto", "svd",
-            "cholesky", "lsqr", "sparse_cg",
-            "sag", "saga"
-        ],
-        "max_iter": None,
-        "tol": 1e-3,
+        "alpha": 1.0,                     # Regularization strength (float)
+        "fit_intercept": True,            # Whether to calculate intercept (boolean)
+        "solver": [
+            "auto", "svd", "cholesky", "lsqr", "sparse_cg", "sag", "saga", "lbfgs"
+        ],                                # Solver options (list of strings)
+        "max_iter": None,                 # Maximum iterations for some solvers (int or None)
+        "tol": 1e-3                       # Tolerance for stopping criteria (float)
     }
-
     _supported_feature_types: list = ["numerical"]
     _supported_target_types: list = ["numerical"]
 

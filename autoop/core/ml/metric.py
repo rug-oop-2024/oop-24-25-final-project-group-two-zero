@@ -4,11 +4,11 @@ from typing import Any
 
 METRICS = [
     "MeanSquaredError",  # Regression tasks
-    "accuracy",  # Classification tasks
-    "mean_absolute_error",
-    "F_one_score",
-    "specificity",
-    "r_squared_error",
+    "Accuracy",  # Classification tasks
+    "MeanAbsoluteError",
+    "F1Score",
+    "Specificity",
+    "R2Score",
 ]
 
 
@@ -28,7 +28,7 @@ def get_metric(name: str) -> Any:
     """
     if name not in METRICS:
         raise ValueError(f"""Metric
-                    {name}does not exist"""
+                     {name}does not exist"""
                     )
     return getattr(__import__("autoop.core.ml.metric", fromlist=[name]), name)
 

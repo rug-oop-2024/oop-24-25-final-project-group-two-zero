@@ -15,6 +15,7 @@ from typing import Any
 import streamlit as st
 from autoop.core.ml.model.classification import TreeClassification
 import pandas as pd
+from copy import deepcopy
 
 
 class Pipeline:
@@ -75,6 +76,23 @@ class Pipeline:
                 for continuous target feature"
             )
 
+    @property
+    def metadata(self) -> dict:
+        return {
+            "parameters": self.model.parameters,  # Adjust based on your Model class
+            "model": self.model.__class__.__name__,
+            "input_features": [feature.name for feature in self.input_features],
+            "input_feature_types": [feature.type for feature in self.input_features],
+            "target_feature": self.target_feature.name,
+            "target_feature_type": self.target_feature.type,
+            "split_ratio": self.split_ratio,
+            "metrics": [metric.name for metric in self.metrics],
+        }
+
+    @property
+    def input_features(self) -> List[Feature]:
+        return self._input_features
+
     def __str__(self: Any) -> str:
         """
         Return a string representation of the
@@ -98,9 +116,38 @@ Pipeline(
     metrics={list(map(str, self._metrics))},
 )
 """
+    @property
+    def target_feature(self: 'Pipeline') -> Feature:
+        """
+        Return the target feature object.
+
+        Returns:
+            Feature: The target feature object.
+        """
+        return self._target_feature
+    
+    @property
+    def split_ratio(self: 'Pipeline') -> float:
+        """
+        Return the split ratio used to split the dataset.
+
+        Returns:
+            float: The split ratio.
+        """
+        return self._split
+    
+    @property
+    def metrics(self: 'Pipeline') -> List[Metric]:
+        """
+        Return the metrics used to evaluate the model.
+
+        Returns:
+            List[Metric]: A list of Metric objects.
+        """
+        return deepcopy(self._metrics)
 
     @property
-    def model(self) -> Model:
+    def model(self: 'Pipeline') -> Model:
         """
         Return the model object used in the pipeline.
 
@@ -110,7 +157,7 @@ Pipeline(
         return self._model
 
     @property
-    def artifacts(self) -> List[Artifact]:
+    def artifacts(self: 'Pipeline') -> List[Artifact]:
         """
         Return a list of Artifact objects
         containing the preprocessing artifacts and
@@ -153,7 +200,8 @@ Pipeline(
         return artifacts
 
     def _register_artifact(
-            self,name: str,
+            self: 'Pipeline',
+            name: str,
             artifact: dict
         ) -> None:
         """
@@ -287,68 +335,42 @@ Pipeline(
             int(split * len(self._output_vector)) :
         ]
 
-    def to_artifact(
-            self,
-            name: str,
-            version: str
-        ) -> Artifact:
+    def to_artifact(self, name: str, version: str) -> Artifact:
         """
-        Converts the current pipeline state
-        into an Artifact object.
-
-        This function serializes the
-        pipeline's components, including the model,
-        input features, target feature,
-        data split ratio, evaluation metrics,
-        preprocessing artifacts,
-        and dataset, into a byte
-        stream. It then creates
-        an Artifact object containing
-        this serialized data, which can be stored
-        for future use.
-
-        Args:
-            name (str): The name of
-                the artifact to be created.
-            version (str): The version
-                of the artifact.
-
-        Returns:
-            Artifact: An Artifact
-                instance containing the serialized
-                pipeline data.
+        Converts the current pipeline state into an Artifact object.
         """
-        pipeline_data: dict = {
-            "model": self._model,
-            "input_features": self._input_features,
-            "target_feature": self._target_feature,
-            "split": self._split,
-            "metrics": self._metrics,
-            "preprocessing_artifacts": self._artifacts,
-            "dataset": self._dataset,
-        }
+        import os
+        import pickle
+
+        # Define the asset path where the pipeline data will be saved
+        asset_dir = "pipelines"
+        asset_filename = f"{name}_{version}.pkl"
+        asset_path = os.path.normpath(os.path.join(asset_dir, asset_filename))
+
+        # Ensure the directory exists
+        os.makedirs(asset_dir, exist_ok=True)
+
+        # Save the pipeline data to the asset path using pickle
+        with open(asset_path, 'wb') as f:
+            pickle.dump(self._dataset.data, f)
+
+        # Prepare metadata with only JSON-serializable data
         pipeline_meta = {
-            "parameters": self._model.parameters
+            "parameters": self._model.parameters,
+            "model": self._model.__class__.__name__,
+            "input_features": [feature.name for feature in self._input_features],
+            "input_feature_types": [feature.type for feature in self._input_features],
+            "target_feature": self._target_feature.name,
+            "target_feature_type": self._target_feature.type,
+            "split": self._split,
+            "metrics": [metric.name for metric in self._metrics],
         }
 
-        # Serialize the pipeline data
-        serialized_pipeline_data =\
-            pickle.dumps(pipeline_data)
-        
-        serialised_pipeline_meta =\
-            pickle.dumps(pipeline_meta)
-
-        asset_path: str = os.path.normpath(
-            os.path.join(
-                "pipelines",
-                f"{name}_{version}.pkl"
-            )
-        )
         return Artifact(
             name=name,
             asset_path=asset_path,
-            data=serialized_pipeline_data,  # Serialized bytes
-            metadata=serialised_pipeline_meta,  # Serialized bytes
+            data=None,  # Data is saved externally
+            metadata=pipeline_meta,
             version=version,
             type="pipeline",
         )

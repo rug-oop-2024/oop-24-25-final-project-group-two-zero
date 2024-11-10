@@ -1,180 +1,87 @@
-# deployment.py
 import streamlit as st
 import pandas as pd
 import pickle
-from typing import List
-from autoop.functional.feature import Feature
-from app.core.system import AutoMLSystem
+import os
 import numpy as np
+from autoop.core.ml.dataset import Dataset
+from autoop.core.ml.metric import get_metric
 
+class deployment:
+    def __init__(self):
+        pass
+    def run(self):
+        # Define the directory where pipelines are saved
+        pipeline_dir = "saved_pipelines"
 
-class Deployment:
-    def __init__(self) -> None:
-        """
-        Initialize the Deployment class.
-
-        This method initializes the AutoML
-        system and loads any available artifacts
-        from the local storage.
-        """
-        self.automl = AutoMLSystem.get_instance()
-
-    def preprocess_new_data(
-        self,
-        df: pd.DataFrame,
-        input_features: List[Feature],
-        preprocessing_artifacts: dict,
-    ) -> np.ndarray:
-        """
-        Preprocesses new data based on specified input
-        features and preprocessing
-        artifacts.
-
-        Args:
-            df (pd.DataFrame): The input data as a pandas
-                DataFrame containing the
-                features to be preprocessed.
-            input_features (List[Feature]): A list of Feature
-                objects representing
-                the input features to preprocess.
-            preprocessing_artifacts (dict): A dictionary mapping
-                feature names to
-                their corresponding preprocessing artifacts.
-
-        Returns:
-            np.ndarray: A numpy array containing the
-                preprocessed feature data,
-                ready for model prediction.
-
-        Raises:
-            ValueError: If a feature specified in
-                input_features is missing from
-                the DataFrame or if an unknown feature
-                type is encountered.
-        """
-        preprocessed_vectors = []
-        for feature in input_features:
-            feature_name = feature.name
-            if feature_name not in df.columns:
-                raise ValueError(
-                    f"Feature '{feature_name}'\
-                        is missing in the uploaded data."
-                )
-            feature_data = df[feature_name].values.reshape(-1, 1)
-            if feature.type == "categorical":
-                # Use the saved OneHotEncoder directly
-                artifact = preprocessing_artifacts[feature_name]
-                encoder = artifact["encoder"]
-                transformed_data = encoder.transform(feature_data)
-            elif feature.type == "continuous":
-                # Use the saved StandardScaler directly
-                artifact = preprocessing_artifacts[feature_name]
-                scaler = artifact["scaler"]
-                transformed_data = scaler.transform(feature_data)
-            else:
-                raise ValueError(f"Unknown feature type: {feature.type}")
-            preprocessed_vectors.append(transformed_data)
-        X_new = np.concatenate(preprocessed_vectors, axis=1)
-        return X_new
-
-    def run(self) -> None:
-        """
-        Deploys a saved pipeline and performs
-        predictions on new data.
-
-        This method renders a Streamlit page that
-        allows users to select a saved
-        pipeline and upload a CSV file for
-        prediction. It then preprocesses the
-        data using the pipeline's preprocessing
-        artifacts and makes predictions
-        using the pipeline's model. The
-        predictions are displayed on the page.
-
-        :return: None
-        """
         st.set_page_config(page_title="Deployment", page_icon="🚀")
+
         st.write("# 🚀 Deployment")
-        st.write(
-            """
-            In this section, you can load
-            saved pipelines and perform predictions.
-            """
-        )
 
-        # Get list of saved pipelines
-        pipelines = self.automl.registry.list(type="pipeline")
-        if not pipelines:
-            st.write("No saved pipelines available.")
-            st.stop()
-
-        # Display the list of pipelines
-        st.write("## Available Pipelines")
-        pipeline_names = [
-            f"{pipeline.name} (Version: {pipeline.version})"
-            for pipeline in pipelines
-        ]
-        selected_pipeline_name = st.selectbox(
-                                "Select a pipeline:",
-                                pipeline_names
-                                )
-
-        # Find the selected pipeline
-        selected_index = pipeline_names.index(selected_pipeline_name)
-        selected_pipeline = pipelines[selected_index]
-
-        # Load the pipeline data
-        pipeline_data = pickle.loads(selected_pipeline.data)
-        pipeline_metadata = pickle.loads(selected_pipeline.metadata)
-
-        # Display the pipeline summary
-        st.write("## 📋 Pipeline Summary")
-        st.markdown(
-            f"""
-        - **Name**: `{selected_pipeline.name}`
-        - **Version**: `{selected_pipeline.version}`
-        - **Model**: `{pipeline_data['model']}`
-        - **Input Features**: `{', '.join([f.name\
-                                           for f in pipeline_data['input_features']])}`
-        - **Target Feature**: `{pipeline_data['target_feature'].name}`
-        - **Metrics**: `{', '.join([m.name for m in pipeline_data['metrics']])}`
-        - **Train-Test Split Ratio**: `{pipeline_data['split']}`
-        """
-        )
-
-        # Allow the user to upload a CSV file for predictions
-        st.write("## 📁 Upload Data for Prediction")
-        uploaded_file = st.file_uploader(
-            "Choose a CSV file for predictions", type=["csv"]
-        )
-
-        if uploaded_file is not None:
-            # Read the CSV file into a DataFrame
-            df_new = pd.read_csv(uploaded_file)
-            st.write("### Uploaded Data")
-            st.dataframe(df_new)
-
-            # Preprocess the data using the
-            # pipeline's preprocessing artifacts
-            try:
-                X_new = self.preprocess_new_data(
-                    df_new,
-                    pipeline_data["input_features"],
-                    pipeline_data["preprocessing_artifacts"],
-                )
-                # Make predictions
-                model = pipeline_data["model"]
-                model.set_parameters(pipeline_metadata["parameters"])
-                predictions = model.predict(X_new)
-                st.write("## 🔮 Predictions")
-                st.write(predictions)
-            except Exception as e:
-                st.error(f"Error during prediction: {e}")
+        if not os.path.exists(pipeline_dir):
+            st.write("No pipelines available.")
         else:
-            st.write("""Please upload a CSV file
-                    to make predictions.""")
+            pipeline_files = [f for f in os.listdir(pipeline_dir) if f.endswith(".pkl")]
+            if not pipeline_files:
+                st.write("No pipelines available.")
+            else:
+                st.header("Select a pipeline")
+                selected_pipeline_file = st.selectbox("Select a pipeline", pipeline_files)
+                pipeline_path = os.path.join(pipeline_dir, selected_pipeline_file)
+                
+                # Load the entire pipeline object
+                try:
+                    with open(pipeline_path, 'rb') as f:
+                        pipeline = pickle.load(f)
+                    st.success(f"Pipeline '{selected_pipeline_file}' loaded successfully!")
+                except Exception as e:
+                    st.error(f"Failed to load pipeline: {e}")
+                    st.stop()
+                
+                st.write(f"## Selected Pipeline: {selected_pipeline_file}")
+                
+                # Display pipeline metadata
+                st.write("### Pipeline Metadata")
+                for key, value in pipeline.metadata.items():
+                    st.write(f"- **{key}**: {value}")
+                
+                st.write("## Upload a Dataset for Prediction")
+                uploaded_file = st.file_uploader("Choose a CSV file", type=["csv"])
 
+                if uploaded_file is not None:
+                    df = pd.read_csv(uploaded_file)
+
+                    st.write("### Input Data")
+                    st.write(df.head())
+
+                    # Prepare the dataset
+                    dataset = Dataset.from_dataframe(
+                        df,
+                        name="InputDataset",
+                        asset_path="",
+                        version="1.0",
+                    )
+                    pipeline.dataset = dataset
+
+                    # Prepare observations
+                    input_feature_names = [feature.name for feature in pipeline.input_features]  # Adjust based on implementation
+                    observations = df[input_feature_names].values
+
+                    # Make predictions
+                    predictions = pipeline.model.predict(observations)
+
+                    st.write("## Predictions")
+                    st.write(predictions)
+
+                    # Evaluate metrics if ground truth is available
+                    if pipeline.target_feature.name in df.columns:
+                        ground_truth = df[pipeline.target_feature.name].values
+                        st.write("## Evaluation Metrics")
+                        for metric in pipeline.metrics:
+                            score = metric.evaluate(predictions, ground_truth)
+                            st.write(f"- **{metric.name}**: {score}")
+                    else:
+                        st.write("Ground truth not found in dataset. Skipping metric evaluation.")
 
 if __name__ == "__main__":
-    app = Deployment()
-    app.run()
+    deploy = deployment()
+    deploy.run()

@@ -1,8 +1,8 @@
-# model.py
 from abc import ABC, abstractmethod
 import numpy as np
 from copy import deepcopy
 from typing import List, Dict, Any
+from autoop.core.ml.artifact import Artifact
 
 
 class Model(ABC):
@@ -182,3 +182,17 @@ class Model(ABC):
                 Names must match the parameters in the model.
         """
         self._parameters = given_params
+
+    def to_artifact(self) -> Artifact:
+        """
+        Converts the model to an artifact.
+
+        Returns:
+            Artifact: The artifact representation of the model.
+        """
+        return Artifact(
+            name=self.__class__.__name__,
+            type=self.type,
+            parameters=deepcopy(self._parameters),
+            hyperparameters=deepcopy(self._hyperparameters)
+        )
