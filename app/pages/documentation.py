@@ -1,5 +1,6 @@
 import streamlit as st
 
+
 def render_documentation() -> None:
     """Render the system documentation page."""
     st.set_page_config(page_title="Documentation", page_icon="📚")
@@ -137,6 +138,7 @@ def render_documentation() -> None:
            - Make predictions
            - Evaluate model performance
         """)
+
 
 if __name__ == "__main__":
     render_documentation()

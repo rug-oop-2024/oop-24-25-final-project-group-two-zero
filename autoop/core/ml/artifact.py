@@ -1,6 +1,6 @@
 import os
 import pickle
-from typing import List, Dict, Any, Optional, ByteString
+from typing import List, Dict, Any, Optional
 
 
 class Artifact:
@@ -14,7 +14,7 @@ class Artifact:
         self: "Artifact",
         name: str,
         asset_path: str,
-        data: 'Bytes',
+        data: bytes,
         version: str,
         type: str,
         tags: Optional[List[str]] = None,
