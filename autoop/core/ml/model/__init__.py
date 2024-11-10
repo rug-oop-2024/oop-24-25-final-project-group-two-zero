@@ -1,13 +1,25 @@
+"""This module contains the model classes for machine learning."""
+from .model import Model
 
-from autoop.core.ml.model.model import Model
+# Regression
 from autoop.core.ml.model.regression import MultipleLinearRegression
+from autoop.core.ml.model.regression import RidgeRegression
+from autoop.core.ml.model.regression import SupportVectorRegression
 
-REGRESSION_MODELS = [
-] # add your models as str here
+# Classification
+from autoop.core.ml.model.classification import TreeClassification
+from autoop.core.ml.model.classification import KNearestNeighbors
+from autoop.core.ml.model.classification import StochasticGradient
+from autoop.core.ml.model.classification import TextClassificationModel
 
-CLASSIFICATION_MODELS = [
-] # add your models as str here
 
-def get_model(model_name: str) -> Model:
-    """Factory function to get a model by name."""
-    raise NotImplementedError("To be implemented.")
+__all__ = [
+    "Model",
+    "MultipleLinearRegression",
+    "RidgeRegression",
+    "SupportVectorRegression",
+    "TreeClassification",
+    "KNearestNeighbors",
+    "StochasticGradient",
+    "TextClassificationModel",
+]
