@@ -339,7 +339,7 @@ Pipeline(
             for vector in self._input_vectors
         ]
         self._test_X = [
-            vector[int(split * len(vector)) :]
+            vector[int(split * len(vector)):]
             for vector in self._input_vectors
         ]
         self._train_y = \
@@ -348,7 +348,7 @@ Pipeline(
             ]
         self._test_y = \
             self._output_vector[
-                int(split * len(self._output_vector)) :
+                int(split * len(self._output_vector)):
             ]
 
     def to_artifact(
