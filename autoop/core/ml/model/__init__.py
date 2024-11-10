@@ -1,3 +1,4 @@
+"""This module contains the model classes for machine learning."""
 from .model import Model
 
 # Regression

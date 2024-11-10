@@ -116,7 +116,7 @@ class Model(ABC):
             elif isinstance(value, tuple):
                 # Generate a list of values within the range
                 if isinstance(value[0], int) and \
-                    isinstance(value[1], int):
+                        isinstance(value[1], int):
                     param_grid[param] = list(
                         range(int(value[0]), int(value[1]) + 1)
                     )
@@ -163,7 +163,10 @@ class Model(ABC):
         """
         self._model.set_params(**params)
 
-    def set_parameters(self: "Model", given_params) -> None:
+    def set_parameters(
+        self: "Model",
+        given_params: Optional[dict]
+    ) -> None:
         """
         Set the parameters of the model.
 

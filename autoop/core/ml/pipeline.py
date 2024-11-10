@@ -321,7 +321,7 @@ Pipeline(
             preprocessed_data = data.values.reshape(-1, 1)
         return preprocessed_data
 
-    def _split_data(self:"Pipeline") -> None:
+    def _split_data(self: "Pipeline") -> None:
         """
         Split the preprocessed input and output training and testing sets.
 
@@ -334,16 +334,22 @@ Pipeline(
             None
         """
         split: float = self._split
-        self._train_X: List[np.ndarray] = [
-            vector[: int(split * len(vector))] for vector in self._input_vectors
+        self._train_X = [
+            vector[: int(split * len(vector))]
+            for vector in self._input_vectors
         ]
-        self._test_X: List[np.ndarray] = [
-            vector[int(split * len(vector)) :] for vector in self._input_vectors
+        self._test_X = [
+            vector[int(split * len(vector)) :]
+            for vector in self._input_vectors
         ]
         self._train_y = \
-            self._output_vector[: int(split * len(self._output_vector))]
+            self._output_vector[
+                : int(split * len(self._output_vector))
+            ]
         self._test_y = \
-            self._output_vector[int(split * len(self._output_vector)) :]
+            self._output_vector[
+                int(split * len(self._output_vector)) :
+            ]
 
     def to_artifact(
         self: "Pipeline",

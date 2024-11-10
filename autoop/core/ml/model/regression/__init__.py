@@ -1,3 +1,4 @@
+"""Regression models."""
 from .support_vector_regression import SupportVectorRegression
 from .multiplelinear import MultipleLinearRegression
 from .ridgeregression import RidgeRegression

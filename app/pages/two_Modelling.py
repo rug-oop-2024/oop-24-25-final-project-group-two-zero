@@ -438,7 +438,8 @@ class Modelling:
 
         st.write("Performing hyperparameter tuning...")
         param_grid = {
-            k: acceptable_ranges.get(k, [v]) for k, v in acceptable_ranges.items()
+            k: acceptable_ranges.get(k, [v])
+            for k, v in acceptable_ranges.items()
         }
 
         refit_metric = (

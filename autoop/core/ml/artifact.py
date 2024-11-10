@@ -3,6 +3,7 @@ import pickle
 from typing import List, Dict, Any, Optional
 from io import Bytes
 
+
 class Artifact:
     """
     Artifact class for handling data storage and retrieval using pickle.

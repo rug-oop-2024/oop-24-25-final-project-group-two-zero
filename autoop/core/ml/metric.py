@@ -207,7 +207,8 @@ class F1Score(Metric):
             return 0.0
         return 2 * (precision * recall) / (precision + recall)
 
-def get_metric(name: str) -> None|Metric:
+
+def get_metric(name: str) -> None | Metric:
     """
     Retrieve a metric class by its name.
 
