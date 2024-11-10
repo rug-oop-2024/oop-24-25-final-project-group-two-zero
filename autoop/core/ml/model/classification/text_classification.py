@@ -71,13 +71,14 @@ class TextClassificationModel(Model):
             ground_truth (np.ndarray):
                 The target values to fit the model to.
         """
-        self._parameters: dict = {
-            "coef": self._model.coef_,
-            "intercept": self._model.intercept_,
-        }
         X: np.ndarray = self._vectorizer.\
             fit_transform(observations)
         self._model.fit(X, ground_truth)
+        self._parameters: dict = {
+            "coef_": self._model.coef_,
+            "intercept_": self._model.intercept_,
+            "classes_": self._model.classes_,
+        }
 
     def predict(
             self,

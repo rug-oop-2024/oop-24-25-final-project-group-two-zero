@@ -1,3 +1,4 @@
+from __future__ import annotations
 import os
 from autoop.core.storage import LocalStorage
 from autoop.core.database import Database
@@ -8,11 +9,11 @@ from typing import List
 
 class ArtifactRegistry:
     """
-    This class is responsible for registering
-    and listing artifacts in the registry.
+    This class is responsible for registering.
+    Listing artifacts in the registry.
     """
 
-    def __init__(self, database: Database, storage: Storage) -> None:
+    def __init__(self: "ArtifactRegistry", database: Database, storage: Storage) -> None:
         """
         Initialize an ArtifactRegistry instance.
 
@@ -25,7 +26,7 @@ class ArtifactRegistry:
         self._database = database
         self._storage = storage
 
-    def register(self, artifact: Artifact) -> None:
+    def register(self: "ArtifactRegistry", artifact: Artifact) -> None:
         # Normalize the asset_path
         """
         Registers an artifact in the registry.
@@ -47,7 +48,7 @@ class ArtifactRegistry:
         }
         self._database.set(f"artifacts", artifact.id, entry)
 
-    def list(self, type: str = None) -> List[Artifact]:
+    def list(self: "ArtifactRegistry", type: str = None) -> List[Artifact]:
         """
         Lists all artifacts in the registry.
 
@@ -76,7 +77,7 @@ class ArtifactRegistry:
             artifacts.append(artifact)
         return artifacts
 
-    def get(self, artifact_id: str) -> Artifact:
+    def get(self: "ArtifactRegistry", artifact_id: str) -> Artifact:
         """
         Retrieves an artifact from the registry by its
         unique identifier.
@@ -101,7 +102,7 @@ class ArtifactRegistry:
             type=data["type"],
         )
 
-    def delete(self, artifact_id: str):
+    def delete(self: "ArtifactRegistry", artifact_id: str):
         """
         Deletes an artifact from the registry by its unique identifier.
 
@@ -116,7 +117,7 @@ class ArtifactRegistry:
         self._storage.delete(asset_path)
         self._database.delete("artifacts", artifact_id)
 
-    def refresh(self) -> None:
+    def refresh(self: "ArtifactRegistry") -> None:
         """
         Refreshes the artifact registry by reloading the database.
 
@@ -135,10 +136,13 @@ class AutoMLSystem:
     It is a singleton, meaning there can only be one instance of it.
 
     """
-
     _instance = None
 
-    def __init__(self, storage: LocalStorage, database: Database) -> None:
+    def __init__(
+            self: "AutoMLSystem",
+            storage: LocalStorage,
+            database: Database
+        ) -> None:
         """
         Initialize an AutoMLSystem instance.
 
@@ -152,7 +156,6 @@ class AutoMLSystem:
         self._database = database
         self._registry = ArtifactRegistry(database, storage)
 
-    # Do something here I think
     @staticmethod
     def get_instance() -> "AutoMLSystem":
         """

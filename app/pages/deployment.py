@@ -26,31 +26,39 @@ class Deployment:
         preprocessing_artifacts: dict,
     ) -> np.ndarray:
         """
-        Preprocesses new data based on specified input features and preprocessing
+        Preprocesses new data based on specified input
+        features and preprocessing
         artifacts.
 
         Args:
-            df (pd.DataFrame): The input data as a pandas DataFrame containing the
+            df (pd.DataFrame): The input data as a pandas
+                DataFrame containing the
                 features to be preprocessed.
-            input_features (List[Feature]): A list of Feature objects representing
+            input_features (List[Feature]): A list of Feature
+                objects representing
                 the input features to preprocess.
-            preprocessing_artifacts (dict): A dictionary mapping feature names to
+            preprocessing_artifacts (dict): A dictionary mapping
+                feature names to
                 their corresponding preprocessing artifacts.
 
         Returns:
-            np.ndarray: A numpy array containing the preprocessed feature data,
+            np.ndarray: A numpy array containing the
+                preprocessed feature data,
                 ready for model prediction.
 
         Raises:
-            ValueError: If a feature specified in input_features is missing from
-                the DataFrame or if an unknown feature type is encountered.
+            ValueError: If a feature specified in
+                input_features is missing from
+                the DataFrame or if an unknown feature
+                type is encountered.
         """
         preprocessed_vectors = []
         for feature in input_features:
             feature_name = feature.name
             if feature_name not in df.columns:
                 raise ValueError(
-                    f"Feature '{feature_name}' is missing in the uploaded data."
+                    f"Feature '{feature_name}'\
+                        is missing in the uploaded data."
                 )
             feature_data = df[feature_name].values.reshape(-1, 1)
             if feature.type == "categorical":
@@ -71,19 +79,27 @@ class Deployment:
 
     def run(self) -> None:
         """
-        Deploys a saved pipeline and performs predictions on new data.
+        Deploys a saved pipeline and performs
+        predictions on new data.
 
-        This method renders a Streamlit page that allows users to select a saved
-        pipeline and upload a CSV file for prediction. It then preprocesses the
-        data using the pipeline's preprocessing artifacts and makes predictions
-        using the pipeline's model. The predictions are displayed on the page.
+        This method renders a Streamlit page that
+        allows users to select a saved
+        pipeline and upload a CSV file for
+        prediction. It then preprocesses the
+        data using the pipeline's preprocessing
+        artifacts and makes predictions
+        using the pipeline's model. The
+        predictions are displayed on the page.
 
         :return: None
         """
         st.set_page_config(page_title="Deployment", page_icon="🚀")
         st.write("# 🚀 Deployment")
         st.write(
-            "In this section, you can load saved pipelines and perform predictions."
+            """
+            In this section, you can load
+            saved pipelines and perform predictions.
+            """
         )
 
         # Get list of saved pipelines
@@ -95,9 +111,13 @@ class Deployment:
         # Display the list of pipelines
         st.write("## Available Pipelines")
         pipeline_names = [
-            f"{pipeline.name} (Version: {pipeline.version})" for pipeline in pipelines
+            f"{pipeline.name} (Version: {pipeline.version})"
+            for pipeline in pipelines
         ]
-        selected_pipeline_name = st.selectbox("Select a pipeline:", pipeline_names)
+        selected_pipeline_name = st.selectbox(
+                                "Select a pipeline:",
+                                pipeline_names
+                                )
 
         # Find the selected pipeline
         selected_index = pipeline_names.index(selected_pipeline_name)
@@ -105,6 +125,7 @@ class Deployment:
 
         # Load the pipeline data
         pipeline_data = pickle.loads(selected_pipeline.data)
+        pipeline_metadata = pickle.loads(selected_pipeline.metadata)
 
         # Display the pipeline summary
         st.write("## 📋 Pipeline Summary")
@@ -112,8 +133,9 @@ class Deployment:
             f"""
         - **Name**: `{selected_pipeline.name}`
         - **Version**: `{selected_pipeline.version}`
-        - **Model**: `{pipeline_data['model'].__class__.__name__}`
-        - **Input Features**: `{', '.join([f.name for f in pipeline_data['input_features']])}`
+        - **Model**: `{pipeline_data['model']}`
+        - **Input Features**: `{', '.join([f.name\
+                                           for f in pipeline_data['input_features']])}`
         - **Target Feature**: `{pipeline_data['target_feature'].name}`
         - **Metrics**: `{', '.join([m.name for m in pipeline_data['metrics']])}`
         - **Train-Test Split Ratio**: `{pipeline_data['split']}`
@@ -132,7 +154,8 @@ class Deployment:
             st.write("### Uploaded Data")
             st.dataframe(df_new)
 
-            # Preprocess the data using the pipeline's preprocessing artifacts
+            # Preprocess the data using the
+            # pipeline's preprocessing artifacts
             try:
                 X_new = self.preprocess_new_data(
                     df_new,
@@ -141,13 +164,15 @@ class Deployment:
                 )
                 # Make predictions
                 model = pipeline_data["model"]
+                model.set_parameters(pipeline_metadata["parameters"])
                 predictions = model.predict(X_new)
                 st.write("## 🔮 Predictions")
                 st.write(predictions)
             except Exception as e:
                 st.error(f"Error during prediction: {e}")
         else:
-            st.write("Please upload a CSV file to make predictions.")
+            st.write("""Please upload a CSV file
+                    to make predictions.""")
 
 
 if __name__ == "__main__":

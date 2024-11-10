@@ -28,12 +28,12 @@ class MultipleLinearRegression(Model):
             Hyperparameters for the model.
         """
         super().__init__(**hyperparameters)
-        self._parameters = {
+        self.user_choices = {
             k: self._hyperparameters.get(k, v)
             for k, v
             in self._available_hyperparameters.items()
         }
-        self._model = LinearRegression(**self._parameters)
+        self._model = LinearRegression(**self.user_choices)
 
     def fit(
             self,
@@ -50,11 +50,11 @@ class MultipleLinearRegression(Model):
             ground_truth (np.ndarray):
                 Training data targets.
         """
-        self._parameters = {
-            "coef": self._model.coef_,
-            "intercept": self._model.intercept_,
-        }
         self._model.fit(observations, ground_truth)
+        self._parameters = {
+            'intercept_': self._model.intercept_,
+            'coef_': self._model.coef_
+        }
 
     def predict(
             self,

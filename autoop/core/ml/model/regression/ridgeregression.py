@@ -34,11 +34,11 @@ class RidgeRegression(Model):
                 arguments for model hyperparameters.
         """
         super().__init__(**hyperparameters)
-        self._parameters = {
+        self._params = {
             k: self._hyperparameters.get(k, v)
             for k, v in self._available_hyperparameters.items()
         }
-        self._model = Ridge(**self._parameters)
+        self._model = Ridge(**self._params)
 
     def fit(
             self,
@@ -52,15 +52,11 @@ class RidgeRegression(Model):
             observations (np.ndarray): Features.
             ground_truth (np.ndarray): Target values.
         """
-        self._parameters = {
-            "alpha": self._model.alpha_,
-            "fit_intercept": self._model.fit_intercept_,
-            "solver": self._model.solver_,
-            "max_iter": self._model.max_iter_,
-            "tol": self._model.tol_,
-            "intercept": self._model.intercept_,
-        }
         self._model.fit(observations, ground_truth)
+        self._parameters = {
+            "intercept_": self._model.intercept_,
+            "coef_": self._model.coef_,
+        }
 
     def predict(
             self,

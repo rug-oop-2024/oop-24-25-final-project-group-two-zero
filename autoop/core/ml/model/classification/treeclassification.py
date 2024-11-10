@@ -32,12 +32,12 @@ class TreeClassification(Model):
             for configuring the DecisionTreeClassifier.
         """
         super().__init__(**hyperparameters)
-        self._parameters = {
+        self._params = {
             k: self._hyperparameters.get(k, v)
             for k, v
             in self._available_hyperparameters.items()
         }
-        self._model = DecisionTreeClassifier(**self._parameters)
+        self._model = DecisionTreeClassifier(**self._params)
 
     def fit(self, observations: np.ndarray, ground_truth: np.ndarray) -> None:
         """
@@ -47,6 +47,7 @@ class TreeClassification(Model):
             observations (np.ndarray): Features.
             ground_truth (np.ndarray): Target values.
         """
+        self._model.fit(observations, ground_truth)
         self._parameters = {
             "criterion": self._model.criterion,
             "splitter": self._model.splitter,
@@ -54,10 +55,11 @@ class TreeClassification(Model):
             "min_samples_split": self._model.min_samples_split,
             "min_samples_leaf": self._model.min_samples_leaf,
             "max_features": self._model.max_features,
-            "coef": self._model.coef_,
-            "intercept": self._model.intercept_,
+            "n_classes_": self._model.n_classes_,
+            "n_features_in_": self._model.n_features_in_,
+            "feature_importances_": self._model.feature_importances_,
+            "classes_": self._model.classes_,
         }
-        self._model.fit(observations, ground_truth)
 
     def predict(self, observations: np.ndarray) -> np.ndarray:
         """

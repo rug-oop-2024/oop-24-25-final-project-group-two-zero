@@ -14,6 +14,7 @@ import shap
 from typing import Any
 import streamlit as st
 from autoop.core.ml.model.classification import TreeClassification
+import pandas as pd
 
 
 class Pipeline:
@@ -326,10 +327,16 @@ Pipeline(
             "preprocessing_artifacts": self._artifacts,
             "dataset": self._dataset,
         }
+        pipeline_meta = {
+            "parameters": self._model.parameters
+        }
 
         # Serialize the pipeline data
         serialized_pipeline_data =\
             pickle.dumps(pipeline_data)
+        
+        serialised_pipeline_meta =\
+            pickle.dumps(pipeline_meta)
 
         asset_path: str = os.path.normpath(
             os.path.join(
@@ -341,6 +348,7 @@ Pipeline(
             name=name,
             asset_path=asset_path,
             data=serialized_pipeline_data,  # Serialized bytes
+            metadata=serialised_pipeline_meta,  # Serialized bytes
             version=version,
             type="pipeline",
         )

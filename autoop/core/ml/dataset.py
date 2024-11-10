@@ -138,7 +138,7 @@ class Dataset(Artifact):
         Returns a string representation
         of the Dataset instance.
         """
-        return f"Dataset(name={self.name},
-        version={self.version})"
+        return f"""Dataset(name={self.name},
+        version={self.version})"""
 
 

@@ -172,3 +172,13 @@ class Model(ABC):
                 Names must match the parameters in the model.
         """
         self._model.set_params(**params)
+
+    def set_parameters(self, given_params) -> None:
+        """
+        Sets the parameters of the model.
+
+        Args:
+            **params: The parameters to set.
+                Names must match the parameters in the model.
+        """
+        self._parameters = given_params
